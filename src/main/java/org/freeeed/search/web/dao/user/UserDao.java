@@ -29,6 +29,8 @@ public interface UserDao {
 
     User login(String username, String password);
     
+    User loginCac(String subjName);
+    
     List<User> listUsers();
     
     User findUser(String username);

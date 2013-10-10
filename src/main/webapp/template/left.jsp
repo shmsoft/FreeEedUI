@@ -35,6 +35,13 @@
             <input type="Submit" value="Login"/>
         </div>
     </form>
+    <c:if test="${shmwebfunc:getUsesCac(appSettingsDao)}">
+        <form action="loginCac.html" method="post">
+            <div class="login-box-login">
+                <input type="Submit" value="Login CAC"/>
+            </div>
+        </form>
+    </c:if>
 </div>
     
     </c:when>

@@ -3,8 +3,12 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<bean id="sessionInterceptor" class="org.freeeed.search.web.interceptors.SessionInterceptor"/>
- 
+<bean id="sessionInterceptor" class="org.freeeed.search.web.interceptors.SessionInterceptor"/>
+
+<bean id="cacInterceptor" class="org.freeeed.search.web.interceptors.CacInterceptor">
+    <property name="userDao" ref="userDao" />
+</bean>
+
     <bean id="multipartResolver"
             class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
  
@@ -29,6 +33,7 @@
 	</bean>
  
  	<bean id="mainPage" class="org.freeeed.search.web.controller.MainPageController">
+        <property name="appSettingsDao" ref="appSettingsDao" />
  	</bean>
  
     <bean id="searchPage" class="org.freeeed.search.web.controller.SearchPageController">
@@ -76,15 +81,17 @@
  
     <bean id="userDao" class="org.freeeed.search.web.dao.user.FSUserDao" init-method="init">
     </bean>
-    
+  
     <bean id="caseDao" class="org.freeeed.search.web.dao.cases.FSCaseDao" init-method="init">
     </bean>
     
     <bean id="loginPage" class="org.freeeed.search.web.controller.LoginController">
         <property name="userDao" ref="userDao" />
+        <property name="appSettingsDao" ref="appSettingsDao" />
     </bean>
     
     <bean id="logoutPage" class="org.freeeed.search.web.controller.LogoutController">
+        <property name="appSettingsDao" ref="appSettingsDao" />
     </bean>
     
     <bean id="listUsersPage" class="org.freeeed.search.web.controller.ListUsersController">
@@ -150,6 +157,20 @@
                 <prop key="/tagauto.html">tagAutoPage</prop>
                 <prop key="/filedownload.html">caseFilesDownload</prop>
                 <prop key="/fileupload.html">fileuploadPage</prop>
+			</props>
+		</property>
+	</bean>
+    
+    <bean id="cacUrlMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+			<list>
+				<ref bean="cacInterceptor"/>
+			</list>
+		</property>
+		<property name="mappings">
+			<props>
+				<prop key="/loginCac.html">loginPage</prop>
 			</props>
 		</property>
 	</bean>

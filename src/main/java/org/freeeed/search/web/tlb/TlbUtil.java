@@ -15,10 +15,28 @@
 package org.freeeed.search.web.tlb;
 
 import org.freeeed.search.web.model.User;
+import org.freeeed.search.web.dao.settings.AppSettingsDao;
+import org.freeeed.search.web.model.AppSettings;
+
+import org.apache.log4j.Logger;
+
 
 public class TlbUtil {
+    private static final Logger log = Logger.getLogger(TlbUtil.class);
 
     public static boolean hasRight(User user, String right) {
         return user != null && user.hasRight(User.Right.valueOf(right));
     }
+    
+    public static boolean getUsesCac(AppSettingsDao appSettingsDao) {
+        AppSettings appSettings = null;
+        if (appSettingsDao != null) {
+            appSettings = appSettingsDao.loadSettings();
+        }
+        if (appSettings != null) {
+            return appSettings.getUsesCac();
+        }
+        return false;
+    }
+
 }

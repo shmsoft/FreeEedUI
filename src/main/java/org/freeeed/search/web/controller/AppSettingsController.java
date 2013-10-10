@@ -73,8 +73,16 @@ public class AppSettingsController extends SecureController {
                 errors.add("Invalid solr endpoint");
             }
             
+            String usesCacStr = (String) valueStack.get("usesCac");
+            boolean usesCac = false;
+            if (usesCacStr != null && usesCacStr.equals("") == false){
+                usesCac = true;
+            }
+            
+            
             appSettings.setResultsPerPage(resultsPerPage);
             appSettings.setSolrEndpoint(solrEndpoint);
+            appSettings.setUsesCac(usesCac);
             
             valueStack.put("errors", errors);
             if (errors.size() == 0) {

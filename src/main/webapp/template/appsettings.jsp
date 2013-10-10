@@ -34,6 +34,10 @@
             <td><input type="text" name="solr_endpoint" value="${appSettings.solrEndpoint}"/></td>
           </tr>
           <tr>
+            <td>Uses Cac to Login: </td>
+            <td><input type="checkbox" name="usesCac" value="usesCac" <c:if test="${appSettings.usesCac}">checked</c:if>/></td>
+          </tr>
+          <tr>
             <td colspan="2">
               &nbsp;
             </td>

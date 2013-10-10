@@ -23,6 +23,8 @@ import org.freeeed.search.web.model.User;
 import org.freeeed.search.web.session.LoggedSiteVisitor;
 import org.springframework.web.servlet.ModelAndView;
 
+import org.freeeed.search.web.dao.settings.AppSettingsDao;
+import org.freeeed.search.web.model.AppSettings;
 
 /**
  * 
@@ -34,9 +36,14 @@ import org.springframework.web.servlet.ModelAndView;
 public class LoginController extends BaseController {
     private static final Logger log = Logger.getLogger(LoginController.class);
     private UserDao userDao;
+    private AppSettingsDao appSettingsDao;
+    
     
     @Override
     public ModelAndView execute() {
+        AppSettings appSettings = appSettingsDao.loadSettings();
+		valueStack.put("appSettingsDao", appSettingsDao);
+
         String username = (String) valueStack.get("username");
         String password = (String) valueStack.get("password");
         
@@ -69,4 +76,13 @@ public class LoginController extends BaseController {
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
     }
+    
+    public void setAppSettingsDao(AppSettingsDao appSettingsDao) {
+        this.appSettingsDao = appSettingsDao;
+    }
+    
+    public AppSettingsDao getAppSettingsDao() {
+        return this.appSettingsDao;
+    }
+
 }

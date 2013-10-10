@@ -15,6 +15,8 @@
 package org.freeeed.search.web.model;
 
 import java.io.Serializable;
+import org.apache.log4j.Logger;
+
 
 /**
  * 
@@ -25,9 +27,11 @@ import java.io.Serializable;
  */
 public class AppSettings implements Serializable {
     private static final long serialVersionUID = -122869144861713551L;
+    private static final Logger log = Logger.getLogger(AppSettings.class);
     
     private int resultsPerPage;
     private String solrEndpoint;
+    private boolean usesCac;
     
     public int getResultsPerPage() {
         return resultsPerPage;
@@ -44,4 +48,13 @@ public class AppSettings implements Serializable {
     public void setSolrEndpoint(String solrEndpoint) {
         this.solrEndpoint = solrEndpoint;
     }
+
+    public boolean getUsesCac() {
+        return usesCac;
+    }
+    
+    public void setUsesCac(boolean usesCac) {
+        this.usesCac = usesCac;
+    }
+
 }

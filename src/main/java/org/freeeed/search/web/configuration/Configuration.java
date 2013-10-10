@@ -47,6 +47,14 @@ public class Configuration {
         return 10;
     }
     
+    public boolean getUsesCac() {
+        AppSettings appSettings = appSettingsDao.loadSettings();
+        if (appSettings != null) {
+            return appSettings.getUsesCac();
+        }
+        return false;
+    }
+    
     public void setAppSettingsDao(AppSettingsDao appSettingsDao) {
         this.appSettingsDao = appSettingsDao;
     }

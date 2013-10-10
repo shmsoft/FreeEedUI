@@ -20,11 +20,18 @@ import org.apache.log4j.Logger;
 import org.freeeed.search.web.WebConstants;
 import org.springframework.web.servlet.ModelAndView;
 
+import org.freeeed.search.web.dao.settings.AppSettingsDao;
+import org.freeeed.search.web.model.AppSettings;
+
+
 public class LogoutController extends BaseController {
     private static final Logger log = Logger.getLogger(LogoutController.class);
-            
+    private AppSettingsDao appSettingsDao;
+    
     @Override
     public ModelAndView execute() {
+        AppSettings appSettings = appSettingsDao.loadSettings();
+		valueStack.put("appSettingsDao", appSettingsDao);
         log.debug("Logout called!");
         
         HttpSession session = request.getSession();
@@ -34,5 +41,14 @@ public class LogoutController extends BaseController {
         
         return new ModelAndView(WebConstants.LOGOUT_PAGE);
     }
+    
+    public void setAppSettingsDao(AppSettingsDao appSettingsDao) {
+        this.appSettingsDao = appSettingsDao;
+    }
+    
+    public AppSettingsDao getAppSettingsDao() {
+        return this.appSettingsDao;
+    }
+
 
 }

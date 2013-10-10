@@ -57,6 +57,7 @@ public class FSAppSettingsDao implements AppSettingsDao {
         
         result.setResultsPerPage(appSettings.getResultsPerPage());
         result.setSolrEndpoint(appSettings.getSolrEndpoint());
+        result.setUsesCac(appSettings.getUsesCac());
         
         return result;
     }

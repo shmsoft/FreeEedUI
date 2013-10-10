@@ -17,6 +17,10 @@ package org.freeeed.search.web.controller;
 import org.freeeed.search.web.WebConstants;
 import org.springframework.web.servlet.ModelAndView;
 
+import org.freeeed.search.web.dao.settings.AppSettingsDao;
+import org.freeeed.search.web.model.AppSettings;
+
+
 /**
  * 
  * Class MainPageController.
@@ -28,8 +32,22 @@ import org.springframework.web.servlet.ModelAndView;
  */
 public class MainPageController extends BaseController {
     
+    private AppSettingsDao appSettingsDao;
+
 	@Override
 	public ModelAndView execute() {
-		return new ModelAndView(WebConstants.MAIN_PAGE);
+        AppSettings appSettings = appSettingsDao.loadSettings();
+		valueStack.put("appSettingsDao", appSettingsDao);
+        
+        return new ModelAndView(WebConstants.MAIN_PAGE);
 	}
+
+    public void setAppSettingsDao(AppSettingsDao appSettingsDao) {
+        this.appSettingsDao = appSettingsDao;
+    }
+
+    public AppSettingsDao getAppSettingsDao() {
+        return this.appSettingsDao;
+    }
+
 }

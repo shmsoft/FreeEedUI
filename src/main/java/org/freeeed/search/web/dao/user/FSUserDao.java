@@ -98,7 +98,7 @@ public class FSUserDao implements UserDao {
             
             User user = userCache.get(username);
             if (user != null) {
-                if (password != null) {
+                if (password != null && password != "CACONLY") {
                     if (password.equals(user.getPassword())) {
                         return user;
                     }
@@ -110,6 +110,25 @@ public class FSUserDao implements UserDao {
         
         return null;
     }
+    
+    @Override
+    public User loginCac(String subjName) {
+        lock.readLock().lock();
+        createCacUser(subjName);
+        try {
+            log.debug("Log in user: " + subjName);
+            
+            User user = userCache.get(subjName);
+            if (user != null) {
+                return user;
+            }
+        } finally {
+            lock.readLock().unlock();
+        }
+        
+        return null;
+    }
+
     
     @Override
     public List<User> listUsers() {
@@ -216,6 +235,31 @@ public class FSUserDao implements UserDao {
         adminUser.addRight(User.Right.CASES);
         
         userCache.put(adminUser.getUsername(), adminUser);
+    }
+    
+    private void createCacUser(String subjName) {
+        if (userCache.containsKey(subjName)) {
+            return;
+        }
+        
+        if (subjName.endsWith(",OU=PKI,OU=DoD,O=U.S. Government,C=US")) {
+        
+            String[] subjParts = subjName.split(",");
+            String cn =subjParts[0].substring(3);
+            String[] cnParts = cn.split("\\.");
+            User cacUser = new User();
+            cacUser.setFirstName(cnParts[1]);
+            cacUser.setLastName(cnParts[0]);
+            cacUser.setUsername(subjName);
+            cacUser.setPassword("CACONLY");
+            if (java.util.regex.Pattern.matches("\\d+", cnParts[2])) {
+                cacUser.setEmail(cnParts[1] + "." + cnParts[0] + "@uscg.mil");
+            } else {
+                cacUser.setEmail(cnParts[1] + "." + cnParts[2] + "." + cnParts[0] + "@uscg.mil");
+            }
+        
+            userCache.put(cacUser.getUsername(), cacUser);
+        }
     }
 
 }

@@ -57,9 +57,9 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
 				redirectToLoginRequired(res);
 				return false;
 			}
-		}
-		
-		log.debug("The page is free for not logged users!");
+		} else {
+            log.debug("The page is free for not logged users!");
+        }
 		
 		if (handle instanceof SiteVisitorAware) {
 			siteVisitor = (SiteVisitor) session.getAttribute(WebConstants.SITE_VISITOR_SESSION_KEY);
