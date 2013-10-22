@@ -61,6 +61,13 @@
             </td>
           </tr>
           <tr>
+            <td colspan="2">
+              <span class="explanation">Please upload the native.zip file, produced by your FreeEed player application. All other types of files will be rejected.
+              Please visit <a href="https://github.com/markkerzner/FreeEedUI/wiki/Quick-Start" target="_blank">our Wiki</a> for more information.
+              </span>
+            </td>
+          </tr>
+          <tr>
             <td>&nbsp;</td>
             <td>
                 <div class="uploadedFileBox" id="uploadedFileBoxId" style="display:${usercase.uploadedFile != null ? 'block' : 'none'}">Will use: <span id="uploadedFileNameId">${usercase.uploadedFile}</span></div>
