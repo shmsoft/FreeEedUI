@@ -30,9 +30,11 @@ import java.util.List;
  */
 public class TagQuerySearch implements QuerySearch {
     private String tag;
+    private boolean negate;
     
     public TagQuerySearch(String tag) {
         this.tag = tag;
+        this.negate = false;
     }
     
     @Override
@@ -56,4 +58,15 @@ public class TagQuerySearch implements QuerySearch {
     public String getDisplay() {
         return "Tag: " + tag;
     }
+    
+    @Override
+    public boolean getNegate() {
+        return negate;
+    }
+
+    @Override
+    public void setNegate(boolean negate) {
+        this.negate = negate;
+    }
+
 }

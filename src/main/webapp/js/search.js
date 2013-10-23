@@ -173,23 +173,65 @@ function changePage(page) {
 
 function removeSearch(id) {
     $.ajax({
-      type: 'POST',
-      url: 'dosearch.html',
-      data: { action: 'remove', id: id},
-      success:function(data){
-        lastDocId = null;
-      
-        $("#result-ajax").html(data);
-        
-        var solrId = $("#solrid").val();
-        if (solrId != null) {
-            initPage(solrId);
-        }
-      },
-      error:function(){
-        alert("Technical error, try that again in a few moments!");
-      }
-    });
+           type: 'POST',
+           url: 'dosearch.html',
+           data: { action: 'remove', id: id},
+           success:function(data){
+           lastDocId = null;
+           
+           $("#result-ajax").html(data);
+           
+           var solrId = $("#solrid").val();
+           if (solrId != null) {
+           initPage(solrId);
+           }
+           },
+           error:function(){
+           alert("Technical error, try that again in a few moments!");
+           }
+           });
+}
+
+function negateSearch(id) {
+    $.ajax({
+           type: 'POST',
+           url: 'dosearch.html',
+           data: { action: 'negate', id: id},
+           success:function(data){
+           lastDocId = null;
+           
+           $("#result-ajax").html(data);
+           
+           var solrId = $("#solrid").val();
+           if (solrId != null) {
+           initPage(solrId);
+           }
+           },
+           error:function(){
+           alert("Technical error, try that again in a few moments!");
+           }
+           });
+}
+
+function restoreSearch(id) {
+    $.ajax({
+           type: 'POST',
+           url: 'dosearch.html',
+           data: { action: 'restore', id: id},
+           success:function(data){
+           lastDocId = null;
+           
+           $("#result-ajax").html(data);
+           
+           var solrId = $("#solrid").val();
+           if (solrId != null) {
+           initPage(solrId);
+           }
+           },
+           error:function(){
+           alert("Technical error, try that again in a few moments!");
+           }
+           });
 }
 
 function removeAllSearch() {

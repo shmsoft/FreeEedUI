@@ -32,6 +32,7 @@ public class KeywordQuerySearch implements QuerySearch {
     private SolrSearchService solrSearchService;
     private int from;
     private int rows;
+    private boolean negate;
     
     public KeywordQuerySearch(String query, SolrSearchService solrSearchService,
             int from, int rows) {
@@ -39,6 +40,7 @@ public class KeywordQuerySearch implements QuerySearch {
         this.solrSearchService = solrSearchService;
         this.from = from;
         this.rows = rows;
+        this.negate = false;
     }
     
     @Override
@@ -65,4 +67,15 @@ public class KeywordQuerySearch implements QuerySearch {
         return "Keyword: " + query;
     }
 
+    @Override
+    public boolean getNegate() {
+        return negate;
+    }
+    
+    @Override
+    public void setNegate(boolean negate) {
+        this.negate = negate;
+    }
+
+    
 }

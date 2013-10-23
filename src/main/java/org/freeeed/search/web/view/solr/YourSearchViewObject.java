@@ -30,6 +30,7 @@ public class YourSearchViewObject {
     private String name;
     private List<String> keywords;
     private String highlight;
+    private boolean negate;
     
     public int getId() {
         return id;
@@ -62,4 +63,13 @@ public class YourSearchViewObject {
     public void setHighlight(String highlight) {
         this.highlight = highlight;
     }
+    
+    public boolean getNegate() {
+        return negate;
+    }
+    
+    public void setNegate(boolean negate) {
+        this.negate = negate;
+    }
+
 }

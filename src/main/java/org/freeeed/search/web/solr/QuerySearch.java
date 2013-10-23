@@ -38,4 +38,8 @@ public interface QuerySearch {
     String getDisplay();
     
     void adjust(int from, int rows);
+    
+    boolean getNegate();
+    
+    void    setNegate(boolean negate);
 }

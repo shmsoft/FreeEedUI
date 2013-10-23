@@ -15,7 +15,19 @@
                         <div class="your-search-box-name-inner ${search.highlight}" title="${search.name}">
                             ${search.name}
                         </div>
-                        <div class="your-search-box-delete" title="Remove from search">
+                        <c:choose>
+                            <c:when test="${search.negate}">
+                                <div class="your-search-box-negate" title="Exclude from Search">
+                                    <img src="images/minus.gif" onclick="restoreSearch(${search.id - 1})">
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="your-search-box-negate" title="Include with Search">
+                                <img src="images/plus.gif" onclick="negateSearch(${search.id - 1})">
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+                       <div class="your-search-box-delete" title="Remove from search">
                             <img src="images/delete.gif" onclick="removeSearch(${search.id - 1})">
                         </div>
                     </div>

@@ -73,6 +73,13 @@ public class SolrSessionObject {
         queries.add(query);
     }
     
+    public synchronized QuerySearch getQuery(int id) {
+        if (id >=0 && id < queries.size()) {
+            return queries.get(id);
+        }
+        return null;
+    }
+    
     public synchronized void removeById(int id) {
         if (id >=0 && id < queries.size()) {
             queries.remove(id);
@@ -94,6 +101,9 @@ public class SolrSessionObject {
         
         for (int i = 0; i < queries.size(); i++) {
             QuerySearch qs = queries.get(i);
+            if (qs.getNegate()){
+                sb.append("-");
+            }
             sb.append("(").append(qs.getQuery()).append(")");
             if (i < queries.size() - 1) {
                 sb.append(" AND ");

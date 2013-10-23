@@ -97,6 +97,22 @@ public class SearchController extends SecureController {
             } catch (Exception e) {
             }
             
+        } else if ("negate".equals(action)) {
+            String idStr = (String) valueStack.get("id");
+            try {
+                int id = Integer.parseInt(idStr);
+                solrSession.getQuery(id).setNegate(true);
+            } catch (Exception e) {
+            }
+            
+        } else if ("restore".equals(action)) {
+            String idStr = (String) valueStack.get("id");
+            try {
+                int id = Integer.parseInt(idStr);
+                solrSession.getQuery(id).setNegate(false);
+            } catch (Exception e) {
+            }
+            
         } else if ("removeall".equals(action)) {
             solrSession.removeAll();
         } else if ("changepage".equals(action)) {
@@ -131,6 +147,7 @@ public class SearchController extends SecureController {
             so.setId(i + 1);
             so.setName(querySearch.getDisplay());
             so.setKeywords(querySearch.getSearchKeywords());
+            so.setNegate(querySearch.getNegate());
             
             yourSearches.add(so);
         }
