@@ -52,10 +52,14 @@ public class SolrCoreService {
      * @return
      */
     public List<String> getSolrCores() {
-        String data = requestSolrCores();
-        Document dom = createDOM(data);
-        
         List<String> result = new ArrayList<String>();
+        
+        String data = requestSolrCores();
+        if (data == null) {
+            return result;
+        }
+        
+        Document dom = createDOM(data);
         
         Element root = dom.getDocumentElement();
         NodeList lists = root.getElementsByTagName("lst");

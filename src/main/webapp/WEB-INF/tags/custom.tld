@@ -4,7 +4,7 @@
         version="2.1">
     <tlib-version>1.0</tlib-version>
     <short-name>shmwebfunc</short-name>
-    <uri>WEB-INF/tags/custom.tld</uri>
+    <uri>http://freeeed.org/tags/custom</uri>
     <function>
         <name>hasRight</name>
         <function-class>org.freeeed.search.web.tlb.TlbUtil</function-class>

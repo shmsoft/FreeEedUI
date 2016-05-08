@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="shmwebfunc" uri="customtld"%>
+<%@ taglib prefix="shmwebfunc" uri="http://freeeed.org/tags/custom"%>
 
 <c:choose>
     <c:when test="${loggedVisitor == null}">
