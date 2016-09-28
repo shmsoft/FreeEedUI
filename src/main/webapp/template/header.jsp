@@ -1,3 +1,3 @@
 <div class="header_text">
-    FreeEed Search - version: 5.1.0
+    FreeEed Review V: 6.0.5
 </div>
