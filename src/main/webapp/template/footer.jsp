@@ -1,1 +1,1 @@
-<div class="footer_text">&copy; 2015 SHMSoft | FreeEed search | All Rights Reserved</div>
+<div class="footer_text">FreeEed&trade; review</div>
