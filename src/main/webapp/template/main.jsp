@@ -1,4 +1,4 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <div class="homepage_text">
@@ -6,7 +6,9 @@
 </div>
 
 <div class="homepage_text">
-    Click <a href="http://www.freeeed.org/index.php/documentation/document-review" target="_blank">here</a>
+    Click <a
+        href="http://www.freeeed.org/index.php/documentation/document-review"
+        target="_blank">here</a>
     for documentation
     <br/>
 </div>
