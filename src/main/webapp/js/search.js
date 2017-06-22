@@ -95,8 +95,22 @@ function deleteTag(docId, el, tag) {
             var total = parseInt($("#tags-total-" + docId).html()) - 1;
             $("#tags-total-" + docId).html(total);
             if (total == 0) {
-                $("#tags-box-" + docId).hide();
+                location.reload();
             }
+        },
+        error: function () {
+            alert("Technical error, try that again in a few moments!");
+        }
+    });
+}
+
+function deleteTagFromAllDocs(tag) {
+    $.ajax({
+        type: 'POST',
+        url: 'tag.html',
+        data: {action: 'deletetagfromall', tag: tag},
+        success: function (data) {
+            location.reload();
         },
         error: function () {
             alert("Technical error, try that again in a few moments!");
@@ -304,7 +318,7 @@ function addCaseTag(tag) {
 }
 
 function appendCaseTag(tag) {
-    $(".case-tags-box-body").append("<div id='" + tag + "' class='case-tags-box-row' onclick='addTagToSearch(\"" + tag + "\")'>" + tag + "</div>");
+    $(".case-tags-box-body").append("<div class='tag-table'><div id='" + tag + "' class='case-tags-box-row' onclick='addTagToSearch(\"" + tag + "\")'>" + tag + "</div><div><a href='#' onclick='deleteTagFromAllDocs(\"" + tag + "\")'><img src='images/delete.gif'/></a></div></div>");
 }
 
 $(document).ready(function () {
