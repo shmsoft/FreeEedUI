@@ -168,9 +168,6 @@ public class CaseFileDownloadController extends SecureController {
     }
 
     private byte[] getRawDocumentsWithAllTags(String query, int from, int rows) {
-        if (!query.contains("tags-search-field")) {
-            query += " AND tags-search-field:*";
-        }
         return searchService.returnTaggedCSV(query, from, rows);
     }
 
