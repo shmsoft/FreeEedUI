@@ -33,9 +33,7 @@ import org.xml.sax.InputSource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -50,6 +48,7 @@ import java.util.*;
  */
 public class SolrSearchService {
     private static final Logger log = Logger.getLogger(SolrSearchService.class);
+    private static final String CSV_SEPARATOR = "|";
 
     private Configuration configuration;
     private DocumentParser solrDocumentParser;
@@ -267,6 +266,43 @@ public class SolrSearchService {
             log.error("Problem accessing Solr: ", e);
         }
 
+        return null;
+    }
+
+    public byte[] returnTaggedCSV(String query, int from, int rows) {
+
+        HttpServletRequest curRequest = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        HttpSession session = curRequest.getSession();
+        SolrSessionObject solrSession = (SolrSessionObject) session.getAttribute(WebConstants.WEB_SESSION_SOLR_OBJECT);
+        if (solrSession == null || solrSession.getSelectedCase() == null) {
+            return null;
+        }
+
+        String solrCore = solrSession.getSelectedCase().getSolrSourceCore();
+
+        try {
+            String encodedQuery = URLEncoder.encode(query, "UTF-8");
+            String urlStr = configuration.getSolrEndpoint() + "/solr/" + solrCore + "/select/?q=" + encodedQuery + "&start=" + from + "&rows=" + rows + "&fl=Hash,tags-search-field,document_original_path,unique_id,Content-Encoding,File*,Content-Type,title&wt=csv&csv.escape=&&csv.mv.separator=;&csv.separator=" + CSV_SEPARATOR + "&csv.escape=" + CSV_SEPARATOR;
+            URL url = new URL(urlStr);
+
+            log.debug("Will execute: " + url.toString());
+            URLConnection conn = url.openConnection();
+            conn.setRequestProperty("Accept", "text/csv");
+            InputStream inputStream = conn.getInputStream();
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) != -1) {
+                baos.write(buffer, 0, length);
+            }
+            byte[] byteArray = baos.toByteArray();
+            in.close();
+            return byteArray;
+        } catch (Exception e) {
+            log.error("Problem accessing Solr: ", e);
+        }
         return null;
     }
 
