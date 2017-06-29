@@ -45,16 +45,19 @@
         <div class="your-search-box">
             <div class="operations-box">
                 <div class="operation-link">
-                    <a href="javascript:;" class="operation-link-text" onclick="tagAllBox()">Tag All Results</a>
+                    <a href="javascript:" class="operation-link-text" onclick="tagAllBox()">Tag All Results</a>
                 </div>
                 <div class="operation-link">
-                    <a href="javascript:;" class="operation-link-text" onclick="tagPageBox()">Tag This page</a>
+                    <a href="javascript:" class="operation-link-text" onclick="tagPageBox()">Tag This page</a>
                 </div>
                 <div class="operation-link">
                     <a class="operation-link-text" href="filedownload.html?action=exportImageAll">Export as images</a>
                 </div>
                 <div class="operation-link">
                     <a class="operation-link-text" href="filedownload.html?action=exportNativeAll">Export as native</a>
+                </div>
+                <div class="operation-link">
+                    <a class="operation-link-text" href="filedownload.html?action=exportLoadFile">Export Load File</a>
                 </div>
                 <div class="tags-remove-box">
                 </div>
@@ -72,7 +75,6 @@
                 <input id="tag-page-text" type="text" name="tag" onkeypress="newAllTagEnter(tagPage, event)"/>
                 <input type="button" value="Tag" onclick="tagPage()"/>
                 <input type="button" value="Cancel" onclick="document.getElementById('tag-page').style.display='none';return false;"/>
-                </form>
             </div>
         </div>
     </div>
@@ -134,7 +136,7 @@
                     <a class="operation-link-text html-preview" data="${doc.documentPath}" uid="${doc.uniqueId}">Preview</a>
                 </div>
                 <div class="operation-link">
-                    <a href="javascript:;" class="operation-link-text" onclick="$('#tag-doc-${doc.documentId}').slideToggle(500);">Tag</a>
+                    <a href="javascript:" class="operation-link-text" onclick="$('#tag-doc-${doc.documentId}').slideToggle(500);">Tag</a>
                 </div>
                 <div class="operation-link">
                     <a class="operation-link-text" href="filedownload.html?action=exportNative&docPath=${doc.documentPath}&uniqueId=${doc.uniqueId}">Export native</a>

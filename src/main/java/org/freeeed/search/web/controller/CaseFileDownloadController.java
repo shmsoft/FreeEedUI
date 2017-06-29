@@ -16,17 +16,6 @@
 */
 package org.freeeed.search.web.controller;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.Logger;
 import org.freeeed.search.files.CaseFileService;
 import org.freeeed.search.web.WebConstants;
@@ -37,45 +26,50 @@ import org.freeeed.search.web.session.SolrSessionObject;
 import org.freeeed.search.web.solr.SolrSearchService;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpSession;
+import java.io.*;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * 
  * Class CaseFileDownloadController.
- * 
- * @author ilazarov.
  *
+ * @author ilazarov.
  */
 public class CaseFileDownloadController extends SecureController {
     private static final Logger log = Logger.getLogger(CaseFileDownloadController.class);
-    
+
     private CaseFileService caseFileService;
     private SolrSearchService searchService;
-    
+
     @Override
     public ModelAndView execute() {
         HttpSession session = this.request.getSession(true);
-        SolrSessionObject solrSession = (SolrSessionObject) 
-            session.getAttribute(WebConstants.WEB_SESSION_SOLR_OBJECT);
-        
+        SolrSessionObject solrSession = (SolrSessionObject)
+                session.getAttribute(WebConstants.WEB_SESSION_SOLR_OBJECT);
+
         if (solrSession == null || solrSession.getSelectedCase() == null) {
             return new ModelAndView(WebConstants.CASE_FILE_DOWNLOAD);
         }
-        
+
         Case selectedCase = solrSession.getSelectedCase();
-        
+
         String action = (String) valueStack.get("action");
-        
+
         log.debug("Action called: " + action);
-        
+
         File toDownload = null;
         boolean htmlMode = false;
-        
+
         String docPath = (String) valueStack.get("docPath");
-        String uniqueId = (String) valueStack.get("uniqueId"); 
-        
+        String uniqueId = (String) valueStack.get("uniqueId");
+
         try {
             if ("exportNative".equals(action)) {
                 toDownload = caseFileService.getNativeFile(selectedCase.getName(), docPath, uniqueId);
-                
+
             } else if ("exportImage".equals(action)) {
                 toDownload = caseFileService.getImageFile(selectedCase.getName(), docPath, uniqueId);
             } else if ("exportHtml".equals(action)) {
@@ -87,64 +81,70 @@ public class CaseFileDownloadController extends SecureController {
             } else if ("exportNativeAll".equals(action)) {
                 String query = solrSession.buildSearchQuery();
                 int rows = solrSession.getTotalDocuments();
-                            
+
                 List<SolrDocument> docs = getDocumentPaths(query, 0, rows);
-                
+
                 toDownload = caseFileService.getNativeFiles(selectedCase.getName(), docs);
-                
+
             } else if ("exportNativeAllFromSource".equals(action)) {
                 String query = solrSession.buildSearchQuery();
                 int rows = solrSession.getTotalDocuments();
-                
+
                 List<SolrDocument> docs = getDocumentPaths(query, 0, rows);
-                
+
                 String source = (String) valueStack.get("source");
                 try {
                     source = URLDecoder.decode(source, "UTF-8");
                 } catch (UnsupportedEncodingException e) {
+                    log.error(e);
                 }
-                
-                toDownload = caseFileService.getNativeFilesFromSource(source, docs);                
+
+                toDownload = caseFileService.getNativeFilesFromSource(source, docs);
             } else if ("exportImageAll".equals(action)) {
                 String query = solrSession.buildSearchQuery();
                 int rows = solrSession.getTotalDocuments();
-                
+
                 List<SolrDocument> docs = getDocumentPaths(query, 0, rows);
                 toDownload = caseFileService.getImageFiles(selectedCase.getName(), docs);
+            } else if ("exportLoadFile".equals(action)) {
+                String query = solrSession.buildSearchQuery();
+                int rows = solrSession.getTotalDocuments();
+                byte[] result = getRawDocumentsWithAllTags(query, 0, rows);
+                writeCSVReponse(result);
+                return new ModelAndView(WebConstants.CASE_FILE_DOWNLOAD);
             }
         } catch (Exception e) {
             log.error("Problem sending cotent", e);
             valueStack.put("error", true);
         }
-        
+
         if (toDownload != null) {
             try {
-                int length = 0;
+                int length;
                 ServletOutputStream outStream = response.getOutputStream();
                 String mimetype = "application/octet-stream";
                 if (htmlMode) {
                     mimetype = "text/html";
                 }
-    
+
                 response.setContentType(mimetype);
                 response.setContentLength((int) toDownload.length());
                 String fileName = toDownload.getName();
-    
+
                 if (!htmlMode) {
                     // sets HTTP header
                     response.setHeader("Content-Disposition", "attachment; filename=\""
                             + fileName + "\"");
                 }
-    
+
                 byte[] byteBuffer = new byte[1024];
-                DataInputStream in = new DataInputStream(new FileInputStream(
-                        toDownload));
-    
+                DataInputStream in = new DataInputStream(new FileInputStream(toDownload));
+
                 // reads the file's bytes and writes them to the response stream
-                while ((in != null) && ((length = in.read(byteBuffer)) != -1)) {
+                while ((length = in.read(byteBuffer)) != -1) {
                     outStream.write(byteBuffer, 0, length);
                 }
-    
+
                 in.close();
                 outStream.close();
             } catch (Exception e) {
@@ -154,8 +154,21 @@ public class CaseFileDownloadController extends SecureController {
         } else {
             valueStack.put("error", true);
         }
-        
+
         return new ModelAndView(WebConstants.CASE_FILE_DOWNLOAD);
+    }
+
+    private void writeCSVReponse(byte[] resultBytes) throws IOException {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=result.csv");
+        response.setContentLength(resultBytes.length);
+        ServletOutputStream out = response.getOutputStream();
+        out.write(resultBytes);
+        out.close();
+    }
+
+    private byte[] getRawDocumentsWithAllTags(String query, int from, int rows) {
+        return searchService.returnTaggedCSV(query, from, rows);
     }
 
     private List<SolrDocument> getDocumentPaths(String query, int from, int rows) {
@@ -164,11 +177,11 @@ public class CaseFileDownloadController extends SecureController {
         result.addAll(solrResult.getDocuments().values());
         return result;
     }
-    
+
     public void setCaseFileService(CaseFileService caseFileService) {
         this.caseFileService = caseFileService;
     }
-    
+
     public void setSearchService(SolrSearchService searchService) {
         this.searchService = searchService;
     }
