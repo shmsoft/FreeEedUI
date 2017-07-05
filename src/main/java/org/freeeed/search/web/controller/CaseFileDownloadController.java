@@ -16,12 +16,15 @@
 */
 package org.freeeed.search.web.controller;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.freeeed.search.files.CaseFileService;
 import org.freeeed.search.web.WebConstants;
 import org.freeeed.search.web.model.Case;
 import org.freeeed.search.web.model.solr.SolrDocument;
+import org.freeeed.search.web.model.solr.SolrEntry;
 import org.freeeed.search.web.model.solr.SolrResult;
+import org.freeeed.search.web.model.solr.Tag;
 import org.freeeed.search.web.session.SolrSessionObject;
 import org.freeeed.search.web.solr.SolrSearchService;
 import org.springframework.web.servlet.ModelAndView;
@@ -30,8 +33,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class CaseFileDownloadController.
@@ -43,6 +45,8 @@ public class CaseFileDownloadController extends SecureController {
 
     private CaseFileService caseFileService;
     private SolrSearchService searchService;
+
+    private static final String tagsSeparator = ";";
 
     @Override
     public ModelAndView execute() {
@@ -69,7 +73,6 @@ public class CaseFileDownloadController extends SecureController {
         try {
             if ("exportNative".equals(action)) {
                 toDownload = caseFileService.getNativeFile(selectedCase.getName(), docPath, uniqueId);
-
             } else if ("exportImage".equals(action)) {
                 toDownload = caseFileService.getImageFile(selectedCase.getName(), docPath, uniqueId);
             } else if ("exportHtml".equals(action)) {
@@ -109,9 +112,12 @@ public class CaseFileDownloadController extends SecureController {
             } else if ("exportLoadFile".equals(action)) {
                 String query = solrSession.buildSearchQuery();
                 int rows = solrSession.getTotalDocuments();
-                byte[] result = getRawDocumentsWithAllTags(query, 0, rows);
-                writeCSVReponse(result);
-                return new ModelAndView(WebConstants.CASE_FILE_DOWNLOAD);
+                Map<String, String> hashDocWithAllTags = getRawDocumentsWithAllTags(query, 0, rows);
+                File file = caseFileService.getTaggedLoadFile(selectedCase.getName(), hashDocWithAllTags);
+                if (file != null) {
+                    writeCSVResponse(FileUtils.readFileToByteArray(file));
+                    return new ModelAndView(WebConstants.CASE_FILE_DOWNLOAD);
+                }
             }
         } catch (Exception e) {
             log.error("Problem sending cotent", e);
@@ -158,7 +164,7 @@ public class CaseFileDownloadController extends SecureController {
         return new ModelAndView(WebConstants.CASE_FILE_DOWNLOAD);
     }
 
-    private void writeCSVReponse(byte[] resultBytes) throws IOException {
+    private void writeCSVResponse(byte[] resultBytes) throws IOException {
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=result.csv");
         response.setContentLength(resultBytes.length);
@@ -167,8 +173,38 @@ public class CaseFileDownloadController extends SecureController {
         out.close();
     }
 
-    private byte[] getRawDocumentsWithAllTags(String query, int from, int rows) {
-        return searchService.returnTaggedCSV(query, from, rows);
+    private Map<String, String> getRawDocumentsWithAllTags(String query, int from, int rows) {
+        SolrResult solrResult = searchService.search(query, from, rows, null, false, "id,Hash,tags-search-field");
+        Map<String, SolrDocument> documents = solrResult.getDocuments();
+        Map<String, String> hashDocTagsMap = new HashMap<String, String>();
+        Iterator<Map.Entry<String, SolrDocument>> iterator = documents.entrySet().iterator();
+        while (iterator.hasNext()) {
+            SolrDocument solrDocument = iterator.next().getValue();
+            List<SolrEntry> entries = solrDocument.getEntries();
+            List<Tag> tags = solrDocument.getTags();
+            populateMapWithHashAndTags(hashDocTagsMap, entries, tags);
+        }
+        return hashDocTagsMap;
+    }
+
+    private void populateMapWithHashAndTags(Map<String, String> hashDocTagsMap, List<SolrEntry> entries, List<Tag> tags) {
+        String hash = null;
+        String tag;
+        for (SolrEntry entry : entries) {
+            if (entry.getKey().equalsIgnoreCase("Hash")) {
+                hash = entry.getValue();
+                break;
+            }
+        }
+
+        if (hash != null) {
+            StringBuilder multiValuedTags = new StringBuilder();
+            for (Tag t : tags) {
+                multiValuedTags.append(t.getValue()).append(tagsSeparator);
+            }
+            tag = multiValuedTags.toString();
+            hashDocTagsMap.put(hash, tag);
+        }
     }
 
     private List<SolrDocument> getDocumentPaths(String query, int from, int rows) {

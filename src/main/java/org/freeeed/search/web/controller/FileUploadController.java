@@ -16,8 +16,6 @@
 */
 package org.freeeed.search.web.controller;
 
-import java.io.File;
-
 import org.apache.log4j.Logger;
 import org.freeeed.search.files.CaseFileService;
 import org.freeeed.search.web.WebConstants;
@@ -25,41 +23,49 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.File;
+
 /**
- * 
  * Class FileUploadController.
- * 
- * @author ilazarov.
  *
+ * @author ilazarov.
  */
 public class FileUploadController extends SecureController {
     private static final Logger log = Logger.getLogger(FileUploadController.class);
-    
+    public static final String LOADFILE = "loadfile";
+
     private CaseFileService caseFileService;
-    
+
     @Override
     public ModelAndView execute() {
         if (!(request instanceof MultipartHttpServletRequest)) {
             valueStack.put("status", "error");
-            
+
             return null;
         }
 
         log.debug("Uploading file...");
-        
+
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         MultipartFile file = multipartRequest.getFile("file");
-        
-        String dest = caseFileService.uploadFile(file);
-        if (dest != null) {
-            valueStack.put("fileName", dest.replace("\\", "\\\\"));
-            valueStack.put(
-                    "fileNameShort",
-                    dest.lastIndexOf(File.separator) == -1 ? dest : dest
-                            .substring(dest.lastIndexOf(File.separator) + 1));
-            valueStack.put("status", "success");
+        String fileType = (String) valueStack.get("filetype");
+
+        if (LOADFILE.equals(fileType)) {
+            String caseName = (String) valueStack.get("case");
+            boolean status = caseFileService.uploadLoadFile(file, caseName);
+            valueStack.put("status", status);
         } else {
-            valueStack.put("status", "error");
+            String dest = caseFileService.uploadFile(file);
+            if (dest != null) {
+                valueStack.put("fileName", dest.replace("\\", "\\\\"));
+                valueStack.put(
+                        "fileNameShort",
+                        dest.lastIndexOf(File.separator) == -1 ? dest : dest
+                                .substring(dest.lastIndexOf(File.separator) + 1));
+                valueStack.put("status", "success");
+            } else {
+                valueStack.put("status", "error");
+            }
         }
 
         return new ModelAndView(WebConstants.UPLOAD_FILE);
