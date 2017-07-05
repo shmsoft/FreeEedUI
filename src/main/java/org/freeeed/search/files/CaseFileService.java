@@ -90,6 +90,21 @@ public class CaseFileService {
         }
     }
 
+    public boolean uploadLoadFile(MultipartFile file, String caseName) {
+        File destination = new File(FILES_DIR + File.separator + caseName + File.separator + LOAD_FILE + File.separator + file.getOriginalFilename());
+        try {
+            if (!destination.exists()) {
+                destination.mkdirs();
+            }
+            file.transferTo(destination);
+            return true;
+        } catch (Exception e) {
+            log.error("Problem uploading file: ", e);
+
+            return false;
+        }
+    }
+
     public File getNativeFile(String caseName, String documentOriginalPath, String uniqueId) {
         String fileName = documentOriginalPath.contains(File.separator) ?
                 documentOriginalPath.substring(documentOriginalPath.lastIndexOf(File.separator) + 1) : documentOriginalPath;
@@ -252,9 +267,15 @@ public class CaseFileService {
         File loadFile = null;
         if (dir.exists()) {
             File[] files = dir.listFiles();
-            if (files.length > 0) {
-                loadFile = files[0];
+            for (File file : files) {
+                if (!file.getName().equalsIgnoreCase(".DS_Store")) {
+                    loadFile = file;
+                    break;
+                }
             }
+        }
+        if (loadFile == null) {
+            return null;
         }
         String destination = File.separator + FILES_TMP_DIR + File.separator + LOAD_FILE;
         File result = new File(destination);
