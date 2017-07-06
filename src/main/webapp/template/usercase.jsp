@@ -78,7 +78,7 @@
                 </td>
             </tr>
             <tr>
-                <td>Load file:${uploaded}</td>
+                <td>Load file:</td>
                 <td>
                     <div id="choosefile" style="color: #ac2925;display: none;">Choose file</div>
                     <input id="uploadLoadfile" type="file" name="file">
