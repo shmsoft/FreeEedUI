@@ -120,7 +120,7 @@ public class CaseFileDownloadController extends SecureController {
                 }
             }
         } catch (Exception e) {
-            log.error("Problem sending cotent", e);
+            log.error("Problem sending content", e);
             valueStack.put("error", true);
         }
 
