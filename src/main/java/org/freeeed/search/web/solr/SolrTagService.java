@@ -255,7 +255,7 @@ public class SolrTagService {
         String solrCore = solrSession.getSelectedCase().getSolrSourceCore();
 
         String url = configuration.getSolrEndpoint() + "/solr/"
-                + solrCore + "/update?commit=true";
+                + solrCore + "/update?commit=true&wt=xml";
 
         log.debug("Will send request to: " + url + ", data: " + data);
 

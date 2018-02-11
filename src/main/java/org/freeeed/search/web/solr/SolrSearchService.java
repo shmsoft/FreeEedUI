@@ -165,22 +165,24 @@ public class SolrSearchService {
 
             NodeList fieldsList = documentEl.getChildNodes();
             for (int j = 0; j < fieldsList.getLength(); j++) {
-                Element field = (Element) fieldsList.item(j);
-                String name = field.getAttribute("name");
-                List<String> value = new ArrayList<String>();
+                if (fieldsList.item(j).getNodeType() == Node.ELEMENT_NODE) {
+                    Element field = (Element) fieldsList.item(j);
+                    String name = field.getAttribute("name");
+                    List<String> value = new ArrayList<>();
 
-                //multivalues
-                if (field.getNodeName().equals("arr")) {
-                    NodeList strList = field.getChildNodes();
-                    for (int k = 0; k < strList.getLength(); k++) {
-                        Node strNode = strList.item(k);
-                        value.add(strNode.getTextContent());
+                    //multivalues
+                    if (field.getNodeName().equals("arr")) {
+                        NodeList strList = field.getChildNodes();
+                        for (int k = 0; k < strList.getLength(); k++) {
+                            Node strNode = strList.item(k);
+                            value.add(strNode.getTextContent());
+                        }
+                    } else {
+                        value.add(field.getTextContent());
                     }
-                } else {
-                    value.add(field.getTextContent());
-                }
 
-                data.put(name, value);
+                    data.put(name, value);
+                }
             }
 
             SolrDocument doc = solrDocumentParser.createSolrDocument(data);
@@ -242,7 +244,7 @@ public class SolrSearchService {
             String urlStr = configuration.getSolrEndpoint() +
                     "/solr/" + solrCore +
                     "/select/?q=" + encodedQuery + "&start=" + from +
-                    "&rows=" + rows + "&df=" + defaultField + "&hl=" + highlight;
+                    "&rows=" + rows + "&df=" + defaultField + "&hl=" + highlight + "&wt=xml";
             if (fields != null) {
                 urlStr += "&fl=" + fields;
             }
