@@ -10,7 +10,7 @@ To start the solr server, use the script
 which should be in the same directory where all other projects are, such as
 
     FreeEed
-    FreeEedUI
+    FreeEedReview
     freeeed-solr
     
 Contents of

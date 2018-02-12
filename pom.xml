@@ -5,10 +5,10 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.freeeed</groupId>
-    <artifactId>freeeedui</artifactId>
+    <artifactId>freeeedreview</artifactId>
     <packaging>war</packaging>
     <version>1.0</version>
-    <name>freeeedui</name>
+    <name>freeeedreview</name>
     <url>http://maven.apache.org</url>
 
     <properties>

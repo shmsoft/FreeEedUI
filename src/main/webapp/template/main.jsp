@@ -2,7 +2,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <div class="homepage_text">
-    FreeEedUI - Document review part of the FreeEed eDiscovery
+    FreeEedReview - Document review part of the FreeEed eDiscovery
 </div>
 
 <div class="homepage_text">
