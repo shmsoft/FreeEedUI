@@ -3,7 +3,7 @@
 
    <div class="delimiter2">
     </div>
-    
+
     <div class="your-search">
         <div class="your-search-label">
             Your search
@@ -23,7 +23,7 @@
             </c:forEach>
             <div class="spacer" style="clear: both;"></div>
         </div>
-        
+
         <c:if test="${fn:length(searched) > 0}">
           <div class="your-search-clear-all">
               <a href="#" onclick="removeAllSearch()">Remove All</a>
@@ -36,12 +36,12 @@
 
     <div class="delimiter2">
     </div>
-    
+
     <div class="your-search">
         <div class="your-search-label">
-            Results: (${result.totalSize}) 
+            Results: (${result.totalSize})
         </div>
-        
+
         <div class="your-search-box">
             <div class="operations-box">
                 <div class="operation-link">
@@ -62,14 +62,14 @@
                 <div class="tags-remove-box">
                 </div>
             </div>
-            
+
             <div id="tag-all" class="tag-box">
                 Tag All Results:
-                <input id="tag-all-text" type="text" name="tag" onkeypress="newAllTagEnter(tagAll, event)"/>
+                <input id="tag-all-text" type="text" name="tag"/>
                 <input type="button" value="Tag" onclick="tagAll()"/>
                 <input type="button" value="Cancel" onclick="document.getElementById('tag-all').style.display='none';return false;"/>
             </div>
-            
+
             <div id="tag-page" class="tag-box">
                 Tag This Page:
                 <input id="tag-page-text" type="text" name="tag" onkeypress="newAllTagEnter(tagPage, event)"/>
@@ -78,13 +78,13 @@
             </div>
         </div>
     </div>
-    
+
     <div class="delimiter2">
     </div>
-    
+
     <table border="0" cellpadding="0" cellspacing="0">
     <tr><td valign="top">
-    
+
     <div class="result-list">
         <table border="0" cellpadding="0" cellspacing="0">
             <tr class="result-list-header-row">
@@ -93,7 +93,7 @@
                 <th><div class="result-list-subject">Subject/Filename</div></th>
                 <th class="table-last-row"><div class="result-list-date">Date</div></th>
             </tr>
-            
+
             <c:forEach var="doc" items="${result.documents}">
             <tr id="row-${doc.documentId}" class="result-list-row" onclick="selectDocument('${doc.documentId}')">
                 <td><div class="result-list-id">${doc.documentId}</div></td>
@@ -104,14 +104,14 @@
             </c:forEach>
         </table>
     </div>
-    
+
     </td>
     <td valign="top">
-    
+
     <div class="result-details">
-    
+
     <c:forEach var="doc" items="${result.documents}">
-         <input type="hidden" id="solrid" class="solrid" value="${doc.documentId}"/>
+         <input type="hidden" id="esid" class="esid" value="${doc.documentId}"/>
          <div class="result-box" id="doc-${doc.documentId}" style="display:none">
 
             <div class="document-tags">
@@ -150,7 +150,7 @@
                 <input type="button" value="Tag" onclick="newTag('${doc.documentId}')"/>
                 <input type="button" value="Cancel" onclick="document.getElementById('tag-doc-${doc.documentId}').style.display='none';return false;"/>
             </div>
-            
+
             <table border = 0>
                 <c:forEach var="entry" items="${doc.entries}">
                     <tr>
@@ -185,10 +185,10 @@
         </div>
     </c:forEach>
     </div>
-    
+
     </td></tr>
     </table>
-    
+
     <div class="pagination">
         <c:if test="${showPagination}">
             <div class="prev_page">
@@ -210,7 +210,7 @@
   <c:otherwise>
     <div class="delimiter2">
     </div>
-    
+
     <div class="no-result">
         No result
     </div>

@@ -16,22 +16,22 @@
 */
 package org.freeeed.search.web.session;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.freeeed.search.web.WebConstants;
+import org.freeeed.search.web.utils.WebConstants;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 public class SessionContext {
-    
-    public static SolrSessionObject getSolrSession() {
-        HttpServletRequest curRequest = 
-            ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-                                                                .getRequest();
+
+    public static SearchSessionObject getElasticSearchSession() {
+        HttpServletRequest curRequest =
+                ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                        .getRequest();
         HttpSession session = curRequest.getSession();
-        SolrSessionObject solrSession = (SolrSessionObject) 
-                            session.getAttribute(WebConstants.WEB_SESSION_SOLR_OBJECT);
-        return solrSession;
+        SearchSessionObject esSession = (SearchSessionObject)
+                session.getAttribute(WebConstants.WEB_SESSION_SEARCH_OBJECT);
+        return esSession;
     }
 }

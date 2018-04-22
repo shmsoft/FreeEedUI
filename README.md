@@ -1,27 +1,27 @@
-# FreeEed Search UI
+# FreeEed Review
 
-## SOLR dependency
+## ElasticSearch dependency
 
-Currently works with apache-solr-7.2
-To start the solr server, use the script 
+Currently works with elastic-search 6.2
+To start the elastic search server, use the script
 
-    start-solr.sh
+    start-review.sh
     
 which should be in the same directory where all other projects are, such as
 
     FreeEed
     FreeEedReview
-    freeeed-solr
+    elasticsearch-6.2.2
 
 Contents of
 
-    start-solr.sh
+    start-review.sh
 
 is
 
-    cd freeeed-solr
-    bin/solr -e schemaless &
-         
+    cd elasticsearch-6.2.2
+    ./bin/elasticsearch
+
 ## To build the war target:
 
     mvn war:war

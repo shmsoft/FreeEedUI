@@ -45,11 +45,15 @@ function newTag(docId) {
     if (tag == null || tag.length == 0) {
         return;
     }
-
+    var obj = documentsMap[docId];
+    var allTags = tag;
+    for (var key in obj) {
+        allTags += "," + key;
+    }
     $.ajax({
         type: 'POST',
         url: 'tag.html',
-        data: {action: 'newtag', docid: docId, tag: tag},
+        data: {action: 'newtag', docid: docId, tag: allTags},
         success: function (data) {
             if (data != 'SUCCESS') {
                 return;
@@ -130,9 +134,9 @@ function search() {
 
             $("#result-ajax").html(data);
 
-            var solrId = $("#solrid").val();
-            if (solrId != null) {
-                initPage(solrId);
+            var esId = $("#esid").val();
+            if (esId != null) {
+                initPage(esId);
             }
 
             $("#search-query").val('');
@@ -153,9 +157,9 @@ function addTagToSearch(tag) {
 
             $("#result-ajax").html(data);
 
-            var solrId = $("#solrid").val();
-            if (solrId != null) {
-                initPage(solrId);
+            var esId = $("#esid").val();
+            if (esId != null) {
+                initPage(esId);
             }
         },
         error: function () {
@@ -174,9 +178,9 @@ function changePage(page) {
 
             $("#result-ajax").html(data);
 
-            var solrId = $("#solrid").val();
-            if (solrId != null) {
-                initPage(solrId);
+            var esId = $("#esid").val();
+            if (esId != null) {
+                initPage(esId);
             }
         },
         error: function () {
@@ -195,9 +199,9 @@ function removeSearch(id) {
 
             $("#result-ajax").html(data);
 
-            var solrId = $("#solrid").val();
-            if (solrId != null) {
-                initPage(solrId);
+            var esId = $("#esid").val();
+            if (esId != null) {
+                initPage(esId);
             }
         },
         error: function () {
@@ -216,9 +220,9 @@ function removeAllSearch() {
 
             $("#result-ajax").html(data);
 
-            var solrId = $("#solrid").val();
-            if (solrId != null) {
-                initPage(solrId);
+            var esId = $("#esid").val();
+            if (esId != null) {
+                initPage(esId);
             }
         },
         error: function () {
@@ -233,7 +237,7 @@ function initTags() {
         $(this).next(".document-tags-table").slideToggle(500);
     });
 
-    $(".solrid").each(function (index) {
+    $(".esid").each(function (index) {
         var docId = $(this).val();
         documentsMap[docId] = new Object();
         $(".doc-tag-" + docId).each(function (index) {
@@ -243,8 +247,8 @@ function initTags() {
     });
 
     //$(".tag-doc-field-cl").autocomplete({source : "tagauto.html"});
-    $("#tag-all-text").autocomplete({source: "tagauto.html"});
-    $("#tag-page-text").autocomplete({source: "tagauto.html"});
+    $("#tag-all-text").autocomplete({source: "tagauto.html", delay: 500});
+    $("#tag-page-text").autocomplete({source: "tagauto.html", delay: 500});
 }
 
 function tagAllBox() {
@@ -322,6 +326,7 @@ function appendCaseTag(tag) {
 }
 
 $(document).ready(function () {
+    search();
     $("body").bind({
         ajaxStart: function () {
             $(this).addClass("loading");

@@ -16,12 +16,10 @@
 */
 package org.freeeed.search.web.dao.cases;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import org.apache.log4j.Logger;
+import org.freeeed.search.web.model.cases.Case;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,56 +27,51 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.log4j.Logger;
-import org.freeeed.search.web.model.Case;
-
 /**
- * 
  * CaseDao implementation, using file system as storage.
- * 
- * @author ilazarov.
  *
+ * @author ilazarov.
  */
 public class FSCaseDao implements CaseDao {
     private static final String CASES_FILE = "work/c.dat";
     private static final Logger logger = Logger.getLogger(FSCaseDao.class);
-    
+
     private Map<Long, Case> casesCache;
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
     private AtomicLong idGenerator;
-    
+
     public void init() {
         lock.writeLock().lock();
-        
+
         try {
             logger.info("Init FS Cases DAO...");
-            casesCache = new HashMap<Long, Case>();
-            
+            casesCache = new HashMap<>();
+
             loadCases();
             initIDGenerator();
         } finally {
             lock.writeLock().unlock();
         }
     }
-    
+
     @Override
     public List<Case> listCases() {
-        List<Case> result = new ArrayList<Case>();
+        List<Case> result = new ArrayList<>();
         lock.readLock().lock();
-        
+
         try {
             result.addAll(casesCache.values());
         } finally {
             lock.readLock().unlock();
         }
-        
+
         return result;
     }
 
     @Override
     public Case findCase(long id) {
         lock.readLock().lock();
-        
+
         try {
             return casesCache.get(id);
         } finally {
@@ -89,12 +82,12 @@ public class FSCaseDao implements CaseDao {
     @Override
     public void saveCase(Case c) {
         lock.writeLock().lock();
-        
+
         try {
             if (c.getId() == null) {
                 c.setId(idGenerator.incrementAndGet());
             }
-            
+
             casesCache.put(c.getId(), c);
             storeCases();
         } finally {
@@ -105,7 +98,7 @@ public class FSCaseDao implements CaseDao {
     @Override
     public void deleteCase(long id) {
         lock.writeLock().lock();
-        
+
         try {
             casesCache.remove(id);
             storeCases();
@@ -117,19 +110,19 @@ public class FSCaseDao implements CaseDao {
     private void storeCases() {
         FileOutputStream fos = null;
         ObjectOutputStream oos = null;
-        
+
         try {
             File dir = new File(CASES_FILE);
             File parent = dir.getParentFile();
             if (!parent.exists()) {
                 parent.mkdirs();
             }
-            
+
             fos = new FileOutputStream(dir);
             oos = new ObjectOutputStream(fos);
-            
+
             oos.writeObject(casesCache);
-            
+
             oos.close();
             fos.close();
         } catch (Exception e) {
@@ -142,7 +135,7 @@ public class FSCaseDao implements CaseDao {
                     logger.error("Problem closing", e);
                 }
             }
-            
+
             if (oos != null) {
                 try {
                     oos.close();
@@ -152,7 +145,7 @@ public class FSCaseDao implements CaseDao {
             }
         }
     }
-    
+
     private void loadCases() {
         FileInputStream fis = null;
         ObjectInputStream ois = null;
@@ -160,7 +153,7 @@ public class FSCaseDao implements CaseDao {
         try {
             fis = new FileInputStream(CASES_FILE);
             ois = new ObjectInputStream(fis);
-            
+
             @SuppressWarnings("unchecked")
             Map<Long, Case> data = (Map<Long, Case>) ois.readObject();
             if (data != null) {
@@ -176,7 +169,7 @@ public class FSCaseDao implements CaseDao {
                     logger.error("Problem closing", e);
                 }
             }
-            
+
             if (ois != null) {
                 try {
                     ois.close();
@@ -186,7 +179,7 @@ public class FSCaseDao implements CaseDao {
             }
         }
     }
-    
+
     private void initIDGenerator() {
         long max = 0;
         for (Case c : casesCache.values()) {
@@ -194,7 +187,7 @@ public class FSCaseDao implements CaseDao {
                 max = c.getId();
             }
         }
-        
+
         idGenerator = new AtomicLong(max);
     }
 }

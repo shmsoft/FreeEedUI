@@ -16,7 +16,7 @@
 */
 package org.freeeed.search.web.session;
 
-import org.freeeed.search.web.model.User;
+import org.freeeed.search.web.model.users.User;
 
 public class LoggedSiteVisitor {
     private User user;
