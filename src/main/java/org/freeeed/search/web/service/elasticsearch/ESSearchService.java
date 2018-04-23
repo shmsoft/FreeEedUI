@@ -37,7 +37,7 @@ import java.util.*;
  *
  * @author ilazarov.
  */
-public class ESSearchService {
+public class ESSearchService implements SearchService {
 
     private static final Logger log = Logger.getLogger(ESSearchService.class);
     private DocumentParser documentParser;
@@ -50,6 +50,7 @@ public class ESSearchService {
      * @param fields
      * @return
      */
+    @Override
     public SearchResultView search(Set<String> freeTextQueries, Set<String> tagQueries, int from, int rows, String[] fields) {
         log.debug("Queries: " + freeTextQueries);
         HttpServletRequest curRequest = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();

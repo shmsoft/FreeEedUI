@@ -32,7 +32,7 @@ import java.util.*;
 import static org.freeeed.search.web.service.elasticsearch.ESTagService.Result.ERROR;
 import static org.freeeed.search.web.service.elasticsearch.ESTagService.Result.SUCCESS;
 
-public class ESTagService {
+public class ESTagService implements TagService {
 
     private static final Logger LOGGER = Logger.getLogger(ESTagService.class);
     public static final String TAGS_SEARCH_FIELD = "tags-search-field";
@@ -55,6 +55,7 @@ public class ESTagService {
      * @param tags
      * @return
      */
+    @Override
     public Result tagSingleDocument(String documentId, Set<String> tags) {
         Result result = searchDao.updateSingleDocTag(documentId, tags);
         if (result == SUCCESS) {
@@ -70,6 +71,7 @@ public class ESTagService {
      * @param tag
      * @return
      */
+    @Override
     public Result tagThisPageDocuments(SearchSessionObject esSession, String tag) {
         String indicesName = esSession.getSelectedCase().getEsSourceIndices();
         Set<String> freeTextQueries = esSession.buildFreeTextSearchQuery();
@@ -87,6 +89,7 @@ public class ESTagService {
      * @param tag
      * @return
      */
+    @Override
     public Result tagAllSearchedDocuments(SearchSessionObject esSession, String tag) {
         Set<String> freeTextQueries = esSession.buildFreeTextSearchQuery();
         Set<String> tagsSearchQueries = esSession.buildTagsSearchQuery();
@@ -104,6 +107,7 @@ public class ESTagService {
      * @param tag
      * @return
      */
+    @Override
     public Result removeTagFromSingleDocument(SearchSessionObject esSession, String documentId, String tag) {
         String indicesName = esSession.getSelectedCase().getEsSourceIndices();
         SearchResponse searchResponse = searchDao.searchById(indicesName, documentId, new String[]{DOC_ID, TAGS_SEARCH_FIELD});
@@ -132,6 +136,7 @@ public class ESTagService {
      * @param tag
      * @return
      */
+    @Override
     public Result removeTagFromAllDocs(SearchSessionObject esSession, String tag) {
         try {
             int rows = esSession.getTotalDocuments();

@@ -37,15 +37,15 @@
 
     <bean id="searchAjaxPage" class="org.freeeed.search.web.controller.elasticsearch.SearchController">
         <property name="configuration" ref="configurationBean"/>
-        <property name="ESSearchService" ref="ESSearchService"/>
+        <property name="searchService" ref="searchService"/>
         <property name="resultHighlight" ref="resultHighlight"/>
     </bean>
 
     <bean id="tagPage" class="org.freeeed.search.web.controller.elasticsearch.TagController">
-        <property name="ESTagService" ref="ESTagService"/>
+        <property name="tagService" ref="tagService"/>
     </bean>
 
-    <bean id="ESTagService" class="org.freeeed.search.web.service.elasticsearch.ESTagService">
+    <bean id="tagService" class="org.freeeed.search.web.service.elasticsearch.ESTagService">
         <property name="configuration" ref="configurationBean"/>
         <property name="caseDao" ref="caseDao"/>
         <property name="searchDao" ref="esSearchDao"/>
@@ -58,12 +58,12 @@
         <property name="appSettingsDao" ref="appSettingsDao"/>
     </bean>
 
-    <bean id="ESSearchService" class="org.freeeed.search.web.service.elasticsearch.ESSearchService">
+    <bean id="searchService" class="org.freeeed.search.web.service.elasticsearch.ESSearchService">
         <property name="documentParser" ref="documentParser"/>
         <property name="searchDao" ref="esSearchDao"/>
     </bean>
 
-    <bean id="ESIndicesService" class="org.freeeed.search.web.service.elasticsearch.ESIndicesService">
+    <bean id="indicesService" class="org.freeeed.search.web.service.elasticsearch.ESIndicesService">
         <property name="configuration" ref="configurationBean"/>
     </bean>
 
@@ -97,7 +97,7 @@
 
     <bean id="casePage" class="org.freeeed.search.web.controller.cases.CaseController">
         <property name="caseDao" ref="caseDao"/>
-        <property name="ESIndicesService" ref="ESIndicesService"/>
+        <property name="indicesService" ref="indicesService"/>
         <property name="caseFileService" ref="caseFileService"/>
     </bean>
 
@@ -115,7 +115,7 @@
     </bean>
 
     <bean id="caseFilesDownload" class="org.freeeed.search.web.controller.cases.CaseFileDownloadController">
-        <property name="searchService" ref="ESSearchService"/>
+        <property name="searchService" ref="searchService"/>
         <property name="caseFileService" ref="caseFileService"/>
     </bean>
 

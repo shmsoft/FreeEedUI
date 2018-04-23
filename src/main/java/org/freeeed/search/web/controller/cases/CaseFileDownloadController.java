@@ -20,7 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.freeeed.search.files.CaseFileService;
 import org.freeeed.search.web.controller.commons.SecureController;
-import org.freeeed.search.web.service.elasticsearch.ESSearchService;
+import org.freeeed.search.web.service.elasticsearch.SearchService;
 import org.freeeed.search.web.service.elasticsearch.ESTagService;
 import org.freeeed.search.web.utils.WebConstants;
 import org.freeeed.search.web.model.cases.Case;
@@ -46,7 +46,7 @@ public class CaseFileDownloadController extends SecureController {
     private static final Logger log = Logger.getLogger(CaseFileDownloadController.class);
 
     private CaseFileService caseFileService;
-    private ESSearchService searchService;
+    private SearchService searchService;
 
 
     @Override
@@ -222,7 +222,7 @@ public class CaseFileDownloadController extends SecureController {
         this.caseFileService = caseFileService;
     }
 
-    public void setSearchService(org.freeeed.search.web.service.elasticsearch.ESSearchService searchService) {
+    public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
     }
 }

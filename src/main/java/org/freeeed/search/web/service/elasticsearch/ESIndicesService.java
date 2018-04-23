@@ -16,10 +16,15 @@
 */
 package org.freeeed.search.web.service.elasticsearch;
 
+import org.apache.http.HttpHost;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.freeeed.search.web.configuration.Configuration;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,7 +32,7 @@ import java.util.List;
  *
  * @author nehaojha
  */
-public class ESIndicesService {
+public class ESIndicesService implements IndicesService {
 
     private static final Logger LOGGER = Logger.getLogger(ESIndicesService.class);
     private Configuration configuration;
@@ -37,13 +42,25 @@ public class ESIndicesService {
      *
      * @return
      */
+    @Override
     public List<String> getESIndices() {
         return listESIndices();
     }
 
     private List<String> listESIndices() {
-        //TODO list all indices
-        return Arrays.asList("shmcloud_1");
+        String url = configuration.getESEndpoint();
+        List<String> indices = new ArrayList<>();
+        try (RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(HttpHost.create(url)))) {
+            Response response = client.getLowLevelClient().performRequest("GET", "_cat/indices?v&h=index");
+            String indicesString = EntityUtils.toString(response.getEntity());
+            String[] allIndices = indicesString.split("\n");
+            for (int i = 1; i < allIndices.length; i++) {
+                indices.add(allIndices[i]);
+            }
+        } catch (Exception ex) {
+            LOGGER.error("exception while listing indices " + ex);
+        }
+        return indices;
     }
 
     public void setConfiguration(Configuration configuration) {

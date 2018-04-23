@@ -18,9 +18,9 @@ package org.freeeed.search.web.controller.elasticsearch;
 
 import org.apache.log4j.Logger;
 import org.freeeed.search.web.controller.commons.SecureController;
+import org.freeeed.search.web.service.elasticsearch.SearchService;
 import org.freeeed.search.web.utils.WebConstants;
 import org.freeeed.search.web.configuration.Configuration;
-import org.freeeed.search.web.service.elasticsearch.ESSearchService;
 import org.freeeed.search.web.session.SearchSessionObject;
 import org.freeeed.search.web.searchviews.ResultHighlight;
 import org.freeeed.search.web.searchviews.SearchResultView;
@@ -44,7 +44,7 @@ public class SearchController extends SecureController {
     private static final Logger log = Logger.getLogger(SearchController.class);
 
     private Configuration configuration;
-    private ESSearchService ESSearchService;
+    private SearchService searchService;
     private ResultHighlight resultHighlight;
 
     @Override
@@ -119,7 +119,7 @@ public class SearchController extends SecureController {
         if (searches.size() > 0) {
             Set<String> freeTextQueries = esSession.buildFreeTextSearchQuery();
             Set<String> tagsSearchQueries = esSession.buildTagsSearchQuery();
-            SearchResultView resultView = ESSearchService.search(freeTextQueries, tagsSearchQueries, from, rows, null);
+            SearchResultView resultView = searchService.search(freeTextQueries, tagsSearchQueries, from, rows, null);
             if (resultView != null) {
                 //prepare the view data
                 resultHighlight.highlight(resultView, yourSearches);
@@ -154,8 +154,8 @@ public class SearchController extends SecureController {
         this.configuration = configuration;
     }
 
-    public void setESSearchService(ESSearchService ESSearchService) {
-        this.ESSearchService = ESSearchService;
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
     }
 
     public void setResultHighlight(ResultHighlight resultHighlight) {

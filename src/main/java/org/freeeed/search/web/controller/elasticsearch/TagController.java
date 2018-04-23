@@ -18,8 +18,8 @@ package org.freeeed.search.web.controller.elasticsearch;
 
 import org.apache.log4j.Logger;
 import org.freeeed.search.web.controller.commons.SecureController;
-import org.freeeed.search.web.service.elasticsearch.ESTagService;
 import org.freeeed.search.web.service.elasticsearch.ESTagService.Result;
+import org.freeeed.search.web.service.elasticsearch.TagService;
 import org.freeeed.search.web.session.SearchSessionObject;
 import org.freeeed.search.web.utils.WebConstants;
 import org.springframework.web.servlet.ModelAndView;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 public class TagController extends SecureController {
     private static final Logger log = Logger.getLogger(TagController.class);
 
-    private ESTagService ESTagService;
+    private TagService tagService;
 
     @Override
     public ModelAndView execute() {
@@ -61,21 +61,21 @@ public class TagController extends SecureController {
             log.debug("Will do tagging for - documentId: " + documentId + ", tag: " + tag);
             if (documentId != null && tag != null && !documentId.isEmpty() && !tag.isEmpty()) {
                 Set<String> uniqueTags = Arrays.stream(tag.split(",")).filter(t -> !"".equals(t)).collect(Collectors.toSet());
-                Result result = ESTagService.tagSingleDocument(documentId, uniqueTags);
+                Result result = tagService.tagSingleDocument(documentId, uniqueTags);
                 valueStack.put("result", result);
             }
         } else if ("tagall".equals(action)) {
             String tag = (String) valueStack.get("tag");
             log.debug("Will do tag all, tag: " + tag);
             if (tag != null && tag.trim().length() > 0) {
-                Result result = ESTagService.tagAllSearchedDocuments(esSession, tag);
+                Result result = tagService.tagAllSearchedDocuments(esSession, tag);
                 valueStack.put("result", result);
             }
         } else if ("tagpage".equals(action)) {
             String tag = (String) valueStack.get("tag");
             log.debug("Will do tag page, tag: " + tag);
             if (tag != null && tag.trim().length() > 0) {
-                Result result = ESTagService.tagThisPageDocuments(esSession, tag);
+                Result result = tagService.tagThisPageDocuments(esSession, tag);
                 valueStack.put("result", result);
             }
         } else if ("deletetag".equals(action)) {
@@ -83,7 +83,7 @@ public class TagController extends SecureController {
             String documentId = (String) valueStack.get("docid");
             log.debug("Will do delete tag for - documentId: " + documentId + ", tag: " + tag);
             if (documentId != null && tag != null && !documentId.isEmpty() && !tag.isEmpty()) {
-                Result result = ESTagService.removeTagFromSingleDocument(esSession, documentId, tag);
+                Result result = tagService.removeTagFromSingleDocument(esSession, documentId, tag);
                 valueStack.put("result", result);
             }
             valueStack.put("hastag", esSession.getSelectedCase().getTags().contains(tag));
@@ -92,7 +92,7 @@ public class TagController extends SecureController {
             String tag = (String) valueStack.get("tag");
             log.debug("removing from every docs tag = " + tag);
             if (tag != null && tag.trim().length() > 0) {
-                Result result = ESTagService.removeTagFromAllDocs(esSession, tag);
+                Result result = tagService.removeTagFromAllDocs(esSession, tag);
                 valueStack.put("result", result);
             }
         }
@@ -101,7 +101,7 @@ public class TagController extends SecureController {
         return new ModelAndView(WebConstants.TAG_PAGE);
     }
 
-    public void setESTagService(ESTagService ESTagService) {
-        this.ESTagService = ESTagService;
+    public void setTagService(TagService tagService) {
+        this.tagService = tagService;
     }
 }
