@@ -63,7 +63,7 @@ public class SearchSessionObject {
     }
 
     public synchronized void addQuery(String query) {
-        if (!query.isEmpty()) {
+        if (!query.isEmpty() && !queries.contains(query)) {
             queryTags.add(false);
             queries.add(query);
         }

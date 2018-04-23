@@ -43,9 +43,6 @@ public class SearchPageController extends SecureController {
         SearchSessionObject esSession = (SearchSessionObject)
                 session.getAttribute(WebConstants.WEB_SESSION_SEARCH_OBJECT);
 
-        if (esSession != null) {
-            esSession.reset();
-        }
         if (esSession == null) {
             esSession = new SearchSessionObject();
             session.setAttribute(WebConstants.WEB_SESSION_SEARCH_OBJECT, esSession);

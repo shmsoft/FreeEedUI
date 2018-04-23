@@ -17,14 +17,14 @@
 package org.freeeed.search.web.controller.elasticsearch;
 
 import org.apache.log4j.Logger;
-import org.freeeed.search.web.controller.commons.SecureController;
-import org.freeeed.search.web.service.elasticsearch.SearchService;
-import org.freeeed.search.web.utils.WebConstants;
 import org.freeeed.search.web.configuration.Configuration;
-import org.freeeed.search.web.session.SearchSessionObject;
+import org.freeeed.search.web.controller.commons.SecureController;
 import org.freeeed.search.web.searchviews.ResultHighlight;
 import org.freeeed.search.web.searchviews.SearchResultView;
 import org.freeeed.search.web.searchviews.YourSearchViewObject;
+import org.freeeed.search.web.service.elasticsearch.SearchService;
+import org.freeeed.search.web.session.SearchSessionObject;
+import org.freeeed.search.web.utils.WebConstants;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
@@ -102,7 +102,7 @@ public class SearchController extends SecureController {
                     }
                 } catch (Exception ex) {
                 }
-                from = (page - 1) * configuration.getNumberOfRows();
+                from = page - 1;
             }
         }
 
