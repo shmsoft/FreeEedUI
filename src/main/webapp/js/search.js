@@ -117,15 +117,20 @@ function deleteTagFromAllDocs(tag) {
             $("#" + tag + "").parent().remove();
             var partialId = "document-tags-row-" + tag;
             var tagElems = $('[id*=' + partialId + ']');
-            for(var i=0;i<tagElems.length;i++){
+            for (var i = 0; i < tagElems.length; i++) {
                 var e = tagElems[i];
                 var split = e.id.split("-");
-                var docId = split[split.length-1];
-                if(docId){
+                var docId = split[split.length - 1];
+                if (docId) {
                     var total = parseInt($("#tags-total-" + docId).html()) - 1;
                     $("#tags-total-" + docId).html(total);
+                    var hiddenElemes = $(".doc-tag-" + docId);
+                    if (hiddenElemes && hiddenElemes.length > 0) {
+                        hiddenElemes[0].remove();
+                    }
                 }
                 e.remove();
+
             }
         },
         error: function () {
