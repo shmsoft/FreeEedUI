@@ -37,4 +37,5 @@ public class WebConstants {
     public static final String CASE_FILE_DOWNLOAD = "caseFileDownload";
     public static final String UPLOAD_FILE = "fileUpload";
     public static final String WEB_SESSION_SEARCH_OBJECT = "esSession";
+    public static final String REMAINING_TAGS = "remainingtags";
 }

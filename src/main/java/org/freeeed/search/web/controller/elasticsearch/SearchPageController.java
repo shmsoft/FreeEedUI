@@ -17,10 +17,10 @@
 package org.freeeed.search.web.controller.elasticsearch;
 
 import org.freeeed.search.web.controller.commons.SecureController;
-import org.freeeed.search.web.utils.WebConstants;
 import org.freeeed.search.web.dao.cases.CaseDao;
 import org.freeeed.search.web.model.cases.Case;
 import org.freeeed.search.web.session.SearchSessionObject;
+import org.freeeed.search.web.utils.WebConstants;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
@@ -43,6 +43,9 @@ public class SearchPageController extends SecureController {
         SearchSessionObject esSession = (SearchSessionObject)
                 session.getAttribute(WebConstants.WEB_SESSION_SEARCH_OBJECT);
 
+        if (esSession != null) {
+            esSession.reset();
+        }
         if (esSession == null) {
             esSession = new SearchSessionObject();
             session.setAttribute(WebConstants.WEB_SESSION_SEARCH_OBJECT, esSession);

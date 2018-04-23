@@ -117,7 +117,6 @@ public class ESTagService {
             tagQueries.add(tag);
             SearchResponse response = searchDao.search(indicesName, Collections.emptySet(), tagQueries, 0, 2, new String[]{DOC_ID, TAGS_SEARCH_FIELD});
 
-            //TODO Call Flush
             if (hasNoDocWithSameTag(documentId, response)) {
                 removeCaseTag(tag);
             }
@@ -151,7 +150,6 @@ public class ESTagService {
                 removeAndUpdateTag(documentId, tag, tagsFieldValue);
             }
             removeCaseTag(tag);
-            //TODO Call Flush
         } catch (Exception ex) {
             LOGGER.error("Exception while removing document: " + DOC_ID, ex);
             return ERROR;
@@ -175,7 +173,7 @@ public class ESTagService {
         SearchHits hits = searchResponse.getHits();
         if (hits.getTotalHits() == 1) {
             String docIdWithTag = hits.getHits()[0].getId();
-            return docIdWithTag == recentUpdatedDocId;
+            return docIdWithTag.equals(recentUpdatedDocId);
         }
         return hits.getTotalHits() == 0 ? true : false;
     }

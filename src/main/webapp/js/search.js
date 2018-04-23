@@ -81,7 +81,7 @@ function displayTag(docId, tag) {
 
     var docIdParam = '"' + docId + '"';
     var tagParam = '"' + tag + '"';
-    $("#tags-table-" + docId).append("<tr class='document-tags-row'>" +
+    $("#tags-table-" + docId).append("<tr id='document-tags-row-" + tag + "-" + docId + "' class='document-tags-row'>" +
         "<td><div class='document-tags-tag'>" + tag + "</div></td>" +
         "<td><a href='#' onclick='deleteTag(" + docIdParam + ", this, " + tagParam + ")'><img src='images/delete.gif'/></a></td>" +
         "</tr>");
@@ -98,8 +98,8 @@ function deleteTag(docId, el, tag) {
             $(el).parent().parent().remove();
             var total = parseInt($("#tags-total-" + docId).html()) - 1;
             $("#tags-total-" + docId).html(total);
-            if (total == 0) {
-                location.reload();
+            if (data == 'false') {
+                $("#" + tag + "").parent().remove();
             }
         },
         error: function () {
@@ -114,7 +114,19 @@ function deleteTagFromAllDocs(tag) {
         url: 'tag.html',
         data: {action: 'deletetagfromall', tag: tag},
         success: function (data) {
-            location.reload();
+            $("#" + tag + "").parent().remove();
+            var partialId = "document-tags-row-" + tag;
+            var tagElems = $('[id*=' + partialId + ']');
+            for(var i=0;i<tagElems.length;i++){
+                var e = tagElems[i];
+                var split = e.id.split("-");
+                var docId = split[split.length-1];
+                if(docId){
+                    var total = parseInt($("#tags-total-" + docId).html()) - 1;
+                    $("#tags-total-" + docId).html(total);
+                }
+                e.remove();
+            }
         },
         error: function () {
             alert("Technical error, try that again in a few moments!");
@@ -326,7 +338,6 @@ function appendCaseTag(tag) {
 }
 
 $(document).ready(function () {
-    search();
     $("body").bind({
         ajaxStart: function () {
             $(this).addClass("loading");

@@ -122,7 +122,7 @@
                    <table id="tags-table-${doc.documentId}" border="0" cellpadding="0" cellspacing="0">
                        <c:forEach var="tag" items="${doc.tags}">
                            <input type="hidden" class="doc-tag-${doc.documentId}" value="${tag.value}"/>
-                           <tr class="document-tags-row">
+                           <tr id="document-tags-row-${tag.value}-${doc.documentId}" class="document-tags-row">
                               <td><div class="document-tags-tag">${tag.value}</div></td>
                               <td><a href="#" onclick="deleteTag('${doc.documentId}', this, '${tag.name}')"><img src="images/delete.gif"/></a></td>
                            </tr>

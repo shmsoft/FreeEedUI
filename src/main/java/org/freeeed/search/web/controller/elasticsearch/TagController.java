@@ -19,9 +19,9 @@ package org.freeeed.search.web.controller.elasticsearch;
 import org.apache.log4j.Logger;
 import org.freeeed.search.web.controller.commons.SecureController;
 import org.freeeed.search.web.service.elasticsearch.ESTagService;
+import org.freeeed.search.web.service.elasticsearch.ESTagService.Result;
 import org.freeeed.search.web.session.SearchSessionObject;
 import org.freeeed.search.web.utils.WebConstants;
-import org.freeeed.search.web.service.elasticsearch.ESTagService.Result;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
@@ -86,6 +86,8 @@ public class TagController extends SecureController {
                 Result result = ESTagService.removeTagFromSingleDocument(esSession, documentId, tag);
                 valueStack.put("result", result);
             }
+            valueStack.put("hastag", esSession.getSelectedCase().getTags().contains(tag));
+            return new ModelAndView(WebConstants.REMAINING_TAGS);
         } else if ("deletetagfromall".equals(action)) {
             String tag = (String) valueStack.get("tag");
             log.debug("removing from every docs tag = " + tag);
@@ -94,6 +96,7 @@ public class TagController extends SecureController {
                 valueStack.put("result", result);
             }
         }
+
         valueStack.put("tags", esSession.getSelectedCase().getTags());
         return new ModelAndView(WebConstants.TAG_PAGE);
     }
