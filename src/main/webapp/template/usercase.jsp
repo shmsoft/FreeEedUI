@@ -56,8 +56,8 @@
             <tr>
                 <td>Upload file:</td>
                 <td>
-                    <input id="uploadfile" type="file" name="file"/><input id="uploadfilebutton" type="button"
-                                                                           value="Upload">
+                    <input id="uploadfile" type="file" name="file"/>
+                    <input id="uploadfilebutton" type="button" value="Upload">
                     <input id="uploadedFileId" type="hidden" name="filesLocationUp" value=""/>
                 </td>
             </tr>

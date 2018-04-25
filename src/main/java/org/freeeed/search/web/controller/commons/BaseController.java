@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * Class BaseController.
  * <p>
- * Base implemenation for all controllers.
+ * Base implementation for all controllers.
  * Add additional features as visitor details, value stack for presentations, etc.
  *
  * @author ilazarov

@@ -59,10 +59,8 @@ public class FileUploadController extends SecureController {
             String dest = caseFileService.uploadFile(file);
             if (dest != null) {
                 valueStack.put("fileName", dest.replace("\\", "\\\\"));
-                valueStack.put(
-                        "fileNameShort",
-                        dest.lastIndexOf(File.separator) == -1 ? dest : dest
-                                .substring(dest.lastIndexOf(File.separator) + 1));
+                valueStack.put("fileNameShort", dest.lastIndexOf(File.separator) == -1 ? dest : dest
+                        .substring(dest.lastIndexOf(File.separator) + 1));
                 valueStack.put("status", "success");
             } else {
                 valueStack.put("status", "error");

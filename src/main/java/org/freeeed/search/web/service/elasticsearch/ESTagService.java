@@ -180,7 +180,7 @@ public class ESTagService implements TagService {
             String docIdWithTag = hits.getHits()[0].getId();
             return docIdWithTag.equals(recentUpdatedDocId);
         }
-        return hits.getTotalHits() == 0 ? true : false;
+        return hits.getTotalHits() == 0;
     }
 
     private void tagMultipleDocuments(String tag, SearchResponse searchResponse) {

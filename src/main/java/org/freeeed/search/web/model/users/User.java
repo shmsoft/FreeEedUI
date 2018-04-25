@@ -100,7 +100,7 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    public static enum Right {
+    public enum Right {
         PROCESS,
         APP_CONFIG,
         USERS_ADMIN,

@@ -137,7 +137,6 @@ public class SearchController extends SecureController {
                 setupPagination();
             }
         }
-
         return new ModelAndView(WebConstants.SEARCH_AJAX_PAGE);
     }
 

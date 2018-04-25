@@ -1,6 +1,6 @@
 var lastDocId = null;
-var documentsMap = new Object();
-var allTags = new Object();
+var documentsMap = {};
+var allTags = {};
 
 function selectDocument(docId) {
     if (docId == lastDocId) {
@@ -130,7 +130,6 @@ function deleteTagFromAllDocs(tag) {
                     }
                 }
                 e.remove();
-
             }
         },
         error: function () {
@@ -256,7 +255,7 @@ function initTags() {
 
     $(".esid").each(function (index) {
         var docId = $(this).val();
-        documentsMap[docId] = new Object();
+        documentsMap[docId] = {};
         $(".doc-tag-" + docId).each(function (index) {
             var tag = $(this).val();
             documentsMap[docId][tag] = 1;

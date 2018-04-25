@@ -114,6 +114,7 @@ public class CaseFileService {
         File dir = new File(FILES_DIR + File.separator + caseName + File.separator + "native");
         if (dir.exists()) {
             File[] files = dir.listFiles();
+            assert files != null;
             for (File file : files) {
                 if (file.getName().endsWith(fileName)) {
                     return file;
@@ -193,14 +194,16 @@ public class CaseFileService {
     }
 
     public File getImageFiles(String caseName, List<SearchDocument> docs) {
-        List<File> imageFiles = new ArrayList<File>();
+        List<File> imageFiles = new ArrayList<>();
         for (SearchDocument doc : docs) {
             File file = getImageFile(caseName, doc.getDocumentPath(), doc.getUniqueId());
             if (file != null) {
                 imageFiles.add(file);
             }
         }
-
+        if (imageFiles.isEmpty()) {
+            return null;
+        }
         File tmpDir = new File(FILES_TMP_DIR);
         tmpDir.mkdirs();
 

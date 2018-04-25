@@ -158,7 +158,7 @@ public class CaseFileDownloadController extends SecureController {
                 in.close();
                 outStream.close();
             } catch (Exception e) {
-                log.error("Problem sending cotent", e);
+                log.error("Problem sending content", e);
                 valueStack.put("error", true);
             }
         } else {
@@ -211,7 +211,7 @@ public class CaseFileDownloadController extends SecureController {
     }
 
     private List<SearchDocument> getDocumentPaths(Set<String> freeTextQueries, Set<String> tagSearchQueries, int from, int rows) {
-        String[] fields = {"id", "document_original_path", "unique_id"};
+        String[] fields = {"_id", "document_original_path", "UPI"};
         SearchResultView searchResultView = searchService.search(freeTextQueries, tagSearchQueries, from, rows, fields);
         List<SearchDocument> result = new ArrayList<>(searchResultView.getTotalSize());
         result.addAll(searchResultView.getDocuments());

@@ -29,7 +29,7 @@ import static org.freeeed.search.web.service.elasticsearch.ESTagService.Result.S
 public class ESSearchDao implements SearchDao {
 
     private static final Logger LOGGER = Logger.getLogger(ESSearchDao.class);
-    private static Configuration configuration;
+    private Configuration configuration;
 
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
