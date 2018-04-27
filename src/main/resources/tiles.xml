@@ -18,6 +18,7 @@
 	</definition>
 	
 	<definition name="tag" template="/template/tag.jsp"/>
+    <definition name="remainingtags" template="/template/remainingtags.jsp"/>
     
     <definition name="search" extends="commonLayout">
         <put-attribute name="body" value="/template/search.jsp" />

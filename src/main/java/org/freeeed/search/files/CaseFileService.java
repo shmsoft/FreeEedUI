@@ -20,7 +20,7 @@ import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.freeeed.search.web.model.solr.SolrDocument;
+import org.freeeed.search.web.model.elasticsearch.SearchDocument;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -114,6 +114,7 @@ public class CaseFileService {
         File dir = new File(FILES_DIR + File.separator + caseName + File.separator + "native");
         if (dir.exists()) {
             File[] files = dir.listFiles();
+            assert files != null;
             for (File file : files) {
                 if (file.getName().endsWith(fileName)) {
                     return file;
@@ -192,15 +193,17 @@ public class CaseFileService {
         return null;
     }
 
-    public File getImageFiles(String caseName, List<SolrDocument> docs) {
-        List<File> imageFiles = new ArrayList<File>();
-        for (SolrDocument doc : docs) {
+    public File getImageFiles(String caseName, List<SearchDocument> docs) {
+        List<File> imageFiles = new ArrayList<>();
+        for (SearchDocument doc : docs) {
             File file = getImageFile(caseName, doc.getDocumentPath(), doc.getUniqueId());
             if (file != null) {
                 imageFiles.add(file);
             }
         }
-
+        if (imageFiles.isEmpty()) {
+            return null;
+        }
         File tmpDir = new File(FILES_TMP_DIR);
         tmpDir.mkdirs();
 
@@ -215,9 +218,9 @@ public class CaseFileService {
         return new File(zipFileName);
     }
 
-    public File getNativeFiles(String caseName, List<SolrDocument> docs) {
+    public File getNativeFiles(String caseName, List<SearchDocument> docs) {
         List<File> imageFiles = new ArrayList<File>();
-        for (SolrDocument doc : docs) {
+        for (SearchDocument doc : docs) {
             File file = getNativeFile(caseName, doc.getDocumentPath(), doc.getUniqueId());
             if (file != null) {
                 imageFiles.add(file);
@@ -238,7 +241,7 @@ public class CaseFileService {
         return new File(zipFileName);
     }
 
-    public File getNativeFilesFromSource(String source, List<SolrDocument> docs) throws IOException {
+    public File getNativeFilesFromSource(String source, List<SearchDocument> docs) throws IOException {
         File tmpDir = new File(FILES_TMP_DIR);
         tmpDir.mkdirs();
 
@@ -249,7 +252,7 @@ public class CaseFileService {
 
         zipFileDir.mkdirs();
 
-        for (SolrDocument doc : docs) {
+        for (SearchDocument doc : docs) {
             getNativeFileFromSource(zipFileDirName, source, doc.getDocumentPath());
         }
 
@@ -344,7 +347,7 @@ public class CaseFileService {
                 }
                 newHeader[i] = nextLine[i];
             }
-            newHeader[i] = "Tags";
+            newHeader[i] = "Entry";
         }
         csvWriter.writeNext(newHeader);
         return index;

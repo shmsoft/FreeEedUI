@@ -19,7 +19,6 @@ $(document).ready(function () {
                 $("#uploadedFileNameId").text(res.fileShort);
                 $("#uploadedFileBoxId").show();
             }
-
             $(".body").removeClass("loading");
         },
         'onStart': function () {

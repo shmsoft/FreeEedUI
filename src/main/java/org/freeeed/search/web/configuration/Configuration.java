@@ -17,27 +17,25 @@
 package org.freeeed.search.web.configuration;
 
 import org.freeeed.search.web.dao.settings.AppSettingsDao;
-import org.freeeed.search.web.model.AppSettings;
+import org.freeeed.search.web.model.settings.AppSettings;
 
 /**
- * 
  * Class Configuration.
- * 
+ * <p>
  * Implements the lifecycle of the product configuration - saving and loading configuration.
- * 
- * @author ilazarov
  *
+ * @author ilazarov
  */
 public class Configuration {
     private AppSettingsDao appSettingsDao;
-    
-    public String getSolrEndpoint() {
+
+    public String getESEndpoint() {
         AppSettings appSettings = appSettingsDao.loadSettings();
         if (appSettings != null) {
-            return appSettings.getSolrEndpoint();
+            return appSettings.getEsEndpoint();
         }
-        
-        return "http://localhost:8983";
+
+        return "http://localhost:9200";
     }
 
     public int getNumberOfRows() {
@@ -45,10 +43,10 @@ public class Configuration {
         if (appSettings != null) {
             return appSettings.getResultsPerPage();
         }
-        
+
         return 10;
     }
-    
+
     public void setAppSettingsDao(AppSettingsDao appSettingsDao) {
         this.appSettingsDao = appSettingsDao;
     }

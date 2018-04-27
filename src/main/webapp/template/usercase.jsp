@@ -35,11 +35,11 @@
                 <td><textarea name="description">${usercase.description}</textarea></td>
             </tr>
             <tr>
-                <td>Solr source*:</td>
+                <td>Elastic search indices*:</td>
                 <td>
-                    <select name="solrsource">
-                        <c:forEach var="core" items="${cores}">
-                            <option value="${core}" ${core == usercase.solrSourceCore ? 'selected' : ''}>${core}</option>
+                    <select name="esindices">
+                        <c:forEach var="core" items="${indices}">
+                            <option value="${core}" ${core == usercase.esSourceIndices ? 'selected' : ''}>${core}</option>
                         </c:forEach>
                     </select>
                 </td>
@@ -56,8 +56,8 @@
             <tr>
                 <td>Upload file:</td>
                 <td>
-                    <input id="uploadfile" type="file" name="file"/><input id="uploadfilebutton" type="button"
-                                                                           value="Upload">
+                    <input id="uploadfile" type="file" name="file"/>
+                    <input id="uploadfilebutton" type="button" value="Upload">
                     <input id="uploadedFileId" type="hidden" name="filesLocationUp" value=""/>
                 </td>
             </tr>

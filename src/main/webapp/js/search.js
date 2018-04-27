@@ -1,6 +1,6 @@
 var lastDocId = null;
-var documentsMap = new Object();
-var allTags = new Object();
+var documentsMap = {};
+var allTags = {};
 
 function selectDocument(docId) {
     if (docId == lastDocId) {
@@ -45,11 +45,15 @@ function newTag(docId) {
     if (tag == null || tag.length == 0) {
         return;
     }
-
+    var obj = documentsMap[docId];
+    var allTags = tag;
+    for (var key in obj) {
+        allTags += "," + key;
+    }
     $.ajax({
         type: 'POST',
         url: 'tag.html',
-        data: {action: 'newtag', docid: docId, tag: tag},
+        data: {action: 'newtag', docid: docId, tag: allTags},
         success: function (data) {
             if (data != 'SUCCESS') {
                 return;
@@ -77,7 +81,7 @@ function displayTag(docId, tag) {
 
     var docIdParam = '"' + docId + '"';
     var tagParam = '"' + tag + '"';
-    $("#tags-table-" + docId).append("<tr class='document-tags-row'>" +
+    $("#tags-table-" + docId).append("<tr id='document-tags-row-" + tag + "-" + docId + "' class='document-tags-row'>" +
         "<td><div class='document-tags-tag'>" + tag + "</div></td>" +
         "<td><a href='#' onclick='deleteTag(" + docIdParam + ", this, " + tagParam + ")'><img src='images/delete.gif'/></a></td>" +
         "</tr>");
@@ -94,8 +98,8 @@ function deleteTag(docId, el, tag) {
             $(el).parent().parent().remove();
             var total = parseInt($("#tags-total-" + docId).html()) - 1;
             $("#tags-total-" + docId).html(total);
-            if (total == 0) {
-                location.reload();
+            if (data == 'false') {
+                $("#" + tag + "").parent().remove();
             }
         },
         error: function () {
@@ -110,7 +114,23 @@ function deleteTagFromAllDocs(tag) {
         url: 'tag.html',
         data: {action: 'deletetagfromall', tag: tag},
         success: function (data) {
-            location.reload();
+            $("#" + tag + "").parent().remove();
+            var partialId = "document-tags-row-" + tag;
+            var tagElems = $('[id*=' + partialId + ']');
+            for (var i = 0; i < tagElems.length; i++) {
+                var e = tagElems[i];
+                var split = e.id.split("-");
+                var docId = split[split.length - 1];
+                if (docId) {
+                    var total = parseInt($("#tags-total-" + docId).html()) - 1;
+                    $("#tags-total-" + docId).html(total);
+                    var hiddenElemes = $(".doc-tag-" + docId);
+                    if (hiddenElemes && hiddenElemes.length > 0) {
+                        hiddenElemes[0].remove();
+                    }
+                }
+                e.remove();
+            }
         },
         error: function () {
             alert("Technical error, try that again in a few moments!");
@@ -130,9 +150,9 @@ function search() {
 
             $("#result-ajax").html(data);
 
-            var solrId = $("#solrid").val();
-            if (solrId != null) {
-                initPage(solrId);
+            var esId = $("#esid").val();
+            if (esId != null) {
+                initPage(esId);
             }
 
             $("#search-query").val('');
@@ -153,9 +173,9 @@ function addTagToSearch(tag) {
 
             $("#result-ajax").html(data);
 
-            var solrId = $("#solrid").val();
-            if (solrId != null) {
-                initPage(solrId);
+            var esId = $("#esid").val();
+            if (esId != null) {
+                initPage(esId);
             }
         },
         error: function () {
@@ -174,9 +194,9 @@ function changePage(page) {
 
             $("#result-ajax").html(data);
 
-            var solrId = $("#solrid").val();
-            if (solrId != null) {
-                initPage(solrId);
+            var esId = $("#esid").val();
+            if (esId != null) {
+                initPage(esId);
             }
         },
         error: function () {
@@ -195,9 +215,9 @@ function removeSearch(id) {
 
             $("#result-ajax").html(data);
 
-            var solrId = $("#solrid").val();
-            if (solrId != null) {
-                initPage(solrId);
+            var esId = $("#esid").val();
+            if (esId != null) {
+                initPage(esId);
             }
         },
         error: function () {
@@ -216,9 +236,9 @@ function removeAllSearch() {
 
             $("#result-ajax").html(data);
 
-            var solrId = $("#solrid").val();
-            if (solrId != null) {
-                initPage(solrId);
+            var esId = $("#esid").val();
+            if (esId != null) {
+                initPage(esId);
             }
         },
         error: function () {
@@ -233,9 +253,9 @@ function initTags() {
         $(this).next(".document-tags-table").slideToggle(500);
     });
 
-    $(".solrid").each(function (index) {
+    $(".esid").each(function (index) {
         var docId = $(this).val();
-        documentsMap[docId] = new Object();
+        documentsMap[docId] = {};
         $(".doc-tag-" + docId).each(function (index) {
             var tag = $(this).val();
             documentsMap[docId][tag] = 1;
@@ -243,8 +263,8 @@ function initTags() {
     });
 
     //$(".tag-doc-field-cl").autocomplete({source : "tagauto.html"});
-    $("#tag-all-text").autocomplete({source: "tagauto.html"});
-    $("#tag-page-text").autocomplete({source: "tagauto.html"});
+    $("#tag-all-text").autocomplete({source: "tagauto.html", delay: 500});
+    $("#tag-page-text").autocomplete({source: "tagauto.html", delay: 500});
 }
 
 function tagAllBox() {

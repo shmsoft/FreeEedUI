@@ -8,7 +8,7 @@
     <function>
         <name>hasRight</name>
         <function-class>org.freeeed.search.web.tlb.TlbUtil</function-class>
-        <function-signature>boolean hasRight(org.freeeed.search.web.model.User,
+        <function-signature>boolean hasRight(org.freeeed.search.web.model.users.User,
             java.lang.String)</function-signature>
     </function>
 </taglib>

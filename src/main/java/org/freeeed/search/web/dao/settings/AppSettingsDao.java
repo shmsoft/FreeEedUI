@@ -16,7 +16,7 @@
 */
 package org.freeeed.search.web.dao.settings;
 
-import org.freeeed.search.web.model.AppSettings;
+import org.freeeed.search.web.model.settings.AppSettings;
 
 /**
  * 

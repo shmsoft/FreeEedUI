@@ -18,7 +18,7 @@ package org.freeeed.search.web.dao.cases;
 
 import java.util.List;
 
-import org.freeeed.search.web.model.Case;
+import org.freeeed.search.web.model.cases.Case;
 
 /**
  * 
