@@ -68,7 +68,6 @@ public class CaseFileService {
             return true;
         } catch (Exception e) {
             log.error("Problem unpacking: " + zipFile, e);
-
             return false;
         }
     }

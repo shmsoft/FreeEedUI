@@ -21,10 +21,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.freeeed.search.web.dao.elasticsearch.SearchDao;
 import org.freeeed.search.web.model.elasticsearch.SearchDocument;
+import org.freeeed.search.web.searchviews.SearchResultView;
 import org.freeeed.search.web.session.SearchSessionObject;
 import org.freeeed.search.web.utils.DocumentParser;
 import org.freeeed.search.web.utils.WebConstants;
-import org.freeeed.search.web.searchviews.SearchResultView;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -86,7 +86,7 @@ public class ESSearchService implements SearchService {
                         List<String> vals = (List<String>) v;
                         valueList.addAll(vals);
                     } else {
-                        valueList.add((String) v);
+                        valueList.add(v.toString());
                     }
                 }
                 data.put(k, valueList);
