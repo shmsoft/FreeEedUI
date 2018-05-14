@@ -16,19 +16,19 @@
 */
 package org.freeeed.search.web.controller.cases;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.freeeed.search.files.CaseFileService;
 import org.freeeed.search.web.controller.commons.BaseController;
-import org.freeeed.search.web.service.elasticsearch.IndicesService;
-import org.freeeed.search.web.utils.WebConstants;
 import org.freeeed.search.web.dao.cases.CaseDao;
 import org.freeeed.search.web.model.cases.Case;
 import org.freeeed.search.web.model.users.User;
+import org.freeeed.search.web.service.elasticsearch.IndicesService;
+import org.freeeed.search.web.utils.WebConstants;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class CaseController.
@@ -144,7 +144,6 @@ public class CaseController extends BaseController {
 
                     if (!caseFileService.expandCaseFiles(name, filesLocation)) {
                         errors.add("Invalid files location");
-                        return new ModelAndView(WebConstants.CASE_PAGE);
                     }
                 }
             }

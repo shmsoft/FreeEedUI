@@ -16,11 +16,11 @@
 */
 package org.freeeed.search.web.utils;
 
-import org.freeeed.search.web.service.elasticsearch.ESTagService;
 import org.freeeed.search.web.model.elasticsearch.Entry;
 import org.freeeed.search.web.model.elasticsearch.SearchDocument;
 import org.freeeed.search.web.model.elasticsearch.Tag;
 import org.freeeed.search.web.searchviews.SearchResultEntryComparator;
+import org.freeeed.search.web.service.elasticsearch.ESTagService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +71,7 @@ public class DocumentParser {
 
             switch (name.toLowerCase()) {
                 case "upi":
+                case "number":
                     uniqueId = value;
                     documentId = value;
                     break;
@@ -87,10 +88,12 @@ public class DocumentParser {
                     }
                     break;
                 case "subject":
+                case "hash":
                     subject = value;
                     break;
                 case "date":
                 case "creation-date":
+                case "readabletimestamp":
                     date = setDate(value);
                     break;
                 case ESTagService.TAGS_SEARCH_FIELD:
