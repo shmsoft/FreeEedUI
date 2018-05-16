@@ -80,9 +80,13 @@ public class ResultHighlight {
      * @return
      */
     private String highlightResults(String result, String word, int index) {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (result == null) {
+            return stringBuilder.toString();
+        }
         Pattern pattern = Pattern.compile("\\b" + "(?i)" + word + "\\b");
         Matcher matcher = pattern.matcher(result);
-        StringBuilder stringBuilder = new StringBuilder();
+
         int currentIndex = 0;
         while (matcher.find()) {
             int start = matcher.start();

@@ -89,7 +89,7 @@ public class SearchSessionObject {
         Set<String> freeTextQueries = new HashSet<>();
         for (int i = 0, j = 0; i < queries.size() && j < queryTags.size(); i++, j++) {
             if (!queryTags.get(j) && !queries.get(i).equals("*")) {
-                String queryBuilder = queries.get(i) + ",";
+                String queryBuilder = queries.get(i);
                 freeTextQueries.add(queryBuilder);
             }
         }
