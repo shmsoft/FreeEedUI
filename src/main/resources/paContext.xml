@@ -45,9 +45,17 @@
         <property name="tagService" ref="tagService"/>
     </bean>
 
+    <bean id="notePage" class="org.freeeed.search.web.controller.elasticsearch.NoteController">
+        <property name="noteService" ref="noteService"/>
+    </bean>
+
     <bean id="tagService" class="org.freeeed.search.web.service.elasticsearch.ESTagService">
         <property name="configuration" ref="configurationBean"/>
         <property name="caseDao" ref="caseDao"/>
+        <property name="searchDao" ref="esSearchDao"/>
+    </bean>
+
+    <bean id="noteService" class="org.freeeed.search.web.service.elasticsearch.ESNoteService">
         <property name="searchDao" ref="esSearchDao"/>
     </bean>
 
@@ -150,6 +158,7 @@
                 <prop key="/tagauto.html">tagAutoPage</prop>
                 <prop key="/filedownload.html">caseFilesDownload</prop>
                 <prop key="/fileupload.html">fileuploadPage</prop>
+                <prop key="/note.html">notePage</prop>
             </props>
         </property>
     </bean>

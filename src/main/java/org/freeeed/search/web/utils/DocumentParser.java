@@ -16,12 +16,16 @@
 */
 package org.freeeed.search.web.utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.freeeed.search.web.model.elasticsearch.Entry;
+import org.freeeed.search.web.model.elasticsearch.Note;
 import org.freeeed.search.web.model.elasticsearch.SearchDocument;
 import org.freeeed.search.web.model.elasticsearch.Tag;
 import org.freeeed.search.web.searchviews.SearchResultEntryComparator;
 import org.freeeed.search.web.service.elasticsearch.ESTagService;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +40,7 @@ public class DocumentParser {
 
     private SearchResultEntryComparator entriesComparator = new SearchResultEntryComparator();
     private static final String EMPTY = "";
-
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /**
      * Create a document object based
      * on the provided data. The data is data fields in key -> value format.
@@ -55,6 +59,7 @@ public class DocumentParser {
         String uniqueId = EMPTY;
         List<Entry> entries = new ArrayList<>();
         List<Tag> tags = new ArrayList<>();
+        List<Note> notes = new ArrayList<>();
 
         for (Map.Entry<String, List<String>> entry : data.entrySet()) {
             String name = entry.getKey();
@@ -99,6 +104,13 @@ public class DocumentParser {
                 case ESTagService.TAGS_SEARCH_FIELD:
                     updateTags(tags, allValues);
                     break;
+                case "notes":
+                    try {
+                        notes = OBJECT_MAPPER.readValue(value, new TypeReference<List<Note>>(){});
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
             }
         }
 
@@ -107,6 +119,7 @@ public class DocumentParser {
         doc.setSubject(subject);
         doc.setDate(date);
         doc.setTags(tags);
+        doc.setNotes(notes);
         doc.setDocumentPath(docPath);
         doc.setUniqueId(uniqueId);
         entries.sort(entriesComparator);

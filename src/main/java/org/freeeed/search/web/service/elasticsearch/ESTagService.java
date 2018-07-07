@@ -1,6 +1,6 @@
 /*
  *
- * Copyright SHMsoft, Inc. 
+ * Copyright SHMsoft, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*/
+ */
 package org.freeeed.search.web.service.elasticsearch;
 
 import org.apache.log4j.Logger;
@@ -121,7 +121,7 @@ public class ESTagService implements TagService {
             tagQueries.add(tag);
             SearchResponse response = searchDao.search(indicesName, Collections.emptySet(), tagQueries, 0, 2, new String[]{DOC_ID, TAGS_SEARCH_FIELD});
 
-            if (hasNoDocWithSameTag(documentId, response)) {
+            if (Objects.isNull(response) || response.getHits().getTotalHits() == 0) {
                 removeCaseTag(tag);
             }
         }
@@ -147,12 +147,14 @@ public class ESTagService implements TagService {
             Set<String> tags = new HashSet<>();
             tags.add(tag);
             SearchResponse searchResponse = searchDao.search(indicesName, Collections.emptySet(), tags, 0, rows, new String[]{DOC_ID, TAGS_SEARCH_FIELD});
-            SearchHit[] hits = searchResponse.getHits().getHits();
-            for (SearchHit hit : hits) {
-                Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-                String documentId = hit.getId();
-                List<String> tagsFieldValue = (List<String>) sourceAsMap.get(TAGS_SEARCH_FIELD);
-                removeAndUpdateTag(documentId, tag, tagsFieldValue);
+            if (Objects.nonNull(searchResponse)) {
+                SearchHit[] hits = searchResponse.getHits().getHits();
+                for (SearchHit hit : hits) {
+                    Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+                    String documentId = hit.getId();
+                    List<String> tagsFieldValue = (List<String>) sourceAsMap.get(TAGS_SEARCH_FIELD);
+                    removeAndUpdateTag(documentId, tag, tagsFieldValue);
+                }
             }
             removeCaseTag(tag);
         } catch (Exception ex) {
@@ -172,15 +174,6 @@ public class ESTagService implements TagService {
                 searchDao.updateSingleDocTag(documentId, uniqueTags);
             }
         }
-    }
-
-    private static boolean hasNoDocWithSameTag(String recentUpdatedDocId, SearchResponse searchResponse) {
-        SearchHits hits = searchResponse.getHits();
-        if (hits.getTotalHits() == 1) {
-            String docIdWithTag = hits.getHits()[0].getId();
-            return docIdWithTag.equals(recentUpdatedDocId);
-        }
-        return hits.getTotalHits() == 0;
     }
 
     private void tagMultipleDocuments(String tag, SearchResponse searchResponse) {
