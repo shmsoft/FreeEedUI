@@ -1,5 +1,6 @@
 package org.freeeed.search.web.service.elasticsearch;
 
+import org.freeeed.search.web.service.elasticsearch.ESTagService.Result;
 import org.freeeed.search.web.session.SearchSessionObject;
 
 import java.util.Set;
@@ -9,13 +10,13 @@ import java.util.Set;
  */
 public interface TagService {
 
-    ESTagService.Result tagSingleDocument(String documentId, Set<String> tags);
+    Result tagSingleDocument(String documentId, Set<String> tags);
 
-    ESTagService.Result tagThisPageDocuments(SearchSessionObject esSession, String tag);
+    Result tagThisPageDocuments(SearchSessionObject esSession, String tag);
 
-    ESTagService.Result tagAllSearchedDocuments(SearchSessionObject esSession, String tag);
+    Result tagAllSearchedDocuments(SearchSessionObject esSession, String tag);
 
-    ESTagService.Result removeTagFromSingleDocument(SearchSessionObject esSession, String documentId, String tag);
+    Result removeTagFromSingleDocument(SearchSessionObject esSession, String documentId, String tag);
 
-    ESTagService.Result removeTagFromAllDocs(SearchSessionObject esSession, String tag);
+    Result removeTagFromAllDocs(SearchSessionObject esSession, String tag);
 }

@@ -30,6 +30,7 @@ public class SearchDocument implements Cloneable {
     private String documentId;
     private List<Entry> entries;
     private List<Tag> tags;
+    private List<Note> notes;
     private String from;
     private String subject;
     private String date;
@@ -98,6 +99,14 @@ public class SearchDocument implements Cloneable {
 
     public void setUniqueId(String uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public List<Note> getNotes() {
+        return notes;
+    }
+
+    public void setNotes(List<Note> notes) {
+        this.notes = notes;
     }
 
     public SearchDocument clone() {

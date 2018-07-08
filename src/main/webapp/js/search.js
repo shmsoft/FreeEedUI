@@ -40,6 +40,23 @@ function newTagEnter(docId, e) {
     newTag(docId);
 }
 
+function newNoteEnter(docId, e) {
+    var charCode;
+
+    if (e && e.which) {
+        charCode = e.which;
+    } else if (window.event) {
+        e = window.event;
+        charCode = e.keyCode;
+    }
+
+    if (charCode != 13) {
+        return;
+    }
+
+    newNote(docId);
+}
+
 function newTag(docId) {
     var tag = $("#tag-doc-field-" + docId).val();
     if (tag == null || tag.length == 0) {
@@ -60,9 +77,34 @@ function newTag(docId) {
             }
 
             displayTag(docId, tag);
+            location.reload();
 
             $("#tag-doc-" + docId).hide();
             $("#tag-doc-field-" + docId).val('');
+        },
+        error: function () {
+            alert("Technical error, try that again in a few moments!");
+        }
+    });
+}
+
+function newNote(docId) {
+    var note = $("#note-doc-field-" + docId).val();
+    if (note == null || note.length == 0) {
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: 'note.html',
+        data: {action: 'addnote', docid: docId, note: note},
+        success: function (data) {
+            if (data != 'SUCCESS') {
+                return;
+            }
+            //update display
+            location.reload();
+            $("#note-doc-" + docId).hide();
         },
         error: function () {
             alert("Technical error, try that again in a few moments!");
@@ -101,6 +143,21 @@ function deleteTag(docId, el, tag) {
             if (data == 'false') {
                 $("#" + tag + "").parent().remove();
             }
+        },
+        error: function () {
+            alert("Technical error, try that again in a few moments!");
+        }
+    });
+}
+
+function deleteNote(docId, el, noteId) {
+    $.ajax({
+        type: 'POST',
+        url: 'note.html',
+        data: {action: 'removenote', docid: docId, noteid: noteId},
+        success: function (data) {
+            $(el).parent().parent().remove();
+            location.reload();
         },
         error: function () {
             alert("Technical error, try that again in a few moments!");
@@ -263,8 +320,8 @@ function initTags() {
     });
 
     //$(".tag-doc-field-cl").autocomplete({source : "tagauto.html"});
-    $("#tag-all-text").autocomplete({source: "tagauto.html", delay: 500});
-    $("#tag-page-text").autocomplete({source: "tagauto.html", delay: 500});
+    // $("#tag-all-text").autocomplete({source: "tagauto.html", delay: 500});
+    // $("#tag-page-text").autocomplete({source: "tagauto.html", delay: 500});
 }
 
 function tagAllBox() {
@@ -378,4 +435,5 @@ $(document).ready(function () {
             }
         });
     });
+    search();
 });
