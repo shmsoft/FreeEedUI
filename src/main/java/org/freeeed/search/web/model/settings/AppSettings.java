@@ -17,6 +17,7 @@
 package org.freeeed.search.web.model.settings;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 
@@ -26,10 +27,11 @@ import java.io.Serializable;
  *
  */
 public class AppSettings implements Serializable {
-    private static final long serialVersionUID = -122869144861713551L;
+    private static final long serialVersionUID = -122869144861713552L;
     
     private int resultsPerPage;
     private String esEndpoint;
+    private List<String> permanentTags;
     
     public int getResultsPerPage() {
         return resultsPerPage;
@@ -45,5 +47,13 @@ public class AppSettings implements Serializable {
     
     public void setEsEndpoint(String esEndpoint) {
         this.esEndpoint = esEndpoint;
+    }
+
+    public List<String> getPermanentTags() {
+        return permanentTags;
+    }
+
+    public void setPermanentTags(List<String> permanentTags) {
+        this.permanentTags = permanentTags;
     }
 }

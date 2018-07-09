@@ -1,6 +1,6 @@
 /*
  *
- * Copyright SHMsoft, Inc. 
+ * Copyright SHMsoft, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*/
+ */
 package org.freeeed.search.web.configuration;
 
 import org.freeeed.search.web.dao.settings.AppSettingsDao;
 import org.freeeed.search.web.model.settings.AppSettings;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class Configuration.
@@ -45,6 +48,14 @@ public class Configuration {
         }
 
         return 10;
+    }
+
+    public List<String> getPermanentTags() {
+        AppSettings appSettings = appSettingsDao.loadSettings();
+        if (appSettings != null) {
+            return appSettings.getPermanentTags();
+        }
+        return new ArrayList<>();
     }
 
     public void setAppSettingsDao(AppSettingsDao appSettingsDao) {
