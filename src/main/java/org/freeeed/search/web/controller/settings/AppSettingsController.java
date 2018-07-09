@@ -1,6 +1,6 @@
 /*
  *
- * Copyright SHMsoft, Inc. 
+ * Copyright SHMsoft, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*/
+ */
 package org.freeeed.search.web.controller.settings;
 
 import org.apache.log4j.Logger;
@@ -27,6 +27,8 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Class AppSettingsController.
@@ -59,7 +61,7 @@ public class AppSettingsController extends SecureController {
         log.debug("Action called: " + action);
 
         if ("save".equals(action)) {
-            List<String> errors = new ArrayList<String>();
+            List<String> errors = new ArrayList<>();
 
             String resultsPerPageStr = (String) valueStack.get("results_per_page");
             int resultsPerPage = 0;
@@ -77,6 +79,8 @@ public class AppSettingsController extends SecureController {
             appSettings.setResultsPerPage(resultsPerPage);
             appSettings.setEsEndpoint(searchEndpoint);
 
+            List<String> permanentTags = getPermanentTags(valueStack);
+            appSettings.setPermanentTags(permanentTags);
             valueStack.put("errors", errors);
             if (errors.size() == 0) {
                 appSettingsDao.storeSettings(appSettings);
@@ -85,6 +89,17 @@ public class AppSettingsController extends SecureController {
         }
 
         return new ModelAndView(WebConstants.APP_SETTINGS_PAGE);
+    }
+
+    private List<String> getPermanentTags(Map<String, Object> valueStack) {
+        List<String> tags = new ArrayList<>();
+        for (int i = 1; i < 100; i++) {
+            Object value = valueStack.get("tag" + i);
+            if (Objects.nonNull(value)) {
+                tags.add((String) value);
+            }
+        }
+        return tags;
     }
 
     public void setAppSettingsDao(AppSettingsDao appSettingsDao) {

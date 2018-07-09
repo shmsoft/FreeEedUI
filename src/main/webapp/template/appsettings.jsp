@@ -1,6 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="shmwebfunc" uri="http://freeeed.org/tags/custom" %>
+<script src="js/dynamic_rows.js" type="application/javascript"></script>
 
 <div class="reg-proj-head">
     Application Settings
@@ -22,33 +23,32 @@
     </div>
 </c:if>
 
+<div class="jumbotron jumbotron-fluid">
 <div class="user-box">
     <form action="appsettings.html" method="post">
-        <table border="0" cellpadding="0" cellspacing="0">
+        <table id="settings" border="0" cellpadding="0" cellspacing="0">
             <tr>
                 <td>Results per page*:</td>
-                <td><input type="text" name="results_per_page" value="${appSettings.resultsPerPage}"/></td>
+                <td colspan="2"><input type="text" name="results_per_page" value="${appSettings.resultsPerPage}"/></td>
             </tr>
             <tr>
                 <td>ElasticSearch endpoint URL*:</td>
-                <td><input type="text" name="es_endpoint" value="${appSettings.esEndpoint}"/></td>
+                <td colspan="2"><input type="text" name="es_endpoint" value="${appSettings.esEndpoint}"/></td>
             </tr>
             <tr>
-                <td colspan="2">
-                    &nbsp;
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <span class="explanation">(Fields marked with * are mandatory)</span>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <input type="Submit" value="Save"/>
-                </td>
+                <td>Permanent Tags:</td>
+                <td colspan="2"><input type="button" class="btn btn-link" id="addnewtag" value="Add tags"/></td>
             </tr>
         </table>
+
+        <span class="explanation">(Fields marked with * are mandatory)</span>
+        <input type="Submit" class="btn btn-sm btn-primary" value="Save"/>
         <input type="hidden" name="action" value="save"/>
     </form>
 </div>
+</div>
+<c:forEach var="savedTag" items="${appSettings.permanentTags}">
+    <script>
+     renderTag('${savedTag}');
+    </script>
+</c:forEach>

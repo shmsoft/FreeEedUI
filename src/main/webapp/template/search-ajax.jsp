@@ -1,6 +1,17 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
+<script>
+    var permanentTags = [];
+</script>
+<c:forEach var="savedTag" items="${permanentTags}">
+    <script>
+        permanentTags.push("${savedTag}");
+    </script>
+</c:forEach>
+<script>
+    $('[id*="tag-doc-"]').autocomplete({source: permanentTags});
+</script>
    <div class="delimiter2">
     </div>
 

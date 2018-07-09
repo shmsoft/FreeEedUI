@@ -59,7 +59,7 @@ public class FSAppSettingsDao implements AppSettingsDao {
         
         result.setResultsPerPage(appSettings.getResultsPerPage());
         result.setEsEndpoint(appSettings.getEsEndpoint());
-        
+        result.setPermanentTags(appSettings.getPermanentTags());
         return result;
     }
 
