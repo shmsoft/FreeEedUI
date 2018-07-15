@@ -1,6 +1,6 @@
 /*
  *
- * Copyright SHMsoft, Inc. 
+ * Copyright SHMsoft, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*/
+ */
 package org.freeeed.search.web.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -41,6 +41,7 @@ public class DocumentParser {
     private SearchResultEntryComparator entriesComparator = new SearchResultEntryComparator();
     private static final String EMPTY = "";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     /**
      * Create a document object based
      * on the provided data. The data is data fields in key -> value format.
@@ -84,6 +85,7 @@ public class DocumentParser {
                 case "message-from":
                 case "last-author":
                 case "author":
+                case "memo":
                     from = value;
                     break;
                 case "document_original_path":
@@ -94,6 +96,7 @@ public class DocumentParser {
                     break;
                 case "subject":
                 case "hash":
+                case "name":
                     subject = value;
                     break;
                 case "date":
@@ -106,7 +109,8 @@ public class DocumentParser {
                     break;
                 case "notes":
                     try {
-                        notes = OBJECT_MAPPER.readValue(value, new TypeReference<List<Note>>(){});
+                        notes = OBJECT_MAPPER.readValue(value, new TypeReference<List<Note>>() {
+                        });
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
