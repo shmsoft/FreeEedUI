@@ -1,6 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-
 <script>
     var permanentTags = [];
 </script>
@@ -54,11 +53,11 @@
         </div>
 
         <div class="btn-group" role="group" style="margin-top: 10px">
-                    <a type="button" class="btn btn-lg btn-default" href="javascript:" class="operation-link-text" onclick="tagAllBox()">Tag All Results</a>
-                    <a type="button" class="btn btn-lg btn-default" href="javascript:" class="operation-link-text" onclick="tagPageBox()">Tag This page</a>
-                    <a type="button" class="btn btn-lg btn-default" href="filedownload.html?action=exportImageAll">Export as images</a>
-                    <a type="button" class="btn btn-lg btn-default" href="filedownload.html?action=exportNativeAll">Export as native</a>
-                    <a type="button" class="btn btn-lg btn-default" href="filedownload.html?action=exportLoadFile">Export Load File</a>
+                    <a type="button" class="btn btn-default" href="javascript:" class="operation-link-text" onclick="tagAllBox()">Tag All Results</a>
+                    <a type="button" class="btn btn-default" href="javascript:" class="operation-link-text" onclick="tagPageBox()">Tag This page</a>
+                    <a type="button" class="btn btn-default" href="filedownload.html?action=exportImageAll">Export as images</a>
+                    <a type="button" class="btn btn-default" href="filedownload.html?action=exportNativeAll">Export as native</a>
+                    <a type="button" class="btn btn-default" href="filedownload.html?action=exportLoadFile">Export Load File</a>
                 <div class="tags-remove-box">
                 </div>
             </div>
@@ -115,21 +114,23 @@
          <div class="result-box" id="doc-${doc.documentId}" style="display:none">
              <div class="btn-toolbar">
                 <div class="btn-group" role="group">
-                    <a type="button" class="btn btn-lg btn-default" data="${doc.documentPath}" uid="${doc.uniqueId}">Preview</a>
-                    <a type="button" class="btn btn-lg btn-default" href="javascript:" onclick="$('#tag-doc-${doc.documentId}').slideToggle(500);">Tag</a>
-                    <a type="button" class="btn btn-lg btn-default" href="javascript:" onclick="$('#note-doc-${doc.documentId}').slideToggle(500);">Note</a>
-                    <a type="button" class="btn btn-lg btn-default" href="filedownload.html?action=exportNative&docPath=${doc.documentPath}&uniqueId=${doc.uniqueId}">Export native</a>
-                    <a type="button" class="btn btn-lg btn-default" href="filedownload.html?action=exportImage&docPath=${doc.documentPath}&uniqueId=${doc.uniqueId}">Export image</a>
+                    <a type="button" class="btn btn-default html-preview" data="${doc.documentPath}" uid="${doc.uniqueId}">Preview</a>
+                    <a type="button" class="btn btn-default" href="javascript:" onclick="$('#tag-doc-${doc.documentId}').slideToggle(500);">Tag</a>
+                    <a type="button" class="btn btn-default" href="javascript:" onclick="$('#note-doc-${doc.documentId}').slideToggle(500);">Note</a>
+                    <a type="button" class="btn btn-default" href="filedownload.html?action=exportNative&docPath=${doc.documentPath}&uniqueId=${doc.uniqueId}">Export native</a>
+                    <a type="button" class="btn btn-default" href="filedownload.html?action=exportImage&docPath=${doc.documentPath}&uniqueId=${doc.uniqueId}">Export image</a>
                 </div>
              </div>
             <div id="tag-doc-${doc.documentId}" class="tag-box" style="box-shadow: 0 0 1px 1px #5e5e5e;">
                 <div class="form-row" style="margin: 5px 20px;">
                     <div class="col">
-                 <input id="tag-doc-field-${doc.documentId}" class="form-control" type="text" name="tag" onkeypress="newTagEnter('${doc.documentId}', event)"/>
+                        <br/>
+                        <input id="tag-doc-field-${doc.documentId}" class="form-control" type="text" name="tag" onkeypress="newTagEnter('${doc.documentId}', event)"/>
                     </div>
+                    <br/>
                     <div class="col">
-                 <input type="button" class="btn btn-lg btn-primary" value="Tag" onclick="newTag('${doc.documentId}')"/>
-                 <input type="button" class="btn btn-lg btn-warning" value="Cancel" onclick="document.getElementById('tag-doc-${doc.documentId}').style.display='none';return false;"/>
+                 <input type="button" class="btn btn-primary" value="Tag" onclick="newTag('${doc.documentId}')"/>
+                 <input type="button" class="btn btn-warning" value="Cancel" onclick="document.getElementById('tag-doc-${doc.documentId}').style.display='none';return false;"/>
                     </div>
                 </div>
             </div>
@@ -138,8 +139,8 @@
                  <div class="form-group" style="margin: 5px 20px;">
                     <textarea id="note-doc-field-${doc.documentId}" class="form-control" rows="3" name="tag" onkeypress="newNoteEnter('${doc.documentId}', event)"/>
                     <br/>
-                    <input class="btn btn-lg btn-primary" type="button" value="Add Note" onclick="newNote('${doc.documentId}')"/>
-                    <input class="btn btn-lg btn-warning" type="button" value="Cancel" onclick="document.getElementById('note-doc-${doc.documentId}').style.display='none';return false;"/>
+                    <input class="btn btn-primary" type="button" value="Add Note" onclick="newNote('${doc.documentId}')"/>
+                    <input class="btn btn-warning" type="button" value="Cancel" onclick="document.getElementById('note-doc-${doc.documentId}').style.display='none';return false;"/>
                  </div>
              </div>
              <br/>
@@ -177,7 +178,7 @@
                                                  <footer class="blockquote-footer">by <cite title="Source Title">${note.author}</cite> on ${note.addedOn}</footer>
                                              </blockquote>
                                          </div>
-                                         <input class="btn btn-lg btn-danger" style="float: right" type="button" value="Delete Note" onclick="deleteNote('${doc.documentId}', this, '${note.id}')">
+                                         <input class="btn btn-danger" style="float: right" type="button" value="Delete Note" onclick="deleteNote('${doc.documentId}', this, '${note.id}')">
                                      </div>
                                  </td>
                              </tr>
