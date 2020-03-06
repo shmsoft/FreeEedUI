@@ -29,6 +29,7 @@
     </bean>
 
     <bean id="mainPage" class="org.freeeed.search.web.controller.commons.MainPageController">
+        <property name="caseDao" ref="caseDao"/>
     </bean>
 
     <bean id="searchPage" class="org.freeeed.search.web.controller.elasticsearch.SearchPageController">
@@ -39,14 +40,17 @@
         <property name="configuration" ref="configurationBean"/>
         <property name="searchService" ref="searchService"/>
         <property name="resultHighlight" ref="resultHighlight"/>
+        <property name="caseDao" ref="caseDao"/>
     </bean>
 
     <bean id="tagPage" class="org.freeeed.search.web.controller.elasticsearch.TagController">
         <property name="tagService" ref="tagService"/>
+        <property name="caseDao" ref="caseDao"/>
     </bean>
 
     <bean id="notePage" class="org.freeeed.search.web.controller.elasticsearch.NoteController">
         <property name="noteService" ref="noteService"/>
+        <property name="caseDao" ref="caseDao"/>
     </bean>
 
     <bean id="tagService" class="org.freeeed.search.web.service.elasticsearch.ESTagService">
@@ -93,10 +97,12 @@
 
     <bean id="listUsersPage" class="org.freeeed.search.web.controller.users.ListUsersController">
         <property name="userDao" ref="userDao"/>
+        <property name="caseDao" ref="caseDao"/>
     </bean>
 
     <bean id="userPage" class="org.freeeed.search.web.controller.users.UserController">
         <property name="userDao" ref="userDao"/>
+        <property name="caseDao" ref="caseDao"/>
     </bean>
 
     <bean id="listCasesPage" class="org.freeeed.search.web.controller.cases.ListCasesController">
@@ -114,9 +120,11 @@
 
     <bean id="appSettingsPage" class="org.freeeed.search.web.controller.settings.AppSettingsController">
         <property name="appSettingsDao" ref="appSettingsDao"/>
+        <property name="caseDao" ref="caseDao"/>
     </bean>
 
     <bean id="tagAutoPage" class="org.freeeed.search.web.controller.elasticsearch.TagAutoCompleteController">
+        <property name="caseDao" ref="caseDao"/>
     </bean>
 
     <bean id="caseFileService" class="org.freeeed.search.files.CaseFileService">
@@ -125,10 +133,12 @@
     <bean id="caseFilesDownload" class="org.freeeed.search.web.controller.cases.CaseFileDownloadController">
         <property name="searchService" ref="searchService"/>
         <property name="caseFileService" ref="caseFileService"/>
+        <property name="caseDao" ref="caseDao"/>
     </bean>
 
     <bean id="fileuploadPage" class="org.freeeed.search.web.controller.cases.FileUploadController">
         <property name="caseFileService" ref="caseFileService"/>
+        <property name="caseDao" ref="caseDao"/>
     </bean>
 
     <bean id="esSearchDao" class="org.freeeed.search.web.dao.elasticsearch.ESSearchDao">

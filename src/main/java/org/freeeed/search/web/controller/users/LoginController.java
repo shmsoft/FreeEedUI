@@ -26,6 +26,8 @@ import org.freeeed.search.web.model.users.User;
 import org.freeeed.search.web.session.LoggedSiteVisitor;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
+
 
 /**
  * 
@@ -65,7 +67,13 @@ public class LoginController extends BaseController {
         if (user == null) {
             valueStack.put("loginError", true);
         }
-        
+
+        try {
+            response.sendRedirect( response.encodeRedirectURL(WebConstants.MAIN_PAGE_REDIRECT) );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return new ModelAndView(WebConstants.MAIN_PAGE);
     }
 

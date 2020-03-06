@@ -26,7 +26,6 @@ import org.freeeed.search.web.service.elasticsearch.SearchService;
 import org.freeeed.search.web.session.SearchSessionObject;
 import org.freeeed.search.web.utils.WebConstants;
 import org.springframework.web.servlet.ModelAndView;
-
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +49,6 @@ public class SearchController extends SecureController {
     @Override
     public ModelAndView execute() {
         String action = (String) valueStack.get("action");
-        log.debug("Search action received: " + action);
 
         HttpSession session = this.request.getSession(true);
 
@@ -75,7 +73,6 @@ public class SearchController extends SecureController {
             if (Objects.nonNull(tagString) && !tagString.isEmpty()) {
                 esSession.addTagQuery(tagString);
             }
-
         } else if ("remove".equals(action)) {
             String id = (String) valueStack.get("id");
             try {
@@ -95,12 +92,11 @@ public class SearchController extends SecureController {
                         page = 1;
                     }
 
-                    if (esSession != null) {
-                        if (page > esSession.getTotalPage()) {
-                            page = esSession.getTotalPage();
-                        }
+                    if (page > esSession.getTotalPage()) {
+                        page = esSession.getTotalPage();
                     }
                 } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
                 from = page - 1;
             }
@@ -137,6 +133,8 @@ public class SearchController extends SecureController {
                 setupPagination();
             }
         }
+
+        valueStack.put("activeCase", esSession.getSelectedCase().getName() );
         valueStack.put("permanentTags", configuration.getPermanentTags());
         return new ModelAndView(WebConstants.SEARCH_AJAX_PAGE);
     }

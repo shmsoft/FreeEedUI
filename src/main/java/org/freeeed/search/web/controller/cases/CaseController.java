@@ -38,7 +38,6 @@ import java.util.List;
 public class CaseController extends BaseController {
     private static final Logger log = Logger.getLogger(CaseController.class);
 
-    private CaseDao caseDao;
     private IndicesService indicesService;
     private CaseFileService caseFileService;
 
@@ -161,10 +160,6 @@ public class CaseController extends BaseController {
 
     private boolean isValidField(String value) {
         return value != null && !value.isEmpty();
-    }
-
-    public void setCaseDao(CaseDao caseDao) {
-        this.caseDao = caseDao;
     }
 
     public void setIndicesService(IndicesService indicesService) {

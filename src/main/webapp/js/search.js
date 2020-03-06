@@ -236,7 +236,7 @@ function addTagToSearch(tag) {
             }
         },
         error: function () {
-            alert("Technical error, try that again in a few moments!");
+            //alert("Technical error, try that again in a few moments!");
         }
     });
 }
@@ -257,7 +257,7 @@ function changePage(page) {
             }
         },
         error: function () {
-            alert("Technical error, try that again in a few moments!");
+            //alert("Technical error, try that again in a few moments!");
         }
     });
 }
@@ -278,7 +278,7 @@ function removeSearch(id) {
             }
         },
         error: function () {
-            alert("Technical error, try that again in a few moments!");
+            //alert("Technical error, try that again in a few moments!");
         }
     });
 }
@@ -318,10 +318,6 @@ function initTags() {
             documentsMap[docId][tag] = 1;
         });
     });
-
-    //$(".tag-doc-field-cl").autocomplete({source : "tagauto.html"});
-    // $("#tag-all-text").autocomplete({source: "tagauto.html", delay: 500});
-    // $("#tag-page-text").autocomplete({source: "tagauto.html", delay: 500});
 }
 
 function tagAllBox() {

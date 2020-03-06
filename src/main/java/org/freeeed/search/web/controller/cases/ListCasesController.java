@@ -38,7 +38,6 @@ import org.springframework.web.servlet.ModelAndView;
  */
 public class ListCasesController extends SecureController {
     private static final Logger log = Logger.getLogger(ListCasesController.class);
-    private CaseDao caseDao;
 
     @Override
     public ModelAndView execute() {
@@ -59,7 +58,4 @@ public class ListCasesController extends SecureController {
         return new ModelAndView(WebConstants.LIST_CASES_PAGE);
     }
 
-    public void setCaseDao(CaseDao caseDao) {
-        this.caseDao = caseDao;
-    }
 }
