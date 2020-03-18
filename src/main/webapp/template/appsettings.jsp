@@ -24,31 +24,32 @@
 </c:if>
 
 <div class="jumbotron jumbotron-fluid">
-<div class="user-box">
-    <form action="appsettings.html" method="post">
-        <table id="settings" border="0" cellpadding="0" cellspacing="0">
-            <tr>
-                <td>Results per page*:</td>
-                <td colspan="2"><input type="text" name="results_per_page" value="${appSettings.resultsPerPage}"/></td>
-            </tr>
-            <tr>
-                <td>ElasticSearch endpoint URL*:</td>
-                <td colspan="2"><input type="text" name="es_endpoint" value="${appSettings.esEndpoint}"/></td>
-            </tr>
-            <tr>
-                <td>Permanent Tags:</td>
-                <td colspan="2"><input type="button" class="btn btn-link" id="addnewtag" value="Add tags"/></td>
-            </tr>
-        </table>
+    <div class="user-box">
+        <form action="appsettings.html" method="post">
+            <table id="settings" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>Results per page*:</td>
+                    <td colspan="2"><input type="text" name="results_per_page" value="${appSettings.resultsPerPage}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>ElasticSearch endpoint URL*:</td>
+                    <td colspan="2"><input type="text" name="es_endpoint" value="${appSettings.esEndpoint}"/></td>
+                </tr>
+                <tr>
+                    <td>Permanent Tags:</td>
+                    <td colspan="2"><input type="button" class="btn btn-link" id="addnewtag" value="Add tags"/></td>
+                </tr>
+            </table>
 
-        <span class="explanation">(Fields marked with * are mandatory)</span>
-        <input type="Submit" class="btn btn-sm btn-primary" value="Save"/>
-        <input type="hidden" name="action" value="save"/>
-    </form>
-</div>
+            <span class="explanation">(Fields marked with * are mandatory)</span>
+            <input type="Submit" class="btn btn-sm btn-primary" value="Save"/>
+            <input type="hidden" name="action" value="save"/>
+        </form>
+    </div>
 </div>
 <c:forEach var="savedTag" items="${appSettings.permanentTags}">
     <script>
-     renderTag('${savedTag}');
+        renderTag('${savedTag}');
     </script>
 </c:forEach>

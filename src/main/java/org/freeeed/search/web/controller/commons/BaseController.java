@@ -1,6 +1,6 @@
 /*
  *
- * Copyright SHMsoft, Inc. 
+ * Copyright SHMsoft, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*/
+ */
 package org.freeeed.search.web.controller.commons;
 
+import org.freeeed.search.web.dao.cases.CaseDao;
+import org.freeeed.search.web.dao.cases.FSCaseDao;
+import org.freeeed.search.web.model.cases.Case;
 import org.freeeed.search.web.session.LoggedSiteVisitor;
 import org.freeeed.search.web.session.LoggedSiteVisitorAware;
 import org.freeeed.search.web.session.SiteVisitor;
 import org.freeeed.search.web.session.SiteVisitorAware;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
@@ -29,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,6 +52,7 @@ public abstract class BaseController implements Controller, SiteVisitorAware, Lo
     protected Map<String, Object> valueStack;
     protected HttpServletRequest request;
     protected HttpServletResponse response;
+    protected CaseDao caseDao;
 
     @Override
     public void setSiteVisitor(SiteVisitor visitor) {
@@ -53,6 +61,11 @@ public abstract class BaseController implements Controller, SiteVisitorAware, Lo
 
     public void setLoggedVisitor(LoggedSiteVisitor loggedSiteVisitor) {
         this.loggedSiteVisitor = loggedSiteVisitor;
+    }
+
+    public void setCaseDao(CaseDao caseDao) {
+        this.caseDao = caseDao;
+        System.out.println("Hello There");
     }
 
     public ModelAndView handleRequest(HttpServletRequest request,
@@ -72,6 +85,19 @@ public abstract class BaseController implements Controller, SiteVisitorAware, Lo
             modelAndView = execute();
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+
+
+
+        if (caseDao != null) {
+
+
+            List<Case> cases = caseDao.listCases();
+            valueStack.put("cases", cases);
+
+
+
+
         }
 
         valueStack.put("visitor", siteVisitor);
