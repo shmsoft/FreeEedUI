@@ -98,7 +98,7 @@ public class CaseFileService {
         if (dir.exists()) {
             File[] files = dir.listFiles();
             for (File file : files) {
-                if (file.getName().endsWith(fileName)) {
+                if (file.getName().startsWith(uniqueId)) {
                     return file;
                 }
             }
@@ -201,7 +201,7 @@ public class CaseFileService {
     }
     
     public File getNativeFiles(String caseName, List<SolrDocument> docs) {
-        List<File> imageFiles = new ArrayList<File>();
+        List<File> imageFiles = new ArrayList<>();
         for (SolrDocument doc : docs) {
             File file = getNativeFile(caseName, doc.getDocumentPath(), doc.getUniqueId());
             if (file != null) {

@@ -70,7 +70,8 @@ public class DocumentParser {
                 documentId = value;
             }
             
-            if ("unique_id".equalsIgnoreCase(name)) {
+            // if ("unique_id".equalsIgnoreCase(name)) {
+            if ("UPI".equalsIgnoreCase(name)) {
                 uniqueId = value;
             }
             

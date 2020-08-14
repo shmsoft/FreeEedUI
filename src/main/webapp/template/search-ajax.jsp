@@ -54,7 +54,7 @@
                     <a class="operation-link-text" href="filedownload.html?action=exportImageAll">Export as images</a>
                 </div>
                 <div class="operation-link">
-                    <a class="operation-link-text" href="filedownload.html?action=exportNativeAll">Export as native</a>
+                    <a class="operation-link-text" href="filedownload.html?action=exportNativeAll">Export as natives</a>
                 </div>
                 <div class="tags-remove-box">
                 </div>

@@ -159,7 +159,7 @@ public class CaseFileDownloadController extends SecureController {
     }
 
     private List<SolrDocument> getDocumentPaths(String query, int from, int rows) {
-        SolrResult solrResult = searchService.search(query, from, rows, null, false, "id,document_original_path,unique_id");
+        SolrResult solrResult = searchService.search(query, from, rows, null, false, "id,document_original_path,UPI");
         List<SolrDocument> result = new ArrayList<SolrDocument>(solrResult.getTotalSize());
         result.addAll(solrResult.getDocuments().values());
         return result;
