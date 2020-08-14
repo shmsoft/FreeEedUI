@@ -22,9 +22,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 import org.freeeed.search.web.model.solr.SolrDocument;
 import org.springframework.web.multipart.MultipartFile;
 
