@@ -98,7 +98,7 @@ public class CaseFileService {
         if (dir.exists()) {
             File[] files = dir.listFiles();
             for (File file : files) {
-                if (file.getName().startsWith(uniqueId)) {
+                if (file.getName().startsWith(uniqueId + "_")) {
                     return file;
                 }
             }
