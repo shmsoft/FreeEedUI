@@ -141,6 +141,7 @@ public class CaseController extends BaseController {
             
                 String filesLocation = (String) valueStack.get("filesLocation");
                 if (filesLocation != null && filesLocation.length() > 0 ) {
+
                     c.setFilesLocation(filesLocation);
                     
                     if (!caseFileService.expandCaseFiles(name, filesLocation)) {
