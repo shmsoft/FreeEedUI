@@ -16,8 +16,11 @@
 */
 package org.freeeed.search.web.controller;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -42,6 +45,9 @@ public class CaseController extends BaseController {
     private CaseDao caseDao;
     private SolrCoreService solrCoreService;
     private CaseFileService caseFileService;
+
+    String pattern = "HH:mm";
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 
     @Override
     public ModelAndView execute() {
@@ -106,8 +112,9 @@ public class CaseController extends BaseController {
             if (name == null || !name.matches("[a-zA-Z0-9\\-_ ]+")) {
                 errors.add("Name is missing or invalid");
             }
-            
-            String description = (String) valueStack.get("description");
+            Date now = new Date();
+            String description = (String) valueStack.get("description") + " " +
+                    simpleDateFormat.format(now);
             if (!isValidField(description)) {
                 errors.add("Description is missing");
             }
@@ -138,15 +145,19 @@ public class CaseController extends BaseController {
                 }
                 
             } else {
-            
                 String filesLocation = (String) valueStack.get("filesLocation");
                 if (filesLocation != null && filesLocation.length() > 0 ) {
-
-                    c.setFilesLocation(filesLocation);
-                    
-                    if (!caseFileService.expandCaseFiles(name, filesLocation)) {
-                        errors.add("Invalid files location");
-                        return new ModelAndView(WebConstants.CASE_PAGE);
+                    File filesLocationDir = new File(filesLocation);
+                    if (filesLocationDir.isDirectory()) {
+                        for (File zipFilesLocation : filesLocationDir.listFiles()) {
+                            if (zipFilesLocation.getName().endsWith(".zip")){
+                                c.setFilesLocation(zipFilesLocation.getAbsolutePath());
+                                if (!caseFileService.expandCaseFiles(name, zipFilesLocation.getAbsolutePath())) {
+                                    errors.add("Invalid files location");
+                                    return new ModelAndView(WebConstants.CASE_PAGE);
+                                }
+                            }
+                        }
                     }
                 }
             }
