@@ -31,7 +31,7 @@
 
 <div class="your-case">
     <div class="your-search-label">
-        Your Case 
+        Your case
     </div>
     <div class="your-search-box">
         <form name="change" method="post" action="search.html">
@@ -50,7 +50,7 @@
 
 <div class="your-search">
     <div class="your-search-label">
-       Search
+       Search <a href="https://github.com/shmsoft/FreeEedUI/wiki/Search" target="_blank">(Help)</a>
     </div>
     <div class="your-search-box">
         <div class="search-box">
