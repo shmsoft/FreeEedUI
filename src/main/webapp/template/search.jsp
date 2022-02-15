@@ -50,7 +50,7 @@
 
 <div class="your-search">
     <div class="your-search-label">
-       Search <a href="https://github.com/shmsoft/FreeEedUI/wiki/Search" target="_blank">(Help)</a>
+       Search <a href="https://github.com/shmsoft/FreeEed/wiki/Search" target="_blank">(Click here for help with search queries)</a>
     </div>
     <div class="your-search-box">
         <div class="search-box">
