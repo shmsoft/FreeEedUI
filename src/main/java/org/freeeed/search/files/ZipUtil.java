@@ -147,10 +147,10 @@ public class ZipUtil {
                 // flush the output stream and close it.
                 bos.flush();
                 bos.close();
-
                 // close the input stream.
                 bis.close();
             }
         }
+        zipFile.close();
     }
 }
