@@ -3,33 +3,31 @@
 <%@ taglib prefix="shmwebfunc" uri="http://freeeed.org/tags/custom"%>
 
 <div class="reg-proj-head">
-    Cases: 
+    Cases
 </div>
-
 <div class="delimiter">
 </div>
-
-<div class="listusers-newuser">
-    <a class="newuserlink" href="usercase.html">Create new case</a>
+<div class="listusers-newuser align-center">
+    <a class="action-button" href="usercase.html">Create new case</a>
 </div>
 
 <div class="listusers-box">
-  <table border="0" cellpadding="0" cellspacing="0">
+  <table class="table-bordered" cellpadding="0" cellspacing="0">
     <tr>
-        <td class="listusers-header">Edit</td>
-        <td class="listusers-header">Name</td>
-        <td class="listusers-header">Description</td>
-        <td class="listusers-header">Remove</td>
+        <th class="listusers-header">Edit</th>
+        <th class="listusers-header">Name</th>
+        <th class="listusers-header">Description</th>
+        <th class="listusers-header">Remove</th>
     </tr>
     <c:forEach var="c" items="${cases}">
         <tr>
             <td>
-                <a href="usercase.html?action=edit&id=${c.id}"><img src="images/edit.png" title="Edit"/></a>
+                <a href="usercase.html?action=edit&id=${c.id}"><i class="bi-pencil-fill" title="Edit"></i></a>
             </td>
             <td>${c.name}</td>
             <td>${c.description}</td>
             <td>
-              <a href="usercase.html?action=delete&id=${c.id}"><img src="images/delete.gif" title="Remove"/></a>
+              <a href="usercase.html?action=delete&id=${c.id}"><i class="bi-trash-fill" title="Remove"></i></a>
             </td>
         </tr>    
     </c:forEach>
