@@ -5,57 +5,80 @@
 <c:choose>
     <c:when test="${loggedVisitor == null}">
     
-<div class="login-box">
-    <c:if test="${loginError}">
-        <div class="error">
-            Invalid username or password!
-        </div>
-    </c:if>
-    <div class="login-label">
-        Login
-    </div>
-    <form action="login.html" method="post">
-        <div class="login-box-username">
-            <div class="login-box-username-field">
-                Username
+  <div class="login_back">
+            <div class="col-12 text-center">
+
+                <img src="./images/FreeEED-01.png" width="250"/>
+                <br/>
+                <div class="row justify-content-center">
+                    <div class="login_content">
+                        <hr>
+                        <h4>Login</h4>
+                        <div class="card-body">
+                            <c:if test="${loginError}">
+                                <div class="error">
+                                    Invalid username or password!
+                                </div>
+                            </c:if>
+                            <form action="login.html" method="post">
+                                <div class="form-group">
+                                    <input type="text" class="form-control login" value="admin" placeholder="Username" name="username"/>
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" class="form-control login" value="admin" placeholder="Password" name="password"/>
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <input type="Submit" class="login_btn" value="Login"/>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="login-box-username-box">
-                <input type="text" value="" name="username"/>
+            <div class="login-footer">
+                <b>
+                FreeEed&trade; Review V8.0.0
+                </b>
+                <br>
+                Document review part of the FreeEed&trade; eDiscovery
+                <br/>
+                Click <a href="http://www.freeeed.org/index.php/documentation/document-review" target="_blank">here</a> for
+                documentation
             </div>
         </div>
-        <div class="login-box-password">
-            <div class="login-box-password-field">
-                Password
-            </div>
-            <div class="login-box-password-box">
-                <input type="password" value="" name="password"/>
-            </div>
-        </div>
-        <div class="login-box-login">
-            <input type="Submit" value="Login"/>
-        </div>
-    </form>
-</div>
-    
     </c:when>
     <c:otherwise>
     
-<ul>
-<li> <a class="menulink" href="search.html"> Search </a></li>
+        <ul>
+            <li> <a class="menulink" href="login.html"> Home </a></li>
+            <li> 
+                <i class="bi-arrow-right-circle-fill"></i>
+                <a class="menulink" href="search.html"> Search </a></li>
 
-<c:if test="${shmwebfunc:hasRight(loggedVisitor.user, 'CASES')}">
-    <li> <a class="menulink" href="listcases.html"> Cases </a></li>
-</c:if>
+            <c:if test="${shmwebfunc:hasRight(loggedVisitor.user, 'CASES')}">
+                <li> 
+                    <i class="bi-arrow-right-circle-fill"></i>
+                    <a class="menulink" href="listcases.html"> Cases </a></li>
+            </c:if>
 
-<c:if test="${shmwebfunc:hasRight(loggedVisitor.user, 'APP_CONFIG')}">
-    <li> <a class="menulink" href="appsettings.html"> Application settings </a></li>
-</c:if>
+            <c:if test="${shmwebfunc:hasRight(loggedVisitor.user, 'APP_CONFIG')}">
+                <li> 
+                    <i class="bi-arrow-right-circle-fill"></i>
+                    <a class="menulink" href="appsettings.html"> Application settings </a></li>
+            </c:if>
 
-<c:if test="${shmwebfunc:hasRight(loggedVisitor.user, 'USERS_ADMIN')}">
-    <li> <a class="menulink" href="listusers.html"> User Administration </a></li>
-</c:if>
+            <c:if test="${shmwebfunc:hasRight(loggedVisitor.user, 'USERS_ADMIN')}">
+                <li> 
+                    <i class="bi-arrow-right-circle-fill"></i>
+                    <a class="menulink" href="listusers.html"> User Administration </a></li>
+            </c:if>
 
-<li> <a class="menulink" href="logout.html"> Logout </a></li>
+            <li> 
+                <i class="bi-arrow-right-circle-fill"></i>
+                <a class="menulink" href="logout.html"> Logout </a></li>
 
     </c:otherwise>
 </c:choose>

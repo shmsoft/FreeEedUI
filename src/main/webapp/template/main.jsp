@@ -13,5 +13,6 @@
     <br/>
 </div>
 
-<div class="delimiter3">
+<div class="homepage_text">
+    <img src="./images/FreeEED-01.png" width="250"/>
 </div>
