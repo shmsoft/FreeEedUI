@@ -53,7 +53,9 @@
     <c:otherwise>
     
         <ul>
-            <li> <a class="menulink" href="login.html"> Home </a></li>
+            <li>
+                <i class="bi-arrow-right-circle-fill"></i> 
+                <a class="menulink" href="login.html"> Home </a></li>
             <li> 
                 <i class="bi-arrow-right-circle-fill"></i>
                 <a class="menulink" href="search.html"> Search </a></li>

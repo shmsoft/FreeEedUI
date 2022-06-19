@@ -123,15 +123,23 @@
 
 .search-box {
     float: left;
+    width: 50%;
 }
 
 .search-field {
-    width: 500px;
+    width: calc(100% - 119px);
+    display: inline-block;
+    height: 26px;
 }
 
 .result-box-header {
     font-size: 14px;
     font-weight: bold;
+
+}
+
+.result-box{
+    position: relative;
 }
 
 .result-box td {
@@ -182,7 +190,7 @@
 }
 
 .delimiter2 {
-    height: 30px;
+    height: 5px;
 }
 
 .delimiter3 {
@@ -231,6 +239,7 @@
 
 .highlight1 {
     background-color: #17ACE6;
+    color: #fff;
 }
 
 .highlight2 {
@@ -279,17 +288,13 @@
 
 .operation-link {
     float: left;
-    padding-right: 10px;
 }
 
-.operation-link-text {
-    border: 1px solid #888888;
-    color: #000000;
+.action-button.operation-link-text{
+    height: 17px;
+    padding: 5px;
+    margin: 0px 5px 0px 0px;
     font-size: 12px;
-    font-weight: bolder;
-    padding: 2px;
-    text-decoration: none;
-    cursor: pointer;
 }
 
 .tag-box {
@@ -435,24 +440,65 @@
 }
 
 .result-list-row-selected {
-    background-color: #ff9c7b !important;
+    background-color: #c7c6ff !important;
+}
+
+.result-list td{
+    cursor: pointer;
+}
+.result-list th{
+    background-color: #EEEEEE;
+}
+.result-list table{
+  font-size: 12px;
+  width: 100%;
+}
+
+
+.result-list {
+    overflow: auto;
+    height: calc(100vh - 564px);
+}
+
+.result-search-table{
+    width: calc(100% - 10px);
+}
+
+.result-search-table-list{
+  width: 60%;
+}
+.result-search-table-details{
+    width: 40%;
+}
+
+.tag-box.details
+{
+    padding-bottom: 10px;
+}
+
+
+.result-div{
+    overflow: auto;
+    height: calc(100vh - 595px);
 }
 
 .document-tags {
     border: 1px solid #000000;
-    left: 340px;
+    left: 266px;
     position: absolute;
-    top: 10px;
+    top: -5px;
     width: 200px;
 }
 
 .document-tags-label {
-    background-color: #BFBFBF;
-    height: 20px;
+    background-color: #25005b;
+    height: 18px;
     font-size: 12px;
     font-weight: bold;
     padding-left: 5px;
     cursor: pointer;
+    padding-top: 4px;
+    color: white;
 }
 
 .document-tags-table {
@@ -461,6 +507,10 @@
     padding: 5px;
     overflow-x: hidden;
     background-color: #FFFFFF;
+}
+
+.document-tags-table table{
+    width: 100%;
 }
 
 .document-tags-row {
@@ -474,13 +524,11 @@
 
 .document-tags-tag {
     overflow: hidden;
-    width: 408px;
     margin-left: 10px;
 }
 
 .document-notes-note {
     overflow: hidden;
-    width: 408px;
     margin-left: 10px;
 }
 
@@ -505,22 +553,30 @@ body.loading .modal-loading {
 
 .your-search {
     border: 1px solid #BFBFBF;
-    width: 1060px;
+    
 }
 
 .your-search-label {
-    background-color: #BFBFBF;
+    background-color: #25005b;
     font-size: 13px;
     font-weight: bold;
+    color: white;
     padding: 5px;
+    height: 23px;
+    padding-top: 8px;
+}
+
+.your-search-label > a {
+   color: #82c6ff;
 }
 
 .your-search-box {
     padding: 10px;
 }
 
-.your-search-box-search {
-    box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.24);
+.result-details{
+    margin-left: 10px;
+    width: 100%;
 }
 
 .your-search-box-name {
@@ -533,9 +589,11 @@ body.loading .modal-loading {
 .your-search-box-delete {
     cursor: pointer;
     height: 20px;
-    padding-top: 4px;
+    padding-top: 7px;
     padding-left: 3px;
     float: left;
+    margin-right: 10px;
+    color: red;
 }
 
 .your-search-box-name-inner {
@@ -544,7 +602,7 @@ body.loading .modal-loading {
     width: 180px;
     overflow: hidden;
     font-size: 11px;
-    font-weight: 100;
+    font-weight: bold;
 }
 
 .your-search-clear-all {
@@ -553,22 +611,25 @@ body.loading .modal-loading {
 }
 
 .case-tags-box {
-    border: 1px solid #BFBFBF;
     float: left;
-    left: 110px;
     overflow: hidden;
     position: relative;
-    width: 280px;
+    width: 49%;
 }
 
 .case-tags-box-label {
-    background-color: #BFBFBF;
+    background-color: #25005b;
+    color: white;
     font-size: 13px;
     font-weight: bold;
     padding: 2px;
+    height: 20px;
+    padding-top: 4px;
+    padding-left: 5px;
 }
 
 .case-tags-box-body {
+    padding: 5px;
 }
 
 .tag-table {
@@ -577,27 +638,28 @@ body.loading .modal-loading {
 }
 
 .case-tags-box-row {
-    background-color: #FF9C7B;
-    color: #000000;
+    background-color: #F59318;
+    color: white;
     cursor: pointer;
-    padding: 4px;
-    border: 1px dotted #BFBFBF;
-    display: table-cell;
-    width: 100%;
+    padding: 2px 5px;
+    border: 1px dotted #F59318;
+    display: inline-block;
+    margin-left: 5px;
 }
 
 .case-tags-box-row:hover {
-    background-color: #DFDFDF;
+    background-color: #C26B00;
 }
 
 .your-case {
-    border: 1px solid #FF0000;
-    width: 1060px;
+    margin-top: 20px;
+    text-align: center;
     font-weight: bold;
 }
 
 .your-case-select {
     width: 300px;
+    display: inline-block;
 }
 
 .uploadedFileBox {
@@ -705,7 +767,7 @@ body.loading .modal-loading {
 
  .form-control[name='solr_endpoint']
  {
-     width: 450px;
+     width: 380px;
  }
 
  input[type="file"]
@@ -745,7 +807,10 @@ body.loading .modal-loading {
     background: #6f519b;
     color: white;
 }
-
+ .action-button.search {
+    margin: 0; 
+    height: 26px;
+ }
  .align-center{
      text-align: center;
  }
@@ -789,3 +854,33 @@ body.loading .modal-loading {
      margin-top: 10px;
      color: rgb(0, 116, 248);
  }
+
+.scroll::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: #F5F5F5;
+}
+
+.scroll::-webkit-scrollbar
+{
+	width: 6px;
+	background-color: #F5F5F5;
+    height: 6px;
+}
+
+.scroll::-webkit-scrollbar-thumb
+{
+	background-color: #000000;
+}
+
+.tag-doc-field-cl{
+    display: inline-block;
+    width: 250px;
+    height: 26px;
+}
+
+.tag-box .action-button {
+    margin: 0px;
+    height: 26px;
+}
+

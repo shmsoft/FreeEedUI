@@ -26,23 +26,15 @@
       </div><!-- /.modal-dialog -->
     </div>
 
-<div class="delimiter2">
-</div>
-
 <div class="your-case">
-    <div class="your-search-label">
-        Your case
-    </div>
-    <div class="your-search-box">
         <form name="change" method="post" action="search.html">
         <input type="hidden" name="action" value="changecase"/>
-        Selected case: <select class="your-case-select" name="id" onchange="document.change.submit()">
+        Selected case: <select  class="form-control your-case-select" name="id" onchange="document.change.submit()">
             <c:forEach var="c" items="${cases}">
                 <option value="${c.id}" ${(selectedCase != null && selectedCase.id == c.id) ? 'selected' : ''}>${c.name}</option>
             </c:forEach>
         </select>
         </form>
-    </div>
 </div>
 
 <div class="delimiter2">
@@ -54,8 +46,8 @@
     </div>
     <div class="your-search-box">
         <div class="search-box">
-            <input id="search-query" class="search-field" type="text" name="query" value=""/>
-            <input type="button" name="Search" value="Search" onclick="search()"/>
+            <input id="search-query" class="form-control search-field" type="text" name="query" value=""/>
+            <input type="button" class="action-button search" name="Search" value="Search" onclick="search()"/>
         </div>
         
         <div class="case-tags-box">

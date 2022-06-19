@@ -11,7 +11,7 @@
     <a class="action-button" href="usercase.html">Create new case</a>
 </div>
 
-<div class="listusers-box">
+<div class="listusers-box scroll">
   <table class="table-bordered" cellpadding="0" cellspacing="0">
     <tr>
         <th class="listusers-header">Edit</th>

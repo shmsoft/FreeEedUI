@@ -3,7 +3,7 @@
 <%@ taglib prefix="shmwebfunc" uri="http://freeeed.org/tags/custom"%>
 
 <div class="reg-proj-head">
-    List of users: 
+  Users
 </div>
 
 <div class="delimiter">
@@ -13,7 +13,7 @@
     <a class="action-button" href="user.html">Create new user</a>
 </div>
 
-<div class="listusers-box">
+<div class="listusers-box .scroll">
     <table class="table-bordered" cellpadding="0" cellspacing="0">
         <tr>
         <th class="listusers-header">Edit</th>
