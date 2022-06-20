@@ -4,7 +4,24 @@
 
 .header_logo {
     float: left;
-    margin-left: 20px;
+    margin-left: 10px;
+}
+
+.menu_button {
+    background: transparent;
+    font-size: 35px;
+    border: 0;
+    color: white;
+    padding: 4;
+    border-radius: 20px;
+    float: left;
+    color: #25005b;
+    margin-top: 19;
+    margin-left: 10;
+}
+
+.menu_button:hover{
+    background: #24005b4f;
 }
 
 .header{
@@ -53,7 +70,8 @@
     float: left;
     width: calc(100% - 266px);
     padding: 5px;
-    height: calc(100vh - 130px);
+    margin-left: 254px;
+    height: calc(100vh - 95px);
     border-left: 1px solid #888888;
     
 }
@@ -61,8 +79,9 @@
 .left {
     background: #25005b;
     width: 254px;
-    float: left;
-    height: calc(100vh - 130px)
+    position: absolute;
+    left: 0;
+    height: calc(100vh - 83px)
 }
 
 .left ul {
@@ -198,14 +217,20 @@
 }
 
 .pagination {
-    float: left;
-    padding: 10px 10px 10px 130px;
     text-align: center;
-    width: 1000px;
+    width: 100%;
+    margin: 5px 0;
 }
 
 .prev_page {
-    float: left;
+    display: inline-block;
+    cursor: pointer;
+    width: 37%;
+    border: solid 1px #24005b4f;
+}
+.prev_page:hover
+{
+    background-color: #24005b4f;
 }
 
 .prev_page a {
@@ -214,7 +239,15 @@
 }
 
 .next_page {
-    float: left;
+    display: inline-block;
+    width: 37%;
+    cursor: pointer;
+    border: solid 1px #24005b4f;
+}
+
+.next_page:hover
+{
+    background-color: #24005b4f;
 }
 
 .next_page a {
@@ -223,9 +256,10 @@
 }
 
 .page {
-    float: left;
     font-weight: bold;
-    width: 100px;
+    display: inline-block;
+    width: 20%;
+    min-width: 100px;
 }
 
 .highlights {
@@ -295,6 +329,12 @@
     padding: 5px;
     margin: 0px 5px 0px 0px;
     font-size: 12px;
+    color: white;
+}
+
+.pagination i{
+    font-size: 18px;
+    cursor: pointer;
 }
 
 .tag-box {
@@ -645,6 +685,7 @@ body.loading .modal-loading {
     border: 1px dotted #F59318;
     display: inline-block;
     margin-left: 5px;
+    margin-bottom: 3px;
 }
 
 .case-tags-box-row:hover {
@@ -884,3 +925,11 @@ body.loading .modal-loading {
     height: 26px;
 }
 
+.footer-left{
+    position: absolute;
+    color: white;
+    font-weight: bold;
+    bottom: 14px;
+    width: 100%;
+    text-align: center;
+}

@@ -37,8 +37,7 @@
         </form>
 </div>
 
-<div class="delimiter2">
-</div>
+
 
 <div class="your-search">
     <div class="your-search-label">
