@@ -36,6 +36,7 @@ public class AppSettings implements Serializable {
     }
     
     public void setResultsPerPage(int resultsPerPage) {
+        if (resultsPerPage <= 0) resultsPerPage = 10;
         this.resultsPerPage = resultsPerPage;
     }
     

@@ -6,7 +6,7 @@
     
     <div class="your-search">
         <div class="your-search-label">
-            Your search
+            Your search  <c:if test="${fn:length(searched) > 0}"> <a href="#" onclick="removeAllSearch()">Remove All</a></c:if>
         </div>
         <div class="your-search-box">
             <c:forEach var="search" items="${searched}">
@@ -16,7 +16,7 @@
                             ${search.name}
                         </div>
                         <div class="your-search-box-delete" title="Remove from search">
-                            <img src="images/delete.gif" onclick="removeSearch(${search.id - 1})">
+                            <i class="bi-trash-fill" title="Remove" onclick="removeSearch(${search.id - 1})"></i>
                         </div>
                     </div>
                 </div>
@@ -24,11 +24,7 @@
             <div class="spacer" style="clear: both;"></div>
         </div>
         
-        <c:if test="${fn:length(searched) > 0}">
-          <div class="your-search-clear-all">
-              <a href="#" onclick="removeAllSearch()">Remove All</a>
-          </div>
-        </c:if>
+       
     </div>
 
 <c:choose>
@@ -45,16 +41,16 @@
         <div class="your-search-box">
             <div class="operations-box">
                 <div class="operation-link">
-                    <a href="javascript:;" class="operation-link-text" onclick="tagAllBox()">Tag All Results</a>
+                    <a href="javascript:;" class="operation-link-text action-button" onclick="tagAllBox()">Tag All Results</a>
                 </div>
                 <div class="operation-link">
-                    <a href="javascript:;" class="operation-link-text" onclick="tagPageBox()">Tag This page</a>
+                    <a href="javascript:;" class="operation-link-text action-button" onclick="tagPageBox()">Tag This page</a>
                 </div>
                 <div class="operation-link">
-                    <a class="operation-link-text" href="filedownload.html?action=exportImageAll">Export as images</a>
+                    <a class="operation-link-text action-button" href="filedownload.html?action=exportImageAll">Export as images</a>
                 </div>
                 <div class="operation-link">
-                    <a class="operation-link-text" href="filedownload.html?action=exportNativeAll">Export as natives</a>
+                    <a class="operation-link-text action-button" href="filedownload.html?action=exportNativeAll">Export as natives</a>
                 </div>
                 <div class="tags-remove-box">
                 </div>
@@ -62,16 +58,16 @@
             
             <div id="tag-all" class="tag-box">
                 Tag All Results:
-                <input id="tag-all-text" type="text" name="tag" onkeypress="newAllTagEnter(tagAll, event)"/>
-                <input type="button" value="Tag" onclick="tagAll()"/>
-                <input type="button" value="Cancel" onclick="document.getElementById('tag-all').style.display='none';return false;"/>
+                <input id="tag-all-text" class="tag-doc-field-cl form-control" type="text" name="tag" onkeypress="newAllTagEnter(tagAll, event)"/>
+                <input type="button" class="action-button" value="Tag" onclick="tagAll()"/>
+                <input type="button" class="action-button" value="Cancel" onclick="document.getElementById('tag-all').style.display='none';return false;"/>
             </div>
             
             <div id="tag-page" class="tag-box">
                 Tag This Page:
-                <input id="tag-page-text" type="text" name="tag" onkeypress="newAllTagEnter(tagPage, event)"/>
-                <input type="button" value="Tag" onclick="tagPage()"/>
-                <input type="button" value="Cancel" onclick="document.getElementById('tag-page').style.display='none';return false;"/>
+                <input id="tag-page-text" class="tag-doc-field-cl form-control" type="text" name="tag" onkeypress="newAllTagEnter(tagPage, event)"/>
+                <input type="button" class="action-button" value="Tag" onclick="tagPage()"/>
+                <input type="button" class="action-button" value="Cancel" onclick="document.getElementById('tag-page').style.display='none';return false;"/>
                 </form>
             </div>
         </div>
@@ -80,16 +76,16 @@
     <div class="delimiter2">
     </div>
     
-    <table border="0" cellpadding="0" cellspacing="0">
-    <tr><td valign="top">
+    <table border="0" cellpadding="0" cellspacing="0" class="result-search-table">
+    <tr><td valign="top" class="result-search-table-list">
     
-    <div class="result-list">
-        <table border="0" cellpadding="0" cellspacing="0">
-            <tr class="result-list-header-row">
-                <th><div class="result-list-id">Id</div></th>
-                <th><div class="result-list-from">From/Creator</div></th>
-                <th><div class="result-list-subject">Subject/Filename</div></th>
-                <th class="table-last-row"><div class="result-list-date">Date</div></th>
+    <div class="result-list scroll">
+        <table border="0" cellpadding="5" cellspacing="0" class="table-bordered">
+            <tr>
+                <th>Id</th>
+                <th>From/Creator</th>
+                <th>Subject/Filename</th>
+                <th>Date</th>
             </tr>
             
             <c:forEach var="doc" items="${result.documents}">
@@ -104,7 +100,7 @@
     </div>
     
     </td>
-    <td valign="top">
+    <td valign="top" class="result-search-table-details">
     
     <div class="result-details">
     
@@ -112,7 +108,7 @@
          <input type="hidden" id="solrid" class="solrid" value="${doc.documentId}"/>
          <div class="result-box" id="doc-${doc.documentId}" style="display:none">
 
-            <div class="document-tags">
+             <div class="document-tags">
                <div class="document-tags-label">
                  Tags (<span id="tags-total-${doc.documentId}">${fn:length(doc.tags)}</span>)
                </div>
@@ -127,28 +123,28 @@
                        </c:forEach>
                    </table>
                </div>
-            </div>
+            </div> 
 
             <div class="operations-box">
                 <div class="operation-link">
-                    <a class="operation-link-text html-preview" data="${doc.documentPath}" uid="${doc.uniqueId}">Preview</a>
+                    <a class="operation-link-text html-preview action-button" data="${doc.documentPath}" uid="${doc.uniqueId}">Preview</a>
                 </div>
                 <div class="operation-link">
-                    <a href="javascript:;" class="operation-link-text" onclick="$('#tag-doc-${doc.documentId}').slideToggle(500);">Tag</a>
+                    <a href="javascript:;" class="operation-link-text action-button" onclick="$('#tag-doc-${doc.documentId}').slideToggle(500);">Tag</a>
                 </div>
                 <div class="operation-link">
-                    <a class="operation-link-text" href="filedownload.html?action=exportNative&docPath=${doc.documentPath}&uniqueId=${doc.uniqueId}">Export native</a>
+                    <a class="operation-link-text action-button" href="filedownload.html?action=exportNative&docPath=${doc.documentPath}&uniqueId=${doc.uniqueId}">Export native</a>
                 </div>
                 <div class="operation-link">
-                    <a class="operation-link-text" href="filedownload.html?action=exportImage&docPath=${doc.documentPath}&uniqueId=${doc.uniqueId}">Export image</a>
+                    <a class="operation-link-text action-button" href="filedownload.html?action=exportImage&docPath=${doc.documentPath}&uniqueId=${doc.uniqueId}">Export image</a>
                 </div>
             </div>
-            <div id="tag-doc-${doc.documentId}" class="tag-box">
-                <input id="tag-doc-field-${doc.documentId}" class="tag-doc-field-cl" type="text" name="tag" onkeypress="newTagEnter('${doc.documentId}', event)"/>
-                <input type="button" value="Tag" onclick="newTag('${doc.documentId}')"/>
-                <input type="button" value="Cancel" onclick="document.getElementById('tag-doc-${doc.documentId}').style.display='none';return false;"/>
+            <div id="tag-doc-${doc.documentId}" class="tag-box details">
+                <input id="tag-doc-field-${doc.documentId}" class="tag-doc-field-cl form-control" type="text" name="tag" onkeypress="newTagEnter('${doc.documentId}', event)"/>
+                <input type="button" class="action-button" value="Tag" onclick="newTag('${doc.documentId}')"/>
+                <input type="button" class="action-button" value="Cancel" onclick="document.getElementById('tag-doc-${doc.documentId}').style.display='none';return false;"/>
             </div>
-            
+            <div class="result-div scroll">
             <table border = 0>
                 <c:forEach var="entry" items="${doc.entries}">
                     <tr>
@@ -180,6 +176,7 @@
                     </tr>
                 </c:forEach>
             </table>
+            </div>
         </div>
     </c:forEach>
     </div>
