@@ -40,12 +40,12 @@
             </div>
             <div class="login-footer">
                 <b>
-                FreeEed&trade; Review V8.0.0
+                FreeEed&trade; Review V9.4.0
                 </b>
                 <br>
                 Document review part of the FreeEed&trade; eDiscovery
                 <br/>
-                Click <a href="http://www.freeeed.org/index.php/documentation/document-review" target="_blank">here</a> for
+                Click <a href="https://github.com/shmsoft/FreeEed/wiki/Review" target="_blank">here</a> for
                 documentation
             </div>
         </div>
