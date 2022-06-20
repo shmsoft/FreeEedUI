@@ -1,1 +1,1 @@
-<div class="footer_text">FreeEed&trade; Review V: 9.3.5</div>
+<div class="footer_text">FreeEed&trade; Review</div>

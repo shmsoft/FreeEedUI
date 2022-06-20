@@ -2,12 +2,12 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <div class="homepage_text">
-    FreeEedUI - Document review part of the FreeEed eDiscovery
+    FreeEed Review - Document review part of the FreeEed eDiscovery
 </div>
 
 <div class="homepage_text">
     Click <a
-        href="http://www.freeeed.org/index.php/documentation/document-review"
+        href="https://github.com/shmsoft/FreeEed/wiki/Review"
         target="_blank">here</a>
     for documentation
     <br/>
