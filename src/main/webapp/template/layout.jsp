@@ -52,7 +52,7 @@
             });
         </script>
     </head>
-    <body class="body">
+    <body class="body" style="overflow: <c:if test="${loggedVisitor == null}">hidden</c:if>">
     
     <div class="wrapper">
         <div class="header">

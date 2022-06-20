@@ -8,7 +8,7 @@
   <div class="login_back">
             <div class="col-12 text-center">
 
-                <img src="./images/FreeEed.png" width="250"/>
+                <img src="./images/FreeEED-01.png" width="250"/>
                 <br/>
                 <div class="row justify-content-center">
                     <div class="login_content">
@@ -82,8 +82,6 @@
                 <i class="bi-arrow-right-circle-fill"></i>
                 <a class="menulink" href="logout.html"> Logout </a></li>
         </ul>
-        <div class="footer-left">
-            FreeEed&trade; Review V: 9.3.5
-        </div>
+     
     </c:otherwise>
 </c:choose>
