@@ -8,7 +8,7 @@
   <div class="login_back">
             <div class="col-12 text-center">
 
-                <img src="./images/FreeEED-01.png" width="250"/>
+                <img src="./images/FreeEed.jpg" width="250"/>
                 <br/>
                 <div class="row justify-content-center">
                     <div class="login_content">
