@@ -1,8 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-   <div class="delimiter2">
-    </div>
+ 
     
     <div class="your-search">
         <div class="your-search-label">
@@ -30,9 +29,7 @@
 <c:choose>
   <c:when test="${result != null && result.documents != null && fn:length(result.documents) > 0}">
 
-    <div class="delimiter2">
-    </div>
-    
+  
     <div class="your-search">
         <div class="your-search-label">
             Results: (${result.totalSize}) 
@@ -98,7 +95,25 @@
             </c:forEach>
         </table>
     </div>
-    
+    <c:if test="${showPagination}">
+        <div class="pagination">
+         
+                <div class="prev_page" style="pointer-events: <c:if test="${!showPrev}">none</c:if>" onclick="changePage(${currentPage - 1})">
+                    
+                        <i title="Prev" class="bi-chevron-left"></i>
+                    
+                </div>
+                <div class="page">
+                    ${currentPage}
+                </div>
+                <div class="next_page" style="pointer-events: <c:if test="${!showNext}">none</c:if>" onclick="changePage(${currentPage + 1})">
+                    
+                        <i title="Next" class="bi-chevron-right"></i>
+                    
+                </div>
+            
+        </div>
+        </c:if>
     </td>
     <td valign="top" class="result-search-table-details">
     
@@ -130,7 +145,7 @@
                     <a class="operation-link-text html-preview action-button" data="${doc.documentPath}" uid="${doc.uniqueId}">Preview</a>
                 </div>
                 <div class="operation-link">
-                    <a href="javascript:;" class="operation-link-text action-button" onclick="$('#tag-doc-${doc.documentId}').slideToggle(500);">Tag</a>
+                    <a href="javascript:;" class="operation-link-text action-button" onclick="$('#tag-doc-${doc.documentId}').slideToggle(200);">Tag</a>
                 </div>
                 <div class="operation-link">
                     <a class="operation-link-text action-button" href="filedownload.html?action=exportNative&docPath=${doc.documentPath}&uniqueId=${doc.uniqueId}">Export native</a>
@@ -183,24 +198,7 @@
     
     </td></tr>
     </table>
-    
-    <div class="pagination">
-        <c:if test="${showPagination}">
-            <div class="prev_page">
-                <c:if test="${showPrev}">
-                    <a href="#" onclick="changePage(${currentPage - 1})"> Prev </a>
-                </c:if>
-            </div>
-            <div class="page">
-                ${currentPage}
-            </div>
-            <div class="next_page">
-                <c:if test="${showNext}">
-                    <a href="#" onclick="changePage(${currentPage + 1})"> Next </a>
-                </c:if>
-            </div>
-        </c:if>
-    </div>
+
   </c:when>
   <c:otherwise>
     <div class="delimiter2">

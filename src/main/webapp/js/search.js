@@ -216,7 +216,7 @@ function removeAllSearch() {
 function initTags() {
    $(".document-tags-table").hide();
    $(".document-tags-label").click(function() {
-       $(this).next(".document-tags-table").slideToggle(500);
+       $(this).next(".document-tags-table").slideToggle(200);
    });
    
    $(".solrid").each(function(index) {
@@ -234,12 +234,12 @@ function initTags() {
 }
 
 function tagAllBox() {
-    $("#tag-all").slideToggle(500);
+    $("#tag-all").slideToggle(200);
     $("#tag-page").hide();
 }
 
 function tagPageBox() {
-    $("#tag-page").slideToggle(500);
+    $("#tag-page").slideToggle(200);
     $("#tag-all").hide();
 }
 

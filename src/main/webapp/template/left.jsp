@@ -81,6 +81,9 @@
             <li> 
                 <i class="bi-arrow-right-circle-fill"></i>
                 <a class="menulink" href="logout.html"> Logout </a></li>
-
+        </ul>
+        <div class="footer-left">
+            FreeEed&trade; Review V: 9.3.5
+        </div>
     </c:otherwise>
 </c:choose>

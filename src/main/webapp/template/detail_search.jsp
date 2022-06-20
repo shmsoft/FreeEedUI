@@ -120,8 +120,8 @@
             <div class="delimiter">
             </div>
         </c:forEach>
-        <div class="pagination">
-            <c:if test="${showPagination}">
+        <c:if test="${showPagination}">
+          <div class="pagination">
                 <div class="prev_page">
                     <c:if test="${showPrev}">
                         <a href="search.html?action=search&page=${currentPage - 1}"> Prev </a>
@@ -135,8 +135,9 @@
                         <a href="search.html?action=search&page=${currentPage + 1}"> Next </a>
                     </c:if>
                 </div>
-            </c:if>
-        </div>
+           
+         </div>
+      </c:if>
       </c:when>
       <c:otherwise>
         <div class="no-result">
