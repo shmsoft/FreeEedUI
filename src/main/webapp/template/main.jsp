@@ -14,5 +14,5 @@
 </div>
 
 <div class="homepage_text">
-    <img src="./images/FreeEed.jpg" width="250"/>
+    <img src="./images/FreeEED-01.png" width="250"/>
 </div>
