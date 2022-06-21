@@ -40,7 +40,7 @@
             </div>
             <div class="login-footer">
                 <b>
-                FreeEed&trade; Review V9.4.0
+                FreeEed&trade; Review V9.4.1
                 </b>
                 <br>
                 Document review part of the FreeEed&trade; eDiscovery
