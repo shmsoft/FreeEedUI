@@ -1,4 +1,4 @@
-FreeEed Search UI
+                                                                                                                                                                                                                                                                                                                                        FreeEed Search UI
 ========
 Currently, need apache-solr-4.0
 
