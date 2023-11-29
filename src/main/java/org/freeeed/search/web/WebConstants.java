@@ -22,6 +22,7 @@ public class WebConstants {
 	public static final String LOGIN_REQUIRED_PAGE = "main.html";
 	public static final String MAIN_PAGE = "main";
 	public static final String SEARCH_PAGE = "search";
+	public static final String FREEEEDAI_PAGE = "FreeEedAI";
 	public static final String SEARCH_AJAX_PAGE = "search-ajax";
 	public static final String TAG_PAGE = "tag";
 	public static final String LOGOUT_PAGE = "logout";

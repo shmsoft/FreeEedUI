@@ -60,6 +60,10 @@
                 <i class="bi-arrow-right-circle-fill"></i>
                 <a class="menulink" href="search.html"> Search </a></li>
 
+            <li>
+                <i class="bi-arrow-right-circle-fill"></i>
+                <a class="menulink" href="freeeedai.html"> FreeEedAI </a></li>
+
             <c:if test="${shmwebfunc:hasRight(loggedVisitor.user, 'CASES')}">
                 <li> 
                     <i class="bi-arrow-right-circle-fill"></i>
