@@ -22,6 +22,9 @@
     <definition name="search" extends="commonLayout">
         <put-attribute name="body" value="/template/search.jsp" />
     </definition>
+    <definition name="freeeedai" extends="commonLayout">
+        <put-attribute name="body" value="/template/freeEedAi.jsp" />
+    </definition>
 
     <definition name="search-ajax" template="/template/search-ajax.jsp"/>
 

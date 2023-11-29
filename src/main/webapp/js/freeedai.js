@@ -7,34 +7,14 @@ function initPage(docId) {
     selectDocument(docId);
     initTags();
 }
-
-function newTagEnter(docId, e) {
-    var charCode;
-    
-    if (e && e.which) {
-        charCode = e.which;
-    } else if(window.event) {
-        e = window.event;
-        charCode = e.keyCode;
-    }
-
-    if(charCode != 13) {
-        return;
-    }
-    
-    newTag(docId);
+function onSubmit(event)
+{
+    event.preventDefault();
+    $(".chat-wrapper").append($(".question_input").val());
 }
 
 $(document).ready(function() {
-    $("body").bind({
-        ajaxStart: function() { 
-            $(this).addClass("loading"); 
-        },
-        ajaxStop: function() { 
-            $(this).removeClass("loading"); 
-        }    
-    });
-    
+
     $('#search-query').keypress(function(e) {
         if (e.keyCode == 13) {
             search();

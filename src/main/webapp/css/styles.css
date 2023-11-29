@@ -933,3 +933,22 @@ body.loading .modal-loading {
     width: 100%;
     text-align: center;
 }
+
+.chat-wrapper{
+    width: calc(100% - 41px);
+    border: solid 1px #25005b;
+    height: calc(100vh - 230px);
+}
+
+.action-button#send_question{
+    float: right;
+    margin: 0px 37px 0px 0px;
+}
+
+.question_input{
+    float: left;
+    width: calc(100% - 151px);
+    height: 35px;
+    padding-left: 8px;
+    border: solid 1px #25005b;
+}

@@ -3,29 +3,6 @@
 
 <script src="js/freeedai.js"></script>
 
-<script>
-<c:forEach var="t" items="${tags}">
-    allTags['${t}'] = 1;  
-</c:forEach>
-</script>
-
-    <div id="html_preview_modal" class="modal fade">
-      <div class="modal-dialog modal-wide">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Preview</h4>
-          </div>
-          <div class="modal-body" id="html_preview_modal_content">
-            
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div>
-
 <div class="your-case">
         <form name="change" method="post" action="search.html">
         <input type="hidden" name="action" value="changecase"/>
@@ -36,5 +13,19 @@
         </select>
         </form>
 </div>
+<div>
+    <div class="container">
+        <div class="chat-wrapper">
+            <c:forEach var="val" items="${chat}">
+                <span value="${c.id}" class="${val.isQuestion ? 'question' : 'answer'}">${val.text}</span>
+            </c:forEach>
+        </div>
+        <br />
+        <form name="casifyAIForm" onsubmit="onSubmit()">
+            <input type="text" class="question_input" rows="1" placeholder="Send a message" />
+            <button class="action-button" id="send_question" type="submit" class="save">Send</button>
+        </form>
 
+    </div>
+</div>
 

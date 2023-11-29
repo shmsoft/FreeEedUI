@@ -35,7 +35,7 @@
         <property name="caseDao" ref="caseDao" />
     </bean>
 
-    <bean id="freeEedAIPage" class="org.freeeed.search.web.controller.FreeEdAIController">
+    <bean id="freeEedAIPage" class="org.freeeed.search.web.controller.FreeEedAIController">
 
     </bean>
  

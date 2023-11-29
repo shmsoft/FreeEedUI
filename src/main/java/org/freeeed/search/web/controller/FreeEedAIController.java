@@ -19,21 +19,10 @@ package org.freeeed.search.web.controller;
 import org.apache.log4j.Logger;
 import org.freeeed.search.web.WebConstants;
 import org.freeeed.search.web.configuration.Configuration;
-import org.freeeed.search.web.model.solr.SolrResult;
-import org.freeeed.search.web.session.SolrSessionObject;
-import org.freeeed.search.web.solr.KeywordQuerySearch;
-import org.freeeed.search.web.solr.QuerySearch;
 import org.freeeed.search.web.solr.SolrSearchService;
-import org.freeeed.search.web.solr.TagQuerySearch;
 import org.freeeed.search.web.view.solr.ResultHighlight;
-import org.freeeed.search.web.view.solr.SearchResult;
 import org.freeeed.search.web.view.solr.SearchViewPreparer;
-import org.freeeed.search.web.view.solr.YourSearchViewObject;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 
@@ -44,18 +33,11 @@ import java.util.List;
  * @author ilazarov
  *
  */
-public class FreeEdAIController extends SecureController {
-    private static final Logger log = Logger.getLogger(FreeEdAIController.class);
-    
-    private Configuration configuration;
-    private SolrSearchService solrSearchService;
-    private SearchViewPreparer searchViewPreparer;
-    private ResultHighlight resultHighlight;
-    
+public class FreeEedAIController extends SecureController {
+    private static final Logger log = Logger.getLogger(FreeEedAIController.class);
+
     @Override
     public ModelAndView execute() {
-        String action = (String) valueStack.get("action");
-        log.debug("Search action received: " + action);
         return new ModelAndView(WebConstants.FREEEEDAI_PAGE);
     }
 }
