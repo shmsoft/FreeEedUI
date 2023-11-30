@@ -19,25 +19,60 @@ package org.freeeed.search.web.controller;
 import org.apache.log4j.Logger;
 import org.freeeed.search.web.WebConstants;
 import org.freeeed.search.web.configuration.Configuration;
-import org.freeeed.search.web.solr.SolrSearchService;
-import org.freeeed.search.web.view.solr.ResultHighlight;
-import org.freeeed.search.web.view.solr.SearchViewPreparer;
+import org.freeeed.search.web.dao.cases.CaseDao;
+import org.freeeed.search.web.model.Case;
+import org.freeeed.search.web.session.SolrSessionObject;
 import org.springframework.web.servlet.ModelAndView;
 
-/**
- * 
- * Class SearchController.
- * 
- * Implements the search logic.
- * 
- * @author ilazarov
- *
- */
+import javax.servlet.http.HttpSession;
+import java.util.List;
+
+
 public class FreeEedAIController extends SecureController {
     private static final Logger log = Logger.getLogger(FreeEedAIController.class);
+    private Configuration configuration;
+    private CaseDao caseDao;
 
     @Override
     public ModelAndView execute() {
+
+        HttpSession session = this.request.getSession(true);
+
+        SolrSessionObject solrSession = (SolrSessionObject)
+                session.getAttribute(WebConstants.WEB_SESSION_SOLR_OBJECT);
+
+        if (solrSession != null) {
+            solrSession.reset();
+        } else {
+            solrSession = new SolrSessionObject();
+            session.setAttribute(WebConstants.WEB_SESSION_SOLR_OBJECT, solrSession);
+        }
+
+        List<Case> cases = caseDao.listCases();
+        valueStack.put("cases", cases);
+
+        if (solrSession.getSelectedCase() == null) {
+            if (cases.size() > 0) {
+                solrSession.setSelectedCase(cases.get(0));
+            }
+        }
+
+        valueStack.put("selectedCase", solrSession.getSelectedCase());
+
+        String aiApiKey = configuration.getApiKey();
+        String aiApiUrl = configuration.getApiUrl();
+
+        valueStack.put("aiApiKey", aiApiKey);
+        valueStack.put("aiApiUrl", aiApiUrl);
+
+
         return new ModelAndView(WebConstants.FREEEEDAI_PAGE);
     }
+    public void setCaseDao(CaseDao caseDao) {
+        this.caseDao = caseDao;
+    }
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
 }

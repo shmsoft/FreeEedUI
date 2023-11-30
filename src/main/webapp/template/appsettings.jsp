@@ -17,6 +17,13 @@
             <td>Solr endpoint URL<span class="required">*</span>: </td>
             <td><input type="text" class="form-control" name="solr_endpoint" value="${appSettings.solrEndpoint}"/></td>
           </tr>
+        <tr>
+            <td>AI API Url<span class="required">*</span>:</td>
+            <td><input type="text" class="form-control" name="ai_api_url" value="${appSettings.aiApiUrl}"/></td>
+
+            <td>AI API Key<span class="required">*</span>: </td>
+            <td><input type="text" class="form-control" name="ai_api_key" value="${appSettings.aiApiKey}"/></td>
+        </tr>
           <tr>
             <td colspan="4">
               <span class="explanation">(Fields marked with <span class="required">*</span> are mandatory)</span>

@@ -30,7 +30,23 @@ public class AppSettings implements Serializable {
     
     private int resultsPerPage;
     private String solrEndpoint;
-    
+
+    private String aiApiUrl;
+
+    private String aiApiKey;
+
+    public String getAiApiUrl() {
+        return aiApiUrl;
+    }
+
+    public void setAiApiUrl(String aiApiUrl) {
+        this.aiApiUrl = aiApiUrl;
+    }
+    public String getAiApiKey() { return aiApiKey; }
+
+    public void setAiApiKey(String aiApiKey) {
+        this.aiApiKey = aiApiKey;
+    }
     public int getResultsPerPage() {
         return resultsPerPage;
     }

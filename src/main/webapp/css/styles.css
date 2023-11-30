@@ -806,9 +806,9 @@ body.loading .modal-loading {
     background: #f3f3f3;
  }
 
- .form-control[name='solr_endpoint']
+.user-box .form-control
  {
-     width: 380px;
+     width: 280px;
  }
 
  input[type="file"]
@@ -936,7 +936,6 @@ body.loading .modal-loading {
 
 .chat-wrapper{
     width: calc(100% - 41px);
-    border: solid 1px #25005b;
     height: calc(100vh - 230px);
 }
 
@@ -951,4 +950,24 @@ body.loading .modal-loading {
     height: 35px;
     padding-left: 8px;
     border: solid 1px #25005b;
+}
+
+.question
+{
+    padding: 3px 5px;
+    border: solid 1px;
+    width: 90%;
+    float: left;
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+
+.answer
+{
+    padding: 3px 5px;
+    border: solid 1px;
+    width: 90%;
+    float: right;
+    border-radius: 5px;
+    margin-bottom: 5px;
 }

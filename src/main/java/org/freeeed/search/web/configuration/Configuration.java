@@ -45,10 +45,25 @@ public class Configuration {
         if (appSettings != null) {
             return appSettings.getResultsPerPage();
         }
-        
         return 10;
     }
-    
+
+    public String getApiUrl() {
+        AppSettings appSettings = appSettingsDao.loadSettings();
+        if (appSettings != null) {
+            return appSettings.getAiApiUrl();
+        }
+        return "";
+    }
+
+    public String getApiKey() {
+        AppSettings appSettings = appSettingsDao.loadSettings();
+        if (appSettings != null) {
+            return appSettings.getAiApiKey();
+        }
+        return "";
+    }
+
     public void setAppSettingsDao(AppSettingsDao appSettingsDao) {
         this.appSettingsDao = appSettingsDao;
     }
