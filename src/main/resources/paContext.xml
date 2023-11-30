@@ -34,6 +34,12 @@
     <bean id="searchPage" class="org.freeeed.search.web.controller.SearchPageController">
         <property name="caseDao" ref="caseDao" />
     </bean>
+
+    <bean id="freeEedAIPage" class="org.freeeed.search.web.controller.FreeEedAIController">
+        <property name="caseDao" ref="caseDao" />
+        <property name="configuration" ref="configurationBean" />
+
+    </bean>
  
     <bean id="searchAjaxPage" class="org.freeeed.search.web.controller.SearchController">
         <property name="configuration" ref="configurationBean" />
@@ -139,6 +145,7 @@
 				<prop key="/main.html">mainPage</prop>
 				<prop key="/tag.html">tagPage</prop>
 				<prop key="/search.html">searchPage</prop>
+                <prop key="/freeeedai.html">freeEedAIPage</prop>
 				<prop key="/dosearch.html">searchAjaxPage</prop>
 				<prop key="/login.html">loginPage</prop>
 				<prop key="/logout.html">logoutPage</prop>

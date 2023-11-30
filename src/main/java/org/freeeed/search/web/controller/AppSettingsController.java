@@ -74,10 +74,20 @@ public class AppSettingsController extends SecureController {
             if (solrEndpoint == null || solrEndpoint.length() == 0) {
                 errors.add("Invalid solr endpoint");
             }
-            
+
+            String aiAPIUrl = (String) valueStack.get("ai_api_url");
+            if (aiAPIUrl.endsWith("/")) {
+                // Remove the last character if it is '/'
+                aiAPIUrl = aiAPIUrl.substring(0, aiAPIUrl.length() - 1);
+            }
+
+            String aiAPiKey = (String) valueStack.get("ai_api_key");
+
             appSettings.setResultsPerPage(resultsPerPage);
             appSettings.setSolrEndpoint(solrEndpoint);
-            
+            appSettings.setAiApiKey(aiAPiKey);
+            appSettings.setAiApiUrl(aiAPIUrl);
+
             valueStack.put("errors", errors);
             if (errors.size() == 0) {
                 appSettingsDao.storeSettings(appSettings);
