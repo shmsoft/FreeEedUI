@@ -8,15 +8,13 @@ function onSubmit(event)
     $('.question_input').prop('disabled', true);
     $.ajax({
         type: 'GET',
-        dataType: 'jsonp',
         headers: {
             'Access-Control-Allow-Origin': '*'
         },
         url: $("#aiApiUrl").val() + '/question_case/',
         data: { case_id: 'freeeed_' + $("#aiApiKey").val() + '_' + $('.your-case-select').val(), question: $(".question_input").val()},
-        jsonp: 'callback',
         success:function(data) {
-            newHTMLContent = '<div class="answer">' + data + '</p>';
+            newHTMLContent = '<div class="answer">' + data.answer + '</p>';
             container.innerHTML += newHTMLContent;
             $(".question_input").val('');
             $('#send_question').prop('disabled', false);
