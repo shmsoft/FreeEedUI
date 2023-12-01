@@ -30,6 +30,7 @@
   <c:if test="${usercase != null}">
       <input type="hidden" name="id" value="${usercase.id}"/>
   </c:if>
+    <input type="hidden" name="projectId" value="${usercase.projectId}"/>
     <table class="case-form-table" cellpadding="10" cellspacing="0">
         <tr>
             <td class="table-label">Name<span class="required">*</span>:</td>

@@ -9,7 +9,7 @@
 
         Selected case: <select  class="form-control your-case-select" name="id">
             <c:forEach var="c" items="${cases}">
-                <option value="${c.id}" ${(selectedCase != null && selectedCase.id == c.id) ? 'selected' : ''}>${c.name}</option>
+                <option value="${c.projectId}" ${(selectedCase != null && selectedCase.projectId == c.projectId) ? 'selected' : ''}>${c.name}</option>
             </c:forEach>
         </select>
         </form>

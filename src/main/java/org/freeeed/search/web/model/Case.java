@@ -38,7 +38,7 @@ public class Case implements Serializable {
     private Set<String> tags = new HashSet<String>();
     private String filesLocation;
     private String uploadedFile;
-    
+    private Long projectId;
     private String solrSourceCore;
 
     public Long getId() {
@@ -64,6 +64,13 @@ public class Case implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
+    public void setProjectId(long projectId) {
+        this.projectId = projectId;
+    }
+    public long getProjectId() {
+        return projectId;
+    }
+
 
     public String getSolrSourceCore() {
         return solrSourceCore;

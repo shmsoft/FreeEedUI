@@ -41,7 +41,6 @@ import org.springframework.web.servlet.ModelAndView;
  */
 public class CaseController extends BaseController {
     private static final Logger log = Logger.getLogger(CaseController.class);
-    
     private CaseDao caseDao;
     private SolrCoreService solrCoreService;
     private CaseFileService caseFileService;
@@ -104,10 +103,17 @@ public class CaseController extends BaseController {
                 } catch (Exception e) {
                 }
             }
-            
+            Long projectId = null;
+            String projectIdStr = (String) valueStack.get("projectId");
+            if (projectIdStr != null && projectIdStr.length() > 0) {
+                try {
+                    projectId = Long.parseLong(projectIdStr);
+                } catch (Exception e) {
+                }
+            }
             Case c = new Case();
             c.setId(id);
-            
+            c.setProjectId(projectId);
             String name = (String) valueStack.get("name");
             if (name == null || !name.matches("[a-zA-Z0-9\\-_ ]+")) {
                 errors.add("Name is missing or invalid");
