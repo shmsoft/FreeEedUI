@@ -40,7 +40,7 @@
             </div>
             <div class="login-footer">
                 <b>
-                FreeEed&trade; Review V10.0.5
+                FreeEed&trade; Review V10.0.9
                 </b>
                 <br>
                 Document review part of the FreeEed&trade; eDiscovery
@@ -62,7 +62,7 @@
 
             <li>
                 <i class="bi-arrow-right-circle-fill"></i>
-                <a class="menulink" href="freeeedai.html"> FreeEedAI </a></li>
+                <a class="menulink" href="freeeedai.html">Talk to AI </a></li>
 
             <c:if test="${shmwebfunc:hasRight(loggedVisitor.user, 'CASES')}">
                 <li> 

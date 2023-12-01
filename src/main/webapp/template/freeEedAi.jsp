@@ -23,7 +23,7 @@
         </div>
         <br />
         <form name="casifyAIForm" onsubmit="onSubmit(event)">
-            <input type="text" class="question_input" rows="1" placeholder="Send a message" />
+            <input type="text" class="question_input" rows="1" placeholder="Ask a question" />
             <button class="action-button" id="send_question" type="submit" class="save">Send</button>
         </form>
 
