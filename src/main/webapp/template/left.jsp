@@ -62,7 +62,7 @@
 
             <li>
                 <i class="bi-arrow-right-circle-fill"></i>
-                <a class="menulink" href="freeeedai.html">Talk to AI </a></li>
+                <a class="menulink" href="freeeedai.html">AI Advisor </a></li>
 
             <c:if test="${shmwebfunc:hasRight(loggedVisitor.user, 'CASES')}">
                 <li> 
