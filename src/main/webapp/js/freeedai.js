@@ -25,8 +25,15 @@ function onSubmit(event)
             alert("Technical error, try that again in a few moments!");
             $('#send_question').prop('disabled', false);
             $('.question_input').prop('disabled', false);
+            $(".question_input").val('');
         }
     });
+}
+
+function sendQuestion(event)
+{
+    $(".question_input").val(event.srcElement.innerText);
+    onSubmit(event);
 }
 
 $(document).ready(function() {

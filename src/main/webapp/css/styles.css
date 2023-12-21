@@ -936,7 +936,7 @@ body.loading .modal-loading {
 
 .chat-wrapper{
     width: calc(100% - 41px);
-    height: calc(100vh - 230px);
+    height: calc(100vh - 300px);
 }
 
 .action-button#send_question{
@@ -970,4 +970,15 @@ body.loading .modal-loading {
     float: right;
     border-radius: 5px;
     margin-bottom: 5px;
+}
+
+.edis-pred-container
+{
+    margin-bottom:  12px;
+}
+
+.edis-pred-button
+{
+    width: 33%;
+    height: 40px;
 }
