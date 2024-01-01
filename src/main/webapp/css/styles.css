@@ -979,6 +979,13 @@ body.loading .modal-loading {
 
 .edis-pred-button
 {
-    width: 33%;
+    width: 24%;
     height: 40px;
+}
+
+.source
+{
+    display: block;
+    float: right;
+    margin-top: 5px;
 }
