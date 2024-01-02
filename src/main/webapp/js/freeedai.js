@@ -14,7 +14,18 @@ function onSubmit(event)
         url: $("#aiApiUrl").val() + '/question_case/',
         data: { case_id: 'freeeed_' + $("#aiApiKey").val() + '_' + $('.your-case-select').val(), question: $(".question_input").val()},
         success:function(data) {
-            newHTMLContent = '<div class="answer">' + data.answer + '</p>';
+            var sourcesHtml = '';
+            if(data.sources && data.sources.length > 0)
+            {
+                sourcesHtml = '<small class="source"></small>';
+                for (let index = 0; index < data.sources.length; index++) {
+                    const source = array[index];
+                    sourcesHtml = sourcesHtml + source + ' | ';
+                }
+                sourcesHtml = sourcesHtml + '</small>';
+            }
+
+            newHTMLContent = '<div class="answer">' + data.answer + sourcesHtml + '</div>';
             container.innerHTML += newHTMLContent;
             $(".question_input").val('');
             $('#send_question').prop('disabled', false);
