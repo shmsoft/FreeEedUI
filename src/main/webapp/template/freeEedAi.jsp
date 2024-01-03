@@ -23,12 +23,20 @@
         </div>
         <br />
         <div class="edis-pred-container">
-            <button class="edis-pred-button" onclick="sendQuestion(event)" id="responsive_question">Show me the Responsive documents</button>
-            <button class="edis-pred-button" onclick="sendQuestion(event)" id="privileged_question">Show me the Privileged documents</button>
-            <button class="edis-pred-button" onclick="sendQuestion(event)" id="smoking_gun_question">Show me smoking gun evidence</button>
-            <button class="edis-pred-button" onclick="sendQuestion(event)" id="pii_question">Is there any PII in the documents?</button>
+            <button class="edis-pred-button" onclick="sendQuestion(event)" id="responsive_question">Responsive documents</button>
+            <button class="edis-pred-button" onclick="sendQuestion(event)" id="privileged_question">Privileged documents</button>
+            <button class="edis-pred-button" onclick="sendQuestion(event)" id="smoking_gun_question">Smoking gun documents</button>
+            <button class="edis-pred-button" onclick="sendQuestion(event)" id="pii_question">PII report</button>
         </div>
         <form name="casifyAIForm" onsubmit="onSubmit(event)">
+            <div>
+                <select id="matterType" class="question_matter_type" onchange="matterTypeSelect(this.value)">
+                    <option value="generic" selected="selected">Generic</option>
+                    <option value="civil" >Civil</option>
+                    <option value="criminal" >Criminal</option>
+                    <option value="investigation" >Investigation</option>
+                </select>
+            </div>
             <input type="text" class="question_input" rows="1" placeholder="Ask a question" />
             <button class="action-button" id="send_question" type="submit" class="save">Send</button>
         </form>

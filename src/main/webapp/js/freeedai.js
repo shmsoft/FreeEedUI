@@ -17,7 +17,7 @@ function onSubmit(event)
             var sourcesHtml = '';
             if(data.sources && data.sources.length > 0)
             {
-                sourcesHtml = '<small class="source"></small>';
+                sourcesHtml = '<small class="source">';
                 for (let index = 0; index < data.sources.length; index++) {
                     const source = array[index];
                     sourcesHtml = sourcesHtml + source + ' | ';
@@ -39,6 +39,15 @@ function onSubmit(event)
             $(".question_input").val('');
         }
     });
+}
+function matterTypeSelect(value)
+{
+    if(value != 'generic')
+    {
+        var select = document.querySelector('#matterType');
+        select.value = 'generic';
+        alert("Specialized reports are under development. \nCurrently you can vote for which report you would like to ne developed first. \nCast your ballot by writing to info by writing to info@scaia.ai. \nThank you!");
+    }
 }
 
 function sendQuestion(event)

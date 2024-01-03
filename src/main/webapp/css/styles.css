@@ -935,23 +935,31 @@ body.loading .modal-loading {
 }
 
 .chat-wrapper{
-    width: calc(100% - 41px);
+    width: calc(100% - 47px);
     height: calc(100vh - 300px);
+    overflow: auto;
 }
 
 .action-button#send_question{
     float: right;
-    margin: 0px 37px 0px 0px;
+    margin: 0px 5px 0px 0px;
 }
 
 .question_input{
     float: left;
-    width: calc(100% - 151px);
+    width: calc(100% - 230px);
     height: 35px;
     padding-left: 8px;
     border: solid 1px #25005b;
 }
-
+.question_matter_type{
+    float: left;
+    width: 112px;
+    margin-right: 6px;
+    height: 35px;
+    padding-left: 8px;
+    border: solid 1px #25005b;
+}
 .question
 {
     padding: 3px 5px;
@@ -980,7 +988,7 @@ body.loading .modal-loading {
 .edis-pred-button
 {
     width: 24%;
-    height: 40px;
+    height: 46px;
 }
 
 .source
