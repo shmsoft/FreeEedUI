@@ -15,12 +15,13 @@ function onSubmit(event)
         data: { case_id: 'freeeed_' + $("#aiApiKey").val() + '_' + $('.your-case-select').val(), question: $(".question_input").val()},
         success:function(data) {
             var sourcesHtml = '';
+            var caseId = $("#case_Select").val();
             if(data.sources && data.sources.length > 0)
             {
                 sourcesHtml = '<small class="source">';
                 for (let index = 0; index < data.sources.length; index++) {
                     var source = data.sources[index];
-                    source = '<a target="_blank" href="' +  getCurrentUrl() + '/search.html?query=UPI:' + source + '">' + source + '</a>'
+                    source = '<a target="_blank" href="' +  getCurrentUrl() + '/search.html?caseid=' + caseId + '&query=UPI:' + source + '">' + source + '</a>'
                     sourcesHtml = sourcesHtml +  source + ' | ';
                 }
                 sourcesHtml = sourcesHtml + '</small>';
