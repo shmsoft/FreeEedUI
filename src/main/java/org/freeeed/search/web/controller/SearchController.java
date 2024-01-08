@@ -73,7 +73,6 @@ public class SearchController extends SecureController {
         int from = 0;
         
         if ("search".equals(action)) {
-            
             //setup the query
             String search = (String) valueStack.get("query");
             if (search != null && search.length() > 0) {

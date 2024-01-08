@@ -105,6 +105,7 @@ function deleteTag(docId, el, tag) {
 }
 
 function search() {
+
     var queryStr = $("#search-query").val();
 
     $.ajax({
@@ -307,7 +308,28 @@ function appendCaseTag(tag) {
     $(".case-tags-box-body").append("<div id='" + tag + "' class='case-tags-box-row' onclick='addTagToSearch(\"" + tag + "\")'>" + tag + "</div>");
 }
 
+function getUrlVars()
+{
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+
 $(document).ready(function() {
+
+    var queryString = getUrlVars();
+    var query = queryString['query'];
+    if(queryString.length > 0 && query)
+    {
+         $("#search-query").val(query);
+         search();
+    }
     $("body").bind({
         ajaxStart: function() { 
             $(this).addClass("loading"); 

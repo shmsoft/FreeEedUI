@@ -19,8 +19,9 @@ function onSubmit(event)
             {
                 sourcesHtml = '<small class="source">';
                 for (let index = 0; index < data.sources.length; index++) {
-                    const source = array[index];
-                    sourcesHtml = sourcesHtml + source + ' | ';
+                    var source = data.sources[index];
+                    source = '<a target="_blank" href="' +  getCurrentUrl() + '/search.html?query=UPI:' + source + '">' + source + '</a>'
+                    sourcesHtml = sourcesHtml +  source + ' | ';
                 }
                 sourcesHtml = sourcesHtml + '</small>';
             }
@@ -39,6 +40,14 @@ function onSubmit(event)
             $(".question_input").val('');
         }
     });
+}
+
+function getCurrentUrl()
+{
+    const url = new URL(window.location.href); // new URL(document.URL)
+    let path = url.pathname.split("/");
+    path.pop(); // remove the last
+    return path.join("/")
 }
 function matterTypeSelect(value)
 {
