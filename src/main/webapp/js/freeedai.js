@@ -2,13 +2,14 @@ function onSubmit(event)
 {
     event.preventDefault();
     let container = $(".chat-wrapper")[0];
-    let newHTMLContent = '<div class="question">' + $(".question_input").val() + '</p>';
+    var question = $(".question_input").val();
+    let newHTMLContent = '<div class="question">' + question + '</p>';
     container.innerHTML += newHTMLContent;
     $('#send_question').prop('disabled', true);
     $('.question_input').prop('disabled', true);
 
     var allCases = $("#allCasesCheckbox").prop("checked");
-    var url = "";
+    var url;
     var data = {};
     if(allCases)
     {
