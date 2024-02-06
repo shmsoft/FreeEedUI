@@ -18,9 +18,12 @@ function onSubmit(event)
             question: $(".question_input").val()
         };
         var cases = $(".your-case-select").find('option');
-        cases.each(function() {
-            data["case_ids"] = 'freeeed_' + $("#aiApiKey").val() + '_' + $(this).val();
+        var casesName = [];
+
+        cases.each(function(item) {
+            casesName.push('freeeed_' + $("#aiApiKey").val() + '_' + $(this).val());
         });
+        data["case_ids"] = casesName.join(',');
     }
     else {
         url = $("#aiApiUrl").val() + '/question_case/';
