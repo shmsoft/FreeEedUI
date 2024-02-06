@@ -41,19 +41,19 @@ function onSubmit(event)
 
                 if(allCases)
                 {
-                    data.each(function() {
-                        var caseId = this.case_id;
-                        if(this.sources && this.sources.length > 0)
+                    data.question(function(answer) {
+                        var caseId = answer.case_id;
+                        if(answer.sources && answer.sources.length > 0)
                         {
                             sourcesHtml = '<small class="source">';
-                            for (let index = 0; index < this.sources.length; index++) {
-                                var source = this.sources[index];
+                            for (let index = 0; index < answer.sources.length; index++) {
+                                var source = answer.sources[index];
                                 source = '<a target="_blank" href="' +  getCurrentUrl() + '/search.html?caseid=' + caseId + '&query=UPI:' + source + '">' + source + '</a>'
                                 sourcesHtml = sourcesHtml +  source + ' | ';
                             }
                             sourcesHtml = sourcesHtml + '</small>';
                         }
-                        newHTMLContent = '<div class="answer">' + this.answer + sourcesHtml + '</div>';
+                        newHTMLContent = '<div class="answer">' + answer.answer + sourcesHtml + '</div>';
                         container.innerHTML += newHTMLContent;
                      });
                 }
