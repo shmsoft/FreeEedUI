@@ -936,7 +936,7 @@ body.loading .modal-loading {
 
 .chat-wrapper{
     width: calc(100% - 47px);
-    height: calc(100vh - 315px);
+    height: calc(100vh - 325px);
     overflow: auto;
 }
 

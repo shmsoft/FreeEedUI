@@ -41,7 +41,7 @@ function onSubmit(event)
 
                 if(allCases)
                 {
-                    data.question(function(answer) {
+                    data.forEach(function(answer) {
                         var caseId = answer.case_id;
                         if(answer.sources && answer.sources.length > 0)
                         {
