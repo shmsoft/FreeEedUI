@@ -133,7 +133,7 @@
                            <input type="hidden" class="doc-tag-${doc.documentId}" value="${tag.value}"/>
                            <tr class="document-tags-row">
                               <td><div class="document-tags-tag">${tag.value}</div></td>
-                              <td><a href="#" onclick="deleteTag('${doc.documentId}', this, '${tag.name}')"><img src="images/delete.gif"/></a></td>
+                              <td><a href="#" onclick="deleteTag('${doc.documentId}', this, '${tag.name}')"><img src="../images/delete.gif"/></a></td>
                            </tr>
                        </c:forEach>
                    </table>
