@@ -114,6 +114,8 @@ function matterTypeSelect(value)
 
 function sendQuestion(event)
 {
+    alert("Specialized reports are under development. \nCurrently you can vote for which report you would like to ne developed first. \nCast your ballot by writing to info by writing to info@scaia.ai. \nThank you!");
+    return;
     $(".question_input").val(event.srcElement.innerText);
     onSubmit(event);
 }
