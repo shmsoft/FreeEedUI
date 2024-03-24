@@ -13,7 +13,7 @@ function onSubmit(event)
     var data = {};
     if(allCases)
     {
-        url = $("#aiApiUrl").val() + '/question_mult_cases/';
+        url = $("#aiApiUrl").val() + '/question_cases/';
         data = {
             question: $(".question_input").val()
         };
