@@ -7,11 +7,16 @@
         <form name="change" method="post" action="search.html">
         <input type="hidden" name="action" value="changecase"/>
 
-        Selected case: <select  class="form-control your-case-select" name="id">
-            <c:forEach var="c" items="${cases}">
-                <option value="${c.projectId}" ${(selectedCase != null && selectedCase.projectId == c.projectId) ? 'selected' : ''}>${c.name}</option>
-            </c:forEach>
-        </select>
+        Selected case:
+            <div>
+                <input id="allCasesCheckbox" type="checkbox" /> All Cases
+                <select  class="form-control your-case-select" id="case_Select" name="id">
+                    <c:forEach var="c" items="${cases}">
+                        <option value="${c.projectId}" ${(selectedCase != null && selectedCase.projectId == c.projectId) ? 'selected' : ''}>${c.name}</option>
+                    </c:forEach>
+                </select>
+            </div>
+
         </form>
 </div>
 <div>

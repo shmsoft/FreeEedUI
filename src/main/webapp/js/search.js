@@ -325,9 +325,11 @@ $(document).ready(function() {
 
     var queryString = getUrlVars();
     var query = queryString['query'];
+    var caseId = queryString['caseid'];
     if(queryString.length > 0 && query)
     {
          $("#search-query").val(query);
+         $("#case_Select").val(caseId);
          search();
     }
     $("body").bind({

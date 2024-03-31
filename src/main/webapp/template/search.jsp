@@ -29,7 +29,7 @@
 <div class="your-case">
         <form name="change" method="post" action="search.html">
         <input type="hidden" name="action" value="changecase"/>
-        Selected case: <select  class="form-control your-case-select" name="id" onchange="document.change.submit()">
+        Selected case: <select  class="form-control your-case-select" id="case_select" name="id" onchange="document.change.submit()">
             <c:forEach var="c" items="${cases}">
                 <option value="${c.id}" ${(selectedCase != null && selectedCase.id == c.id) ? 'selected' : ''}>${c.name}</option>
             </c:forEach>

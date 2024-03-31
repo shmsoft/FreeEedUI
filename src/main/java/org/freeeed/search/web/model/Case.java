@@ -68,7 +68,7 @@ public class Case implements Serializable {
         this.projectId = projectId;
     }
     public long getProjectId() {
-        return projectId;
+        return projectId != null ? projectId : 0;
     }
 
 
