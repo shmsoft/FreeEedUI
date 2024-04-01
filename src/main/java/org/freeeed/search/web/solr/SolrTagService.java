@@ -109,6 +109,12 @@ public class SolrTagService {
         String query = "id:" + documentId;
         return process(query, tag, 0, 1, true);
     }
+
+    public Result removeTagFromAll(String tag) {
+        String query = "*";
+        int rows = solrSession.getTotalDocuments();
+        return process(query, tag, 0, rows, true);
+    }
     
     private Result process(String query, String tag, int from, int rows, boolean remove) {
         try {
@@ -152,6 +158,15 @@ public class SolrTagService {
         if (solrSession != null && solrSession.getSelectedCase() != null) {
             Case c = solrSession.getSelectedCase();
             c.addTag(tag);
+            caseDao.saveCase(c);
+        }
+    }
+
+    private void removeCaseTag(String tag) {
+        SolrSessionObject solrSession = SessionContext.getSolrSession();
+        if (solrSession != null && solrSession.getSelectedCase() != null) {
+            Case c = solrSession.getSelectedCase();
+            c.removeTag(tag);
             caseDao.saveCase(c);
         }
     }

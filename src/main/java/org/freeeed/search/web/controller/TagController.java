@@ -73,6 +73,12 @@ public class TagController extends SecureController {
                 
                 valueStack.put("result", result);
             }
+
+        else if ("deleteCasetag".equals(action)) {
+                String tag = (String) valueStack.get("tag");             
+                Result result = solrTagService.removeTagFromAll(tag);
+                solrTagService.removeCaseTag(tag);
+                valueStack.put("result", result);
         } else if ("tagall".equals(action)) {
             String tag = (String) valueStack.get("tag");
             
