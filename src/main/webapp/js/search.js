@@ -151,13 +151,14 @@ function addTagToSearch(tag) {
     });
 }
 
-function deleteCaseTag(tag) {
+function deleteCaseTag(el, tag) {
     $.ajax({
       type: 'POST',
       url: 'tag.html',
       data: { action: 'deleteCasetag', tag: tag},
       success:function(data){
-        $("#" + tag + ".case-tags-box-row").remove();
+          $(el).parent().remove();
+        removeSearch(-1);
       },
       error:function(){
         alert("Technical error, try that again in a few moments!");
@@ -319,8 +320,8 @@ function addCaseTag(tag) {
 }
 
 function appendCaseTag(tag) {
-    $(".case-tags-box-body").append("<div id='" + tag + "' class='case-tags-box-row' onclick='addTagToSearch(\"" + tag + "\")'>" + tag + 
-    "<a href='#' onclick='deleteCaseTag(\"" + tag + "\")'><img src='images/delete.gif'/></a></div>");
+    $(".case-tags-box-body").append("<div id='" + tag + "' class='case-tag'><div class='case-tags-box-row' onclick='addTagToSearch(\"" + tag + "\")'>" + tag +
+    "</div><a href='#' onclick='deleteCaseTag(this,\"" + tag + "\")'><img src='images/delete.gif'/></a></div>");
 }
 
 function getUrlVars()
