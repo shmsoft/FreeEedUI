@@ -110,7 +110,7 @@ public class SolrTagService {
         return process(query, tag, 0, 1, true);
     }
 
-    public Result removeTagFromAll(String tag) {
+    public Result removeTagFromAll(SolrSessionObject solrSession, String tag) {
         String query = "*";
         int rows = solrSession.getTotalDocuments();
         return process(query, tag, 0, rows, true);
@@ -162,7 +162,7 @@ public class SolrTagService {
         }
     }
 
-    private void removeCaseTag(String tag) {
+    public void removeCaseTag(String tag) {
         SolrSessionObject solrSession = SessionContext.getSolrSession();
         if (solrSession != null && solrSession.getSelectedCase() != null) {
             Case c = solrSession.getSelectedCase();

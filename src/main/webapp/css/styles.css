@@ -657,6 +657,11 @@ body.loading .modal-loading {
     width: 49%;
 }
 
+.case-tag{
+    display: inline-block;
+    margin-left: 6px;
+}
+
 .case-tags-box-label {
     background-color: #25005b;
     color: white;
