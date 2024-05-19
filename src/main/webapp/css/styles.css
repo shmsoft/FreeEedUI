@@ -826,33 +826,6 @@ body.loading .modal-loading {
      color: red;
  }
 
-.action-button-secondary
-{
-    font-size: 14px;
-    color: white;
-    width: 160px;
-    height: 35px;
-    border-radius: 3px;
-    border: none;
-    background: rgba(0, 70, 91, 0.67);
-    display: -moz-box;
-    display: -ms-flexbox;
-    justify-content: center;
-    align-items: center;
-    -webkit-transition: all 0.4s;
-    -o-transition: all 0.4s;
-    -moz-transition: all 0.4s;
-    transition: all 0.4s;
-    margin: 0 2px;
-}
-
-.action-button-secondary:hover
-{
-    text-decoration: none;
-    background: #519b74;
-    color: white;
-}
-
  .action-button
  {
     font-size: 14px;

@@ -69,10 +69,8 @@ public class CaseController extends BaseController {
         String action = (String) valueStack.get("action");
         
         log.debug("Action called: " + action);
-        if("create".equals(action)){
-            return new ModelAndView(WebConstants.CASE_PAGE);
-        }
-        else if ("delete".equals(action)) {
+        
+        if ("delete".equals(action)) {
             String caseIdStr = (String) valueStack.get("id");
             
             try {
@@ -83,35 +81,95 @@ public class CaseController extends BaseController {
             } catch (Exception e) {
                 log.error("Error delete case: " + e.getMessage());
             }
+        } else if ("edit".equals(action)) {
+            try {
+                String caseIdStr = (String) valueStack.get("id");
+                Long caseId = Long.parseLong(caseIdStr);
+                Case c = caseDao.findCase(caseId);
+                
+                valueStack.put("usercase", c);
+            } catch (Exception e) {
+                log.error("Error while edit case: " + e.getMessage());
+            }
         } else if ("save".equals(action)) {
             
-            List<String> errors = new ArrayList<>();
-
+            List<String> errors = new ArrayList<String>();
+            
+            Long id = null;
+            String idStr = (String) valueStack.get("id");
+            if (idStr != null && idStr.length() > 0) {
+                try {
+                    id = Long.parseLong(idStr);
+                } catch (Exception e) {
+                }
+            }
+            Long projectId = null;
+            String projectIdStr = (String) valueStack.get("projectId");
+            if (projectIdStr != null && projectIdStr.length() > 0) {
+                try {
+                    projectId = Long.parseLong(projectIdStr);
+                } catch (Exception e) {
+                }
+            }
             Case c = new Case();
+            c.setId(id);
+            c.setProjectId(projectId);
             String name = (String) valueStack.get("name");
             if (name == null || !name.matches("[a-zA-Z0-9\\-_ ]+")) {
                 errors.add("Name is missing or invalid");
             }
             Date now = new Date();
-            String description = valueStack.get("description") + " " + simpleDateFormat.format(now);
+            String description = (String) valueStack.get("description") + " " +
+                    simpleDateFormat.format(now);
             if (!isValidField(description)) {
                 errors.add("Description is missing");
             }
+            
+            String solrSource = (String) valueStack.get("solrsource");
+            if (!isValidField(solrSource)) {
+                errors.add("Solr source is not selected!");
+            }
+            
             c.setName(name);
             c.setDescription(description);
-
+            c.setSolrSourceCore(solrSource);
+            
             valueStack.put("errors", errors);
             valueStack.put("usercase", c);
             
-            if (!errors.isEmpty()) {
+            if (errors.size() > 0) {
                 return new ModelAndView(WebConstants.CASE_PAGE);
             }
             
-            String filePath = (String) valueStack.get("pathDisplay");
-            if (filePath != null && !filePath.isEmpty()) {
-                c.setUploadedFile(filePath);
+            String uploadedFile = (String) valueStack.get("filesLocationUp");
+            if (uploadedFile != null && uploadedFile.length() > 0 ) {
+                c.setUploadedFile(uploadedFile);
+                
+                if (!caseFileService.expandCaseFiles(name, uploadedFile)) {
+                    errors.add("Not able to use the uploaded file");
+                    return new ModelAndView(WebConstants.CASE_PAGE);
+                }
+                
+            } else {
+                String filesLocation = (String) valueStack.get("filesLocation");
+                if (filesLocation != null && filesLocation.length() > 0 ) {
+                    File filesLocationDir = new File(filesLocation);
+                    if (filesLocationDir.isDirectory()) {
+                        for (File zipFilesLocation : filesLocationDir.listFiles()) {
+                            if (zipFilesLocation.getName().endsWith(".zip")){
+                                c.setFilesLocation(zipFilesLocation.getAbsolutePath());
+                                if (!caseFileService.expandCaseFiles(name, zipFilesLocation.getAbsolutePath())) {
+                                    errors.add("Invalid files location");
+                                    return new ModelAndView(WebConstants.CASE_PAGE);
+                                }
+                            }
+                        }
+                    }
+                }
             }
+            
             caseDao.saveCase(c);
+            
             try {
                 response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
             } catch (IOException e) {

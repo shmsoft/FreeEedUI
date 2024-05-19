@@ -5,59 +5,87 @@
 <script src="js/jquery-fu.js"></script>
 <script src="js/case.js"></script>
 <script>
-      $(document).ready(function(){
-          let fileInput = document.getElementById("fileInput");
-          let directoryInput = document.getElementById("directoryInput");
+  $(document).ready(function(){
+    let input = document.getElementById("uploadfile");
+    let fileName = document.getElementById("fileName")
 
-          fileInput.addEventListener("change", () => {
-              let inputFile = fileInput.files[0];
-              if (inputFile) {
-                  document.getElementById("pathDisplay").value = inputFile.name;
-              }
-          });
-
-          directoryInput.addEventListener("change", () => {
-              let inputDir = directoryInput.files[0];
-              if (inputDir) {
-                  let directoryPath = inputDir.webkitRelativePath.split('/')[0];
-                  document.getElementById("pathDisplay").value = directoryPath;
-              }
-          });
-      });
+    input.addEventListener("change", ()=>{
+        let inputFile = document.querySelector("input[type=file]").files[0];
+        fileName.innerText = inputFile.name;
+    })
+  });
+  
 </script>
 <div class="reg-proj-head">
-    Create Case
+    Edit Case 
 </div>
 
 <div class="delimiter">
 </div>
 
+
+
 <div class="user-box">
   <form action="usercase.html" method="post">
-
+  <c:if test="${usercase != null}">
+      <input type="hidden" name="id" value="${usercase.id}"/>
+  </c:if>
+    <input type="hidden" name="projectId" value="${usercase.projectId}"/>
     <table class="case-form-table" cellpadding="10" cellspacing="0">
         <tr>
             <td class="table-label">Name<span class="required">*</span>:</td>
-            <td><input type="text" class="form-control" name="name" placeholder="Project Name"/></td>
+            <td><input type="text" class="form-control" name="name" value="${usercase.name}"/></td>
           </tr>
           <tr>
             <td>Description<span class="required">*</span>: </td>
-            <td><textarea class="form-control" name="description" placeholder="Project Descrition"></textarea></td>
+            <td><textarea class="form-control" name="description">${usercase.description}</textarea></td>
+          </tr>
           <tr>
-            <td>Files location: </td>
+            <td>Solr source<span class="required">*</span>: </td>
             <td>
-                <input type="file" id="fileInput" class="form-control" style="visibility: hidden;" />
-                <input type="file" id="directoryInput" class="form-control" webkitdirectory style="visibility: hidden;" />
-                <input type="text" id="pathDisplay" class="form-control" />
+                <select class="form-control" name="solrsource">
+                    <c:forEach var="core" items="${cores}">
+                        <option value="${core}" ${core == usercase.solrSourceCore ? 'selected' : ''}>${core}</option>
+                    </c:forEach>
+                </select>
             </td>
           </tr>
-        <tr>
-            <td></td>
-            <td>
-            <button type="button" class="action-button-secondary" onclick="document.getElementById('fileInput').click();">Browse File</button>
-            <button type="button" class="action-button-secondary" onclick="document.getElementById('directoryInput').click();">Browse Directory</button>
+          <tr>
+            <td colspan="2">
+              <span class="explanation">(For experts! Use only when you know your SHMcloud project code)</span>
             </td>
-        </tr>
+          </tr>
+          <tr>
+            <td>Files location: </td>
+            <td><input type="text" class="form-control" name="filesLocation" value="${usercase.filesLocation}"/></td>
+          </tr>
+          <tr>
+            <td>Upload file: </td>
+            <td>
+              <div class="upload-file">
+                <label for="uploadfile">
+                  <i class="bi-file-earmark-zip-fill"></i>  Select File... 
+                  <input id="uploadfile" type="file" name="file"/>
+                </label>
+              </div>
+              <span id="fileName"></span>
+              <input id="uploadfilebutton" type="button" class="action-button" value="Upload">
+                <input id="uploadedFileId" type="hidden" name="filesLocationUp" value=""/>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <span class="explanation">Please upload the native.zip file, produced by your FreeEed player application. All other types of files will be rejected.
+              Please visit <a href="https://github.com/markkerzner/FreeEedUI/wiki/Quick-Start" target="_blank">our Wiki</a> for more information.
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>
+                <div class="uploadedFileBox" id="uploadedFileBoxId" style="display:${usercase.uploadedFile != null ? 'block' : 'none'}">Will use: <span id="uploadedFileNameId">${usercase.uploadedFile}</span></div>
+            </td>
+          </tr>
           <tr>
             <td colspan="2">
               <span class="explanation">(Fields marked with <span class="required">*</span> are mandatory)</span>

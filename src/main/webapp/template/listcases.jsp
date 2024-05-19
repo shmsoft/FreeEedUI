@@ -8,18 +8,22 @@
 <div class="delimiter">
 </div>
 <div class="listusers-newuser align-center">
-    <a class="action-button" href="usercase.html?action=create">Create new case</a>
+    <a class="action-button" href="usercase.html">Create new case</a>
 </div>
 
 <div class="listusers-box scroll">
   <table class="table-bordered" cellpadding="0" cellspacing="0">
     <tr>
+        <th class="listusers-header">Edit</th>
         <th class="listusers-header">Name</th>
         <th class="listusers-header">Description</th>
         <th class="listusers-header">Remove</th>
     </tr>
     <c:forEach var="c" items="${cases}">
         <tr>
+            <td>
+                <a href="usercase.html?action=edit&id=${c.id}"><i class="bi-pencil-fill" title="Edit"></i></a>
+            </td>
             <td>${c.name}</td>
             <td>${c.description}</td>
             <td>
