@@ -28,6 +28,7 @@ import org.freeeed.search.files.CaseFileService;
 import org.freeeed.search.web.WebConstants;
 import org.freeeed.search.web.dao.cases.CaseDao;
 import org.freeeed.search.web.model.Case;
+import org.freeeed.search.web.model.ProcessingStatus;
 import org.freeeed.search.web.model.User;
 import org.freeeed.search.web.solr.SolrCoreService;
 import org.springframework.web.servlet.ModelAndView;
@@ -107,9 +108,10 @@ public class CaseController extends BaseController {
                 return new ModelAndView(WebConstants.CASE_PAGE);
             }
             
-            String filePath = (String) valueStack.get("pathDisplay");
+            String filePath = (String) valueStack.get("filesLocation");
             if (filePath != null && !filePath.isEmpty()) {
                 c.setUploadedFile(filePath);
+                c.setStatus(ProcessingStatus.PROCESSING_PENDING);
             }
             caseDao.saveCase(c);
             try {

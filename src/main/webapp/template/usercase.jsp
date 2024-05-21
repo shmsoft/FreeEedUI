@@ -4,27 +4,6 @@
 
 <script src="js/jquery-fu.js"></script>
 <script src="js/case.js"></script>
-<script>
-      $(document).ready(function(){
-          let fileInput = document.getElementById("fileInput");
-          let directoryInput = document.getElementById("directoryInput");
-
-          fileInput.addEventListener("change", () => {
-              let inputFile = fileInput.files[0];
-              if (inputFile) {
-                  document.getElementById("pathDisplay").value = inputFile.name;
-              }
-          });
-
-          directoryInput.addEventListener("change", () => {
-              let inputDir = directoryInput.files[0];
-              if (inputDir) {
-                  let directoryPath = inputDir.webkitRelativePath.split('/')[0];
-                  document.getElementById("pathDisplay").value = directoryPath;
-              }
-          });
-      });
-</script>
 <div class="reg-proj-head">
     Create Case
 </div>
@@ -44,20 +23,12 @@
             <td>Description<span class="required">*</span>: </td>
             <td><textarea class="form-control" name="description" placeholder="Project Descrition"></textarea></td>
           <tr>
-            <td>Files location: </td>
+            <td>Data file location: </td>
             <td>
-                <input type="file" id="fileInput" class="form-control" style="visibility: hidden;" />
-                <input type="file" id="directoryInput" class="form-control" webkitdirectory style="visibility: hidden;" />
-                <input type="text" id="pathDisplay" class="form-control" />
+               <input type="text" class="form-control" name="filesLocation"></td>
             </td>
           </tr>
-        <tr>
-            <td></td>
-            <td>
-            <button type="button" class="action-button-secondary" onclick="document.getElementById('fileInput').click();">Browse File</button>
-            <button type="button" class="action-button-secondary" onclick="document.getElementById('directoryInput').click();">Browse Directory</button>
-            </td>
-        </tr>
+
           <tr>
             <td colspan="2">
               <span class="explanation">(Fields marked with <span class="required">*</span> are mandatory)</span>

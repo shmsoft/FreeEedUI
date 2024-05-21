@@ -40,6 +40,7 @@ public class Case implements Serializable {
     private String uploadedFile;
     private Long projectId;
     private String solrSourceCore;
+    private ProcessingStatus status;
 
     public Long getId() {
         return id;
@@ -90,6 +91,14 @@ public class Case implements Serializable {
     
     public String getUploadedFile() {
         return uploadedFile;
+    }
+
+    public ProcessingStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ProcessingStatus status) {
+        this.status = status;
     }
 
     public void setUploadedFile(String uploadedFile) {

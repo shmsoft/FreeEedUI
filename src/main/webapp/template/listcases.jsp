@@ -16,12 +16,14 @@
     <tr>
         <th class="listusers-header">Name</th>
         <th class="listusers-header">Description</th>
+        <th class="listusers-header">Status</th>
         <th class="listusers-header">Remove</th>
     </tr>
     <c:forEach var="c" items="${cases}">
         <tr>
             <td>${c.name}</td>
             <td>${c.description}</td>
+            <td>${c.status}</td>
             <td>
               <a href="usercase.html?action=delete&id=${c.id}"><i class="bi-trash-fill" title="Remove"></i></a>
             </td>
