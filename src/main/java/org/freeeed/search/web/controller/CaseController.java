@@ -95,7 +95,7 @@ public class CaseController extends BaseController {
             } catch (Exception e) {
                 log.error("Error while edit case: " + e.getMessage());
             }
-        } else if ("save".equals(action) || "edit".equals(action)) {
+        } else if ("save".equals(action)) {
             
             List<String> errors = new ArrayList<>();
             String caseIdStr = (String) valueStack.get("id");
