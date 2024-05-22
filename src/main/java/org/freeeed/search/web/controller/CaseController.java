@@ -84,17 +84,34 @@ public class CaseController extends BaseController {
             } catch (Exception e) {
                 log.error("Error delete case: " + e.getMessage());
             }
-        } else if ("save".equals(action)) {
+        } else if ("edit".equals(action)) {
+            try {
+                String caseIdStr = (String) valueStack.get("id");
+                Long caseId = Long.parseLong(caseIdStr);
+                Case c = caseDao.findCase(caseId);
+
+                valueStack.put("usercase", c);
+                return new ModelAndView(WebConstants.EDIT_CASE_PAGE);
+            } catch (Exception e) {
+                log.error("Error while edit case: " + e.getMessage());
+            }
+        } else if ("save".equals(action) || "edit".equals(action)) {
             
             List<String> errors = new ArrayList<>();
+            String caseIdStr = (String) valueStack.get("id");
+            Case c;
+            if(caseIdStr == null){
+                c = new Case();
+            }else {
+                Long caseId = Long.parseLong(caseIdStr);
+                c = caseDao.findCase(caseId);
+            }
 
-            Case c = new Case();
             String name = (String) valueStack.get("name");
             if (name == null || !name.matches("[a-zA-Z0-9\\-_ ]+")) {
                 errors.add("Name is missing or invalid");
             }
-            Date now = new Date();
-            String description = valueStack.get("description") + " " + simpleDateFormat.format(now);
+            String description = ""+valueStack.get("description");
             if (!isValidField(description)) {
                 errors.add("Description is missing");
             }

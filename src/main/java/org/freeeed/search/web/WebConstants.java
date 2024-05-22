@@ -29,7 +29,7 @@ public class WebConstants {
     public static final String LIST_USERS_PAGE = "listUsers";
     public static final String LIST_USERS_PAGE_REDIRECT = "listusers.html";
 	public static final String USER_PAGE = "user";
-	public static final String EDIT_PROJECT_PAGE = "edit_project";
+	public static final String EDIT_CASE_PAGE = "editcase";
 	public static final String MAIN_PAGE_REDIRECT = "main.html";
 	
     public static final String LIST_CASES_PAGE = "listCases";

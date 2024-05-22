@@ -14,6 +14,7 @@
 <div class="listusers-box scroll">
   <table class="table-bordered" cellpadding="0" cellspacing="0">
     <tr>
+        <th class="listusers-header">Edit</th>
         <th class="listusers-header">Name</th>
         <th class="listusers-header">Description</th>
         <th class="listusers-header">Status</th>
@@ -21,6 +22,9 @@
     </tr>
     <c:forEach var="c" items="${cases}">
         <tr>
+            <td>
+                <a href="usercase.html?action=edit&id=${c.id}"><i class="bi-pencil-fill" title="Edit"></i></a>
+            </td>
             <td>${c.name}</td>
             <td>${c.description}</td>
             <td>${c.status}</td>

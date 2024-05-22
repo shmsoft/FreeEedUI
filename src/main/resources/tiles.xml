@@ -53,6 +53,10 @@
     </definition>
     
     <definition name="tagAuto" template="/template/tag-auto.jsp"/>
+
+    <definition name="editcase" extends="commonLayout">
+        <put-attribute name="body" value="/template/editcase.jsp" />
+    </definition>
     
     <definition name="caseFileDownload" extends="commonLayout">
         <put-attribute name="body" value="/template/caseFileDownload.jsp" />
