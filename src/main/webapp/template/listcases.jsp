@@ -1,7 +1,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="shmwebfunc" uri="http://freeeed.org/tags/custom"%>
-
+<script>
+    function disableButton(id) {
+        var button = document.getElementById('processButton' + id);
+        button.disabled = true;
+        button.innerText = 'Cancel Processing';
+    }
+</script>
 <div class="reg-proj-head">
     Cases
 </div>
@@ -20,18 +26,27 @@
         <th class="listusers-header">Status</th>
         <th class="listusers-header">Remove</th>
     </tr>
-    <c:forEach var="c" items="${cases}">
-        <tr>
-            <td>
-                <a href="usercase.html?action=edit&id=${c.id}"><i class="bi-pencil-fill" title="Edit"></i></a>
-            </td>
-            <td>${c.name}</td>
-            <td>${c.description}</td>
-            <td>${c.status}</td>
-            <td>
-              <a href="usercase.html?action=delete&id=${c.id}"><i class="bi-trash-fill" title="Remove"></i></a>
-            </td>
-        </tr>    
-    </c:forEach>
+      <c:forEach var="c" items="${cases}">
+          <tr>
+              <td>
+                  <a href="usercase.html?action=edit&id=${c.id}"><i class="bi-pencil-fill" title="Edit"></i></a>
+              </td>
+              <td>${c.name}</td>
+              <td>${c.description}</td>
+              <td>
+                  <c:choose>
+                      <c:when test="${c.status == 'PROCESSING_PENDING'}">
+                          ${c.status} <a href="processing.html?action=process&id=${c.id}"> <button class="btn-xs btn-primary">Start Processing</button></a>
+                      </c:when>
+                      <c:otherwise>
+                          ${c.status} <button disabled class="btn-xs btn-secondary">Processing ... </button>
+                      </c:otherwise>
+                  </c:choose>
+              </td>
+              <td>
+                  <a href="usercase.html?action=delete&id=${c.id}"><i class="bi-trash-fill" title="Remove"></i></a>
+              </td>
+          </tr>
+      </c:forEach>
   </table>
 </div>

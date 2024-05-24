@@ -1,6 +1,6 @@
 /*
  *
- * Copyright SHMsoft, Inc. 
+ * Copyright SHMsoft, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*/
+ */
 package org.freeeed.search.web.controller;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.freeeed.search.files.CaseFileService;
@@ -33,12 +26,14 @@ import org.freeeed.search.web.model.User;
 import org.freeeed.search.web.solr.SolrCoreService;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * 
  * Class CaseController.
- * 
- * @author ilazarov.
  *
+ * @author ilazarov.
  */
 public class CaseController extends BaseController {
     private static final Logger log = Logger.getLogger(CaseController.class);
@@ -46,15 +41,12 @@ public class CaseController extends BaseController {
     private SolrCoreService solrCoreService;
     private CaseFileService caseFileService;
 
-    String pattern = "HH:mm";
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-
     @Override
     public ModelAndView execute() {
         //case creation also remotely identified by a remoteCreation
         String remoteCreation = (String) valueStack.get("removecasecreation");
-        
-        if ((remoteCreation == null || !remoteCreation.equals("yes")) 
+
+        if ((remoteCreation == null || !remoteCreation.equals("yes"))
                 && !loggedSiteVisitor.getUser().hasRight(User.Right.CASES)) {
             try {
                 response.sendRedirect(WebConstants.MAIN_PAGE_REDIRECT);
@@ -62,24 +54,23 @@ public class CaseController extends BaseController {
             } catch (IOException e) {
             }
         }
-        
+
         List<String> solrCores = solrCoreService.getSolrCores();
         valueStack.put("cores", solrCores);
         valueStack.put("usercase", new Case());
-        
+
         String action = (String) valueStack.get("action");
-        
+
         log.debug("Action called: " + action);
-        if("create".equals(action)){
+        if ("create".equals(action)) {
             return new ModelAndView(WebConstants.CASE_PAGE);
-        }
-        else if ("delete".equals(action)) {
+        } else if ("delete".equals(action)) {
             String caseIdStr = (String) valueStack.get("id");
-            
+
             try {
                 Long caseId = Long.parseLong(caseIdStr);
                 caseDao.deleteCase(caseId);
-                
+
                 response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
             } catch (Exception e) {
                 log.error("Error delete case: " + e.getMessage());
@@ -96,13 +87,13 @@ public class CaseController extends BaseController {
                 log.error("Error while edit case: " + e.getMessage());
             }
         } else if ("save".equals(action)) {
-            
+
             List<String> errors = new ArrayList<>();
             String caseIdStr = (String) valueStack.get("id");
             Case c;
-            if(caseIdStr == null){
+            if (caseIdStr == null) {
                 c = new Case();
-            }else {
+            } else {
                 Long caseId = Long.parseLong(caseIdStr);
                 c = caseDao.findCase(caseId);
             }
@@ -111,7 +102,7 @@ public class CaseController extends BaseController {
             if (name == null || !name.matches("[a-zA-Z0-9\\-_ ]+")) {
                 errors.add("Name is missing or invalid");
             }
-            String description = ""+valueStack.get("description");
+            String description = "" + valueStack.get("description");
             if (!isValidField(description)) {
                 errors.add("Description is missing");
             }
@@ -120,11 +111,11 @@ public class CaseController extends BaseController {
 
             valueStack.put("errors", errors);
             valueStack.put("usercase", c);
-            
+
             if (!errors.isEmpty()) {
                 return new ModelAndView(WebConstants.CASE_PAGE);
             }
-            
+
             String filePath = (String) valueStack.get("filesLocation");
             if (filePath != null && !filePath.isEmpty()) {
                 c.setUploadedFile(filePath);
@@ -136,14 +127,14 @@ public class CaseController extends BaseController {
             } catch (IOException e) {
             }
         }
-        
+
         return new ModelAndView(WebConstants.CASE_PAGE);
     }
 
     private boolean isValidField(String value) {
         return value != null && !value.isEmpty();
     }
-    
+
     public void setCaseDao(CaseDao caseDao) {
         this.caseDao = caseDao;
     }
