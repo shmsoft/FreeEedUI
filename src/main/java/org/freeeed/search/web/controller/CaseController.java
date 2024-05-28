@@ -1,6 +1,6 @@
 /*
  *
- * Copyright SHMsoft, Inc. 
+ * Copyright SHMsoft, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,31 +13,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*/
+ */
 package org.freeeed.search.web.controller;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.freeeed.search.files.CaseFileService;
 import org.freeeed.search.web.WebConstants;
 import org.freeeed.search.web.dao.cases.CaseDao;
 import org.freeeed.search.web.model.Case;
+import org.freeeed.search.web.model.ProcessingStatus;
 import org.freeeed.search.web.model.User;
 import org.freeeed.search.web.solr.SolrCoreService;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * 
  * Class CaseController.
- * 
- * @author ilazarov.
  *
+ * @author ilazarov.
  */
 public class CaseController extends BaseController {
     private static final Logger log = Logger.getLogger(CaseController.class);
@@ -45,15 +41,12 @@ public class CaseController extends BaseController {
     private SolrCoreService solrCoreService;
     private CaseFileService caseFileService;
 
-    String pattern = "HH:mm";
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-
     @Override
     public ModelAndView execute() {
         //case creation also remotely identified by a remoteCreation
         String remoteCreation = (String) valueStack.get("removecasecreation");
-        
-        if ((remoteCreation == null || !remoteCreation.equals("yes")) 
+
+        if ((remoteCreation == null || !remoteCreation.equals("yes"))
                 && !loggedSiteVisitor.getUser().hasRight(User.Right.CASES)) {
             try {
                 response.sendRedirect(WebConstants.MAIN_PAGE_REDIRECT);
@@ -61,22 +54,23 @@ public class CaseController extends BaseController {
             } catch (IOException e) {
             }
         }
-        
+
         List<String> solrCores = solrCoreService.getSolrCores();
         valueStack.put("cores", solrCores);
         valueStack.put("usercase", new Case());
-        
+
         String action = (String) valueStack.get("action");
-        
+
         log.debug("Action called: " + action);
-        
-        if ("delete".equals(action)) {
+        if ("create".equals(action)) {
+            return new ModelAndView(WebConstants.CASE_PAGE);
+        } else if ("delete".equals(action)) {
             String caseIdStr = (String) valueStack.get("id");
-            
+
             try {
                 Long caseId = Long.parseLong(caseIdStr);
                 caseDao.deleteCase(caseId);
-                
+
                 response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
             } catch (Exception e) {
                 log.error("Error delete case: " + e.getMessage());
@@ -86,103 +80,67 @@ public class CaseController extends BaseController {
                 String caseIdStr = (String) valueStack.get("id");
                 Long caseId = Long.parseLong(caseIdStr);
                 Case c = caseDao.findCase(caseId);
-                
+
                 valueStack.put("usercase", c);
+                return new ModelAndView(WebConstants.EDIT_CASE_PAGE);
             } catch (Exception e) {
                 log.error("Error while edit case: " + e.getMessage());
             }
         } else if ("save".equals(action)) {
-            
-            List<String> errors = new ArrayList<String>();
-            
-            Long id = null;
-            String idStr = (String) valueStack.get("id");
-            if (idStr != null && idStr.length() > 0) {
-                try {
-                    id = Long.parseLong(idStr);
-                } catch (Exception e) {
-                }
+
+            List<String> errors = new ArrayList<>();
+            String caseIdStr = (String) valueStack.get("id");
+            Case c;
+            if (caseIdStr == null) {
+                c = new Case();
+            } else {
+                Long caseId = Long.parseLong(caseIdStr);
+                c = caseDao.findCase(caseId);
             }
-            Long projectId = null;
-            String projectIdStr = (String) valueStack.get("projectId");
-            if (projectIdStr != null && projectIdStr.length() > 0) {
-                try {
-                    projectId = Long.parseLong(projectIdStr);
-                } catch (Exception e) {
-                }
-            }
-            Case c = new Case();
-            c.setId(id);
-            c.setProjectId(projectId);
+
             String name = (String) valueStack.get("name");
             if (name == null || !name.matches("[a-zA-Z0-9\\-_ ]+")) {
                 errors.add("Name is missing or invalid");
             }
-            Date now = new Date();
-            String description = (String) valueStack.get("description") + " " +
-                    simpleDateFormat.format(now);
+            String description = "" + valueStack.get("description");
             if (!isValidField(description)) {
                 errors.add("Description is missing");
             }
-            
+
             String solrSource = (String) valueStack.get("solrsource");
-            if (!isValidField(solrSource)) {
-                errors.add("Solr source is not selected!");
+            if (isValidField(solrSource)) {
+                c.setSolrSourceCore(solrSource);
             }
-            
+
             c.setName(name);
             c.setDescription(description);
-            c.setSolrSourceCore(solrSource);
-            
+
             valueStack.put("errors", errors);
             valueStack.put("usercase", c);
-            
-            if (errors.size() > 0) {
+
+            if (!errors.isEmpty()) {
                 return new ModelAndView(WebConstants.CASE_PAGE);
             }
-            
-            String uploadedFile = (String) valueStack.get("filesLocationUp");
-            if (uploadedFile != null && uploadedFile.length() > 0 ) {
-                c.setUploadedFile(uploadedFile);
-                
-                if (!caseFileService.expandCaseFiles(name, uploadedFile)) {
-                    errors.add("Not able to use the uploaded file");
-                    return new ModelAndView(WebConstants.CASE_PAGE);
-                }
-                
-            } else {
-                String filesLocation = (String) valueStack.get("filesLocation");
-                if (filesLocation != null && filesLocation.length() > 0 ) {
-                    File filesLocationDir = new File(filesLocation);
-                    if (filesLocationDir.isDirectory()) {
-                        for (File zipFilesLocation : filesLocationDir.listFiles()) {
-                            if (zipFilesLocation.getName().endsWith(".zip")){
-                                c.setFilesLocation(zipFilesLocation.getAbsolutePath());
-                                if (!caseFileService.expandCaseFiles(name, zipFilesLocation.getAbsolutePath())) {
-                                    errors.add("Invalid files location");
-                                    return new ModelAndView(WebConstants.CASE_PAGE);
-                                }
-                            }
-                        }
-                    }
-                }
+
+            String filePath = (String) valueStack.get("filesLocation");
+            if (filePath != null && !filePath.isEmpty()) {
+                c.setUploadedFile(filePath);
+                c.setStatus(ProcessingStatus.PROCESSING_PENDING);
             }
-            
             caseDao.saveCase(c);
-            
             try {
                 response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
             } catch (IOException e) {
             }
         }
-        
+
         return new ModelAndView(WebConstants.CASE_PAGE);
     }
 
     private boolean isValidField(String value) {
         return value != null && !value.isEmpty();
     }
-    
+
     public void setCaseDao(CaseDao caseDao) {
         this.caseDao = caseDao;
     }

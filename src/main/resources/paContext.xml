@@ -110,6 +110,10 @@
         <property name="solrCoreService" ref="solrCoreService" />
         <property name="caseFileService" ref="caseFileService" />
     </bean>
+
+    <bean id="processingPage" class="org.freeeed.search.web.controller.ProcessingController">
+        <property name="caseDao" ref="caseDao" />
+    </bean>
     
     <bean id="appSettingsDao" class="org.freeeed.search.web.dao.settings.FSAppSettingsDao" init-method="init">
     </bean>
@@ -157,6 +161,7 @@
                 <prop key="/tagauto.html">tagAutoPage</prop>
                 <prop key="/filedownload.html">caseFilesDownload</prop>
                 <prop key="/fileupload.html">fileuploadPage</prop>
+                <prop key="/processing.html">processingPage</prop>
 			</props>
 		</property>
 	</bean>
