@@ -106,6 +106,12 @@ public class CaseController extends BaseController {
             if (!isValidField(description)) {
                 errors.add("Description is missing");
             }
+
+            String solrSource = (String) valueStack.get("solrsource");
+            if (isValidField(solrSource)) {
+                c.setSolrSourceCore(solrSource);
+            }
+
             c.setName(name);
             c.setDescription(description);
 
