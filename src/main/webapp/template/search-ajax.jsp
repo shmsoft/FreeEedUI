@@ -49,6 +49,9 @@
                 <div class="operation-link">
                     <a class="operation-link-text action-button" href="filedownload.html?action=exportNativeAll">Export as natives</a>
                 </div>
+                <div class="operation-link">
+                    <a id="export-link" class="operation-link-text action-button" target="_blank" href="filedownload.html?action=exportReport">Export report</a>
+                </div>
                 <div class="tags-remove-box">
                 </div>
             </div>
