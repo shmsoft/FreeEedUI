@@ -16,10 +16,7 @@
 */
 package org.freeeed.search.web.controller;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +29,10 @@ import org.freeeed.search.files.CaseFileService;
 import org.freeeed.search.web.WebConstants;
 import org.freeeed.search.web.model.Case;
 import org.freeeed.search.web.model.solr.SolrDocument;
+import org.freeeed.search.web.model.solr.SolrEntry;
 import org.freeeed.search.web.model.solr.SolrResult;
 import org.freeeed.search.web.session.SolrSessionObject;
+import org.freeeed.search.web.solr.QuerySearch;
 import org.freeeed.search.web.solr.SolrSearchService;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -84,7 +83,15 @@ public class CaseFileDownloadController extends SecureController {
             } else if ("exportHtmlImage".equals(action)) {
                 toDownload = caseFileService.getHtmlImageFile(selectedCase.getName(), docPath);
                 htmlMode = true;
-            } else if ("exportNativeAll".equals(action)) {
+            } else if ("exportReport".equals(action)) {
+                List<QuerySearch> queries = solrSession.getQueries();
+                String query =solrSession.buildSearchQuery();
+                int rows = solrSession.getTotalDocuments();
+                List<SolrDocument> docs = getDocumentsMetadata(query, 0, rows);
+                toDownload = caseFileService.generateHtmlReport(selectedCase.getName(), docs, queries);
+                htmlMode = true;
+            }
+            else if ("exportNativeAll".equals(action)) {
                 String query = solrSession.buildSearchQuery();
                 int rows = solrSession.getTotalDocuments();
                             
@@ -164,7 +171,14 @@ public class CaseFileDownloadController extends SecureController {
         result.addAll(solrResult.getDocuments().values());
         return result;
     }
-    
+
+    private List<SolrDocument> getDocumentsMetadata(String query, int from, int rows) {
+        SolrResult solrResult = searchService.search(query, from, rows, null, false, "");
+        List<SolrDocument> result = new ArrayList<SolrDocument>(solrResult.getTotalSize());
+        result.addAll(solrResult.getDocuments().values());
+        return result;
+    }
+
     public void setCaseFileService(CaseFileService caseFileService) {
         this.caseFileService = caseFileService;
     }
