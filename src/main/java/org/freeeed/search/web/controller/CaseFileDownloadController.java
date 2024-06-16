@@ -69,8 +69,9 @@ public class CaseFileDownloadController extends SecureController {
         boolean htmlMode = false;
         
         String docPath = (String) valueStack.get("docPath");
-        String uniqueId = (String) valueStack.get("uniqueId"); 
-        
+        String uniqueId = (String) valueStack.get("uniqueId");
+        boolean isPreviewPDF = (valueStack.get("ispreviewpdf") != null ? valueStack.get("ispreviewpdf") : "") .equals("1");
+
         try {
             if ("exportNative".equals(action)) {
                 toDownload = caseFileService.getNativeFile(selectedCase.getName(), docPath, uniqueId);
@@ -78,8 +79,9 @@ public class CaseFileDownloadController extends SecureController {
             } else if ("exportImage".equals(action)) {
                 toDownload = caseFileService.getImageFile(selectedCase.getName(), docPath, uniqueId);
             } else if ("exportHtml".equals(action)) {
-                toDownload = caseFileService.getHtmlFile(selectedCase.getName(), docPath, uniqueId);
-                htmlMode = true;
+                    String projectPath = selectedCase.getFilesLocation();
+                    toDownload = caseFileService.getHtmlFile(projectPath, docPath, uniqueId);
+                    htmlMode = true;
             } else if ("exportHtmlImage".equals(action)) {
                 toDownload = caseFileService.getHtmlImageFile(selectedCase.getName(), docPath);
                 htmlMode = true;
@@ -128,7 +130,7 @@ public class CaseFileDownloadController extends SecureController {
             try {
                 int length = 0;
                 ServletOutputStream outStream = response.getOutputStream();
-                String mimetype = "application/octet-stream";
+                String mimetype = isPreviewPDF ? "application/pdf" : "application/octet-stream";
                 if (htmlMode) {
                     mimetype = "text/html";
                 }
@@ -137,10 +139,10 @@ public class CaseFileDownloadController extends SecureController {
                 response.setContentLength((int) toDownload.length());
                 String fileName = toDownload.getName();
     
-                if (!htmlMode) {
+                if (!htmlMode && !isPreviewPDF) {
                     // sets HTTP header
-                    response.setHeader("Content-Disposition", "attachment; filename=\""
-                            + fileName + "\"");
+                   response.setHeader("Content-Disposition", "attachment; filename=\""
+                           + fileName + "\"");
                 }
     
                 byte[] byteBuffer = new byte[1024];
@@ -164,6 +166,8 @@ public class CaseFileDownloadController extends SecureController {
         
         return new ModelAndView(WebConstants.CASE_FILE_DOWNLOAD);
     }
+
+
 
     private List<SolrDocument> getDocumentPaths(String query, int from, int rows) {
         SolrResult solrResult = searchService.search(query, from, rows, null, false, "id,document_original_path,UPI");

@@ -90,7 +90,7 @@ public class CaseFileService {
             return null;
         }
     }
-    
+
     public File getNativeFile(String caseName, String documentOriginalPath, String uniqueId) {
         String fileName = documentOriginalPath.contains(File.separator) ?
                 documentOriginalPath.substring(documentOriginalPath.lastIndexOf(File.separator) + 1) : documentOriginalPath;
@@ -101,12 +101,11 @@ public class CaseFileService {
         if (dir.exists()) {
             File[] files = dir.listFiles();
             for (File file : files) {
-                if (file.getName().startsWith(uniqueId + "_")) {
+                if (file.getName().equals(fileName)) {
                     return file;
                 }
             }
         }
-        
         return null;
     }
     
@@ -136,22 +135,15 @@ public class CaseFileService {
         return null;
     }
     
-    public File getHtmlFile(String caseName, String documentOriginalPath, String uniqueId) {
-        String fileName = documentOriginalPath.contains(File.separator) ?
-                documentOriginalPath.substring(documentOriginalPath.lastIndexOf(File.separator) + 1) : documentOriginalPath;
-        
-        fileName = uniqueId + "_" + fileName;
+    public File getHtmlFile(String projectOutputPath, String documentOriginalPath, String uniqueId) {
+        File dir = new File(projectOutputPath);
+        String folderPath = dir.getParent();
+        documentOriginalPath = folderPath + File.separator + "html_output" + File.separator + documentOriginalPath + ".html";
                 
-        File dir = new File(FILES_DIR + File.separator + caseName + File.separator + "html");
-        if (dir.exists()) {
-            File[] files = dir.listFiles();
-            for (File file : files) {
-                if (file.getName().endsWith(fileName + ".html")) {
-                    return file;
-                }
-            }
+        File file = new File(documentOriginalPath);
+        if (file.exists()) {
+            return file;
         }
-        
         return null;
     }
 
