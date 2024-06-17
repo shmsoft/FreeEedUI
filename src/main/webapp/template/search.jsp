@@ -15,6 +15,11 @@
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title">Preview</h4>
+              <div class="modal-navigation">
+                  <a href="javascript:;" onclick="prevDocument()">Previous</a>
+                  |
+                  <a href="javascript:;" onclick="nextDocument()">Next</a>
+              </div>
           </div>
           <div class="modal-body" id="html_preview_modal_content">
             
