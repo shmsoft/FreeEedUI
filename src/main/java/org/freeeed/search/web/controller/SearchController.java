@@ -158,10 +158,10 @@ public class SearchController extends SecureController {
                 solrSession.setTotalPage(total);
                 solrSession.setTotalDocuments(result.getTotalSize());
                                 
-                setupPagination();
+
             }
         }
-        
+        setupPagination();
         return new ModelAndView(WebConstants.SEARCH_AJAX_PAGE);
     }
     
@@ -170,7 +170,7 @@ public class SearchController extends SecureController {
             this.request.getSession(true).getAttribute("solrSession");
         
         valueStack.put("showPagination", session.getTotalPage() > 1);
-        valueStack.put("currentPage", session.getCurrentPage());
+        valueStack.put("currentPage",  session.getCurrentPage());
         valueStack.put("showPrev", session.getCurrentPage() > 1);
         valueStack.put("showNext", session.getCurrentPage() < session.getTotalPage());
         valueStack.put("searchPerformed", true);
