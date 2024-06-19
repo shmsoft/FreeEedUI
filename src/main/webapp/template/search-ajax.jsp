@@ -1,7 +1,19 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
- 
+<script>
+    var currentPage = ${currentPage};
+    var showPrev = ${showPrev};
+    var showNext = ${showNext};
+    var documents = [];
+    <c:forEach var="doc" items="${result.documents}">
+    documents.push({
+        documentPath: "${doc.documentPath}",
+        documentId: "${doc.documentId}",
+        uniqueId: "${doc.uniqueId}"
+    });
+    </c:forEach>
+</script>
     
     <div class="your-search">
         <div class="your-search-label">
@@ -48,6 +60,9 @@
                 </div>
                 <div class="operation-link">
                     <a class="operation-link-text action-button" href="filedownload.html?action=exportNativeAll">Export as natives</a>
+                </div>
+                <div class="operation-link">
+                    <a id="export-link" class="operation-link-text action-button" target="_blank" href="filedownload.html?action=exportReport">Export report</a>
                 </div>
                 <div class="tags-remove-box">
                 </div>
@@ -142,7 +157,7 @@
 
             <div class="operations-box">
                 <div class="operation-link">
-                    <a class="operation-link-text html-preview action-button" data="${doc.documentPath}" uid="${doc.uniqueId}">Preview</a>
+                    <a id="preview-${doc.documentId}" class="operation-link-text html-preview action-button" data="${doc.documentPath}" uid="${doc.uniqueId}">Preview</a>
                 </div>
                 <div class="operation-link">
                     <a href="javascript:;" class="operation-link-text action-button" onclick="$('#tag-doc-${doc.documentId}').slideToggle(200);">Tag</a>

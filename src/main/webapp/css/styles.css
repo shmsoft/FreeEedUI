@@ -713,7 +713,14 @@ body.loading .modal-loading {
 }
 
 .modal-wide {
-    width: 750px;
+    width: 98%;
+}
+
+.modal-navigation
+{
+    position: absolute;
+    right: 50px;
+    top: 15px;
 }
 
 .tags-remove-box {
