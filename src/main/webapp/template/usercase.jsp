@@ -26,7 +26,7 @@
 
 
 <div class="user-box">
-  <form action="usercase.html" method="post">
+  <form action="usercase.html" method="post" enctype="multipart/form-data">
   <c:if test="${usercase != null}">
       <input type="hidden" name="id" value="${usercase.id}"/>
   </c:if>
@@ -41,25 +41,6 @@
             <td><textarea class="form-control" name="description">${usercase.description}</textarea></td>
           </tr>
           <tr>
-            <td>Solr source<span class="required">*</span>: </td>
-            <td>
-                <select class="form-control" name="solrsource">
-                    <c:forEach var="core" items="${cores}">
-                        <option value="${core}" ${core == usercase.solrSourceCore ? 'selected' : ''}>${core}</option>
-                    </c:forEach>
-                </select>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <span class="explanation">(For experts! Use only when you know your SHMcloud project code)</span>
-            </td>
-          </tr>
-          <tr>
-            <td>Files location: </td>
-            <td><input type="text" class="form-control" name="filesLocation" value="${usercase.filesLocation}"/></td>
-          </tr>
-          <tr>
             <td>Upload file: </td>
             <td>
               <div class="upload-file">
@@ -69,17 +50,10 @@
                 </label>
               </div>
               <span id="fileName"></span>
-              <input id="uploadfilebutton" type="button" class="action-button" value="Upload">
-                <input id="uploadedFileId" type="hidden" name="filesLocationUp" value=""/>
+
             </td>
           </tr>
-          <tr>
-            <td colspan="2">
-              <span class="explanation">Please upload the native.zip file, produced by your FreeEed player application. All other types of files will be rejected.
-              Please visit <a href="https://github.com/markkerzner/FreeEedUI/wiki/Quick-Start" target="_blank">our Wiki</a> for more information.
-              </span>
-            </td>
-          </tr>
+
           <tr>
             <td>&nbsp;</td>
             <td>

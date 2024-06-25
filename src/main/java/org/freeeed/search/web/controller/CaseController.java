@@ -30,6 +30,7 @@ import org.freeeed.search.web.dao.cases.CaseDao;
 import org.freeeed.search.web.model.Case;
 import org.freeeed.search.web.model.User;
 import org.freeeed.search.web.solr.SolrCoreService;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -125,50 +126,23 @@ public class CaseController extends BaseController {
                 errors.add("Description is missing");
             }
             
-            String solrSource = (String) valueStack.get("solrsource");
-            if (!isValidField(solrSource)) {
-                errors.add("Solr source is not selected!");
-            }
-            
+
             c.setName(name);
             c.setDescription(description);
-            c.setSolrSourceCore(solrSource);
-            
+
             valueStack.put("errors", errors);
             valueStack.put("usercase", c);
             
             if (errors.size() > 0) {
                 return new ModelAndView(WebConstants.CASE_PAGE);
             }
-            
-            String uploadedFile = (String) valueStack.get("filesLocationUp");
-            if (uploadedFile != null && uploadedFile.length() > 0 ) {
-                c.setUploadedFile(uploadedFile);
-                
-                if (!caseFileService.expandCaseFiles(name, uploadedFile)) {
-                    errors.add("Not able to use the uploaded file");
-                    return new ModelAndView(WebConstants.CASE_PAGE);
-                }
-                
-            } else {
-                String filesLocation = (String) valueStack.get("filesLocation");
-                if (filesLocation != null && filesLocation.length() > 0 ) {
-                    File filesLocationDir = new File(filesLocation);
-                    if (filesLocationDir.isDirectory()) {
-                        for (File zipFilesLocation : filesLocationDir.listFiles()) {
-                            if (zipFilesLocation.getName().endsWith(".zip")){
-                                c.setFilesLocation(zipFilesLocation.getAbsolutePath());
-                                if (!caseFileService.expandCaseFiles(name, zipFilesLocation.getAbsolutePath())) {
-                                    errors.add("Invalid files location");
-                                    return new ModelAndView(WebConstants.CASE_PAGE);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
+            MultipartFile file = (MultipartFile)valueStack.get("file");
+
+            String dest = caseFileService.uploadFile(file);
+
             caseDao.saveCase(c);
+
+
             
             try {
                 response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);

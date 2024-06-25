@@ -29,6 +29,10 @@ import org.freeeed.search.web.session.LoggedSiteVisitor;
 import org.freeeed.search.web.session.LoggedSiteVisitorAware;
 import org.freeeed.search.web.session.SiteVisitor;
 import org.freeeed.search.web.session.SiteVisitorAware;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
+import org.springframework.web.portlet.multipart.DefaultMultipartActionRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
@@ -69,8 +73,18 @@ public abstract class BaseController implements Controller, SiteVisitorAware, Lo
 			String param = en.nextElement();
 			valueStack.put(param, request.getParameter(param));
 		}
-		
-		ModelAndView modelAndView = execute();
+		try {
+			MultipartFile file = ((MultipartHttpServletRequest) request).getFile("file");
+			if(file != null)
+			{
+				valueStack.put("file", file);
+			}
+
+	} catch (Exception e) {
+		// Handle exceptions
+	}
+
+        ModelAndView modelAndView = execute();
 		
 		valueStack.put("visitor", siteVisitor);
 		valueStack.put("loggedVisitor", loggedSiteVisitor);
@@ -83,7 +97,8 @@ public abstract class BaseController implements Controller, SiteVisitorAware, Lo
 	}
 	
 	public abstract ModelAndView execute();
-	
+
+
 	public boolean addValueStackToModel() {
 		return true;
 	}

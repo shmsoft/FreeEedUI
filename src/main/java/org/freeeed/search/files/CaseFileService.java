@@ -43,6 +43,8 @@ public class CaseFileService {
     private static final String FILES_DIR = "files";
     private static final String FILES_TMP_DIR = "tmp";
     private static final String UPLOAD_DIR = "uploads";
+    private static final String UPLOADED_FOLDER = "/home/freeeed/FreeEedData/uploads/";
+
     private static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
     
     /**
@@ -75,10 +77,10 @@ public class CaseFileService {
     }
     
     public String uploadFile(MultipartFile file) {
-        File uploadDir = new File(UPLOAD_DIR);
+        File uploadDir = new File(UPLOADED_FOLDER);
         uploadDir.mkdirs();
-        
-        String destinationFile = UPLOAD_DIR + File.separator + df.format(new Date()) + "-" + file.getOriginalFilename();
+
+        String destinationFile = UPLOADED_FOLDER + File.separator + df.format(new Date()) + "-" + file.getOriginalFilename();
         File destination = new File(destinationFile);
         try {
             file.transferTo(destination);
