@@ -16,9 +16,11 @@
 */
 package org.freeeed.search.web.controller;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -108,7 +110,7 @@ public class CaseController extends BaseController {
             String projectIdStr = (String) valueStack.get("projectId");
             if (projectIdStr != null && projectIdStr.length() > 0) {
                 try {
-                    projectId = Long.parseLong(projectIdStr);
+                    projectId = Long.parseLong(projectIdStr) + 1;
                 } catch (Exception e) {
                 }
             }
@@ -137,22 +139,92 @@ public class CaseController extends BaseController {
                 return new ModelAndView(WebConstants.CASE_PAGE);
             }
             MultipartFile file = (MultipartFile)valueStack.get("file");
-
             String dest = caseFileService.uploadFile(file);
-
-            caseDao.saveCase(c);
-
-
-            
             try {
+                String projectBaseInfo = readProjectTemplateFile();
+                LocalDateTime currentDateTime = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm");
+                String formattedDateTime = currentDateTime.format(formatter);
+                projectBaseInfo = projectBaseInfo.replace("{CreatedDate}", formattedDateTime);
+                projectBaseInfo = projectBaseInfo.replace("{ProjectId}", projectIdStr);
+                projectBaseInfo = projectBaseInfo.replace("{inputFile}", dest);
+                projectBaseInfo = projectBaseInfo.replace("{Name}", name);
+
+                caseDao.saveCase(c);
+                File folderProject = new File(dest);
+                String parentDirectory = folderProject.getParent()  + "/ProjectFiles";
+                String fileProject = saveProjectFile(projectBaseInfo, parentDirectory , formattedDateTime);
+                runFreeeedProcess(fileProject);
                 response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
+
             } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
-        
         return new ModelAndView(WebConstants.CASE_PAGE);
     }
 
+    private void runFreeeedProcess(String paramFile) {
+
+        try {
+            // Construct the command
+            String[] command = {
+                    "java",
+                    "-cp", "freeeed-processing-1.0-SNAPSHOT-jar-with-dependencies.jar",
+                    "org.freeeed.main.FreeEedMain",
+                    "-param_file", paramFile
+            };
+            // Create a ProcessBuilder
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            // Set the working directory
+            processBuilder.directory(new File("/home/freeeed/Desktop/freeeed_complete_pack/FreeEed/target/"));
+            // Start the process
+            Process process = processBuilder.start();
+
+            // Read the output
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            // Wait for the process to complete
+            int exitCode = process.waitFor();
+            System.out.println("Exited with code: " + exitCode);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private String readProjectTemplateFile() throws IOException {
+        String resourcePath = "template.project";
+
+        // Get the resource URL
+        ClassLoader classLoader = CaseController.class.getClassLoader();
+        URL resourceUrl = classLoader.getResource(resourcePath);
+        StringBuilder content = new StringBuilder();
+        if (resourceUrl != null) {
+            String absolutePath = resourceUrl.getPath();
+            try (BufferedReader reader = new BufferedReader(new FileReader(absolutePath))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line).append("\n");
+                }
+            }
+        }
+
+        return content.toString();
+    }
+
+    private String saveProjectFile(String content, String folderPath, String currentDate) throws IOException {
+        String fileName = folderPath + "/processed_file_" + currentDate.replace(" ", "") + ".project";
+        try (FileWriter writer = new FileWriter(fileName)) {
+            writer.write(content);
+        }
+        return fileName;
+    }
     private boolean isValidField(String value) {
         return value != null && !value.isEmpty();
     }
