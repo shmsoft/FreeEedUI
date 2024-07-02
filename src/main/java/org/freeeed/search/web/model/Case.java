@@ -38,6 +38,8 @@ public class Case implements Serializable {
     private Set<String> tags = new HashSet<String>();
     private String filesLocation;
     private String uploadedFile;
+    private String status;
+    private String projectFileLocation;
     private Long projectId;
     private String solrSourceCore;
 
@@ -71,6 +73,12 @@ public class Case implements Serializable {
         return projectId != null ? projectId : 0;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    public String getStatus() {
+        return status;
+    }
 
     public String getSolrSourceCore() {
         return solrSourceCore;
@@ -91,9 +99,15 @@ public class Case implements Serializable {
     public String getUploadedFile() {
         return uploadedFile;
     }
+    public String getProjectFileLocation() {
+        return projectFileLocation;
+    }
 
     public void setUploadedFile(String uploadedFile) {
         this.uploadedFile = uploadedFile;
+    }
+    public void setProjectFileLocation(String projectFileLocation) {
+        this.projectFileLocation = projectFileLocation;
     }
 
     public synchronized void addTag(String tag) {

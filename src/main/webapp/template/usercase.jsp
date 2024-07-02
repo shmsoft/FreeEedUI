@@ -40,8 +40,22 @@
             <td>Description<span class="required">*</span>: </td>
             <td><textarea class="form-control" name="description">${usercase.description}</textarea></td>
           </tr>
-          <tr>
-            <td>Upload file: </td>
+      <tr>
+        <td colspan="2">
+          <div>
+            <label class="upload-type">
+              <input type="radio" name="fileOption" value="serverFolder" checked>
+              Files Location
+            </label>
+            <label class="upload-type">
+              <input type="radio" name="fileOption" value="uploadFile">
+              Upload File
+            </label>
+          </div>
+        </td>
+      </tr>
+          <tr id="uploadFileRow" class="hidden">
+            <td>Upload file<span class="required">*</span>: </td>
             <td>
               <div class="upload-file">
                 <label for="uploadfile">
@@ -53,13 +67,16 @@
 
             </td>
           </tr>
-
-          <tr>
-            <td>&nbsp;</td>
-            <td>
-                <div class="uploadedFileBox" id="uploadedFileBoxId" style="display:${usercase.uploadedFile != null ? 'block' : 'none'}">Will use: <span id="uploadedFileNameId">${usercase.uploadedFile}</span></div>
-            </td>
-          </tr>
+      <tr id="uploadFileRow2" class="hidden">
+        <td>&nbsp;</td>
+        <td>
+          <div class="uploadedFileBox" id="uploadedFileBoxId" style="display:${usercase.uploadedFile != null ? 'block' : 'none'}">Will use: <span id="uploadedFileNameId">${usercase.uploadedFile}</span></div>
+        </td>
+      </tr>
+        <tr id="serverFolderRow">
+          <td>Files Location<span class="required">*</span>: </td>
+          <td><input class="form-control" name="filesLocation" value="${usercase.filesLocation}"/></td>
+        </tr>
           <tr>
             <td colspan="2">
               <span class="explanation">(Fields marked with <span class="required">*</span> are mandatory)</span>

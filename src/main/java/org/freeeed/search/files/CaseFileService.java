@@ -42,7 +42,6 @@ public class CaseFileService {
     private static final Logger log = Logger.getLogger(CaseFileService.class);
     private static final String FILES_DIR = "files";
     private static final String FILES_TMP_DIR = "tmp";
-    private static final String UPLOAD_DIR = "uploads";
     private static final String UPLOADED_FOLDER = "/home/freeeed/FreeEedData/uploads/";
 
     private static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
@@ -75,20 +74,27 @@ public class CaseFileService {
             return false;
         }
     }
-    
-    public String uploadFile(MultipartFile file) {
+
+    public String CreatSourceFilesFolder() {
         File uploadDir = new File(UPLOADED_FOLDER);
         uploadDir.mkdirs();
+        String destinationFolder = UPLOADED_FOLDER + File.separator;
+        return destinationFolder;
+    }
 
-        String destinationFile = UPLOADED_FOLDER + File.separator + df.format(new Date()) + "-" + file.getOriginalFilename();
+    public String GetUploaderFolderPath() {
+        return UPLOADED_FOLDER + File.separator;
+    }
+    
+    public String uploadFile(MultipartFile file) {
+        String destinationFolder = CreatSourceFilesFolder();
+        String destinationFile = destinationFolder + df.format(new Date()) + "-" + file.getOriginalFilename();
         File destination = new File(destinationFile);
         try {
             file.transferTo(destination);
-            
             return destinationFile;
         } catch (Exception e) {
             log.error("Problem uploading file: ", e);
-            
             return null;
         }
     }

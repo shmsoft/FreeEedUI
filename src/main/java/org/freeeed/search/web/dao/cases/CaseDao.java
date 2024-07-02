@@ -33,7 +33,7 @@ public interface CaseDao {
     
     Case findCase(long id);
     
-    void saveCase(Case c);
+    Long saveCase(Case c);
     
     void deleteCase(long id);
 }

@@ -87,7 +87,7 @@ public class FSCaseDao implements CaseDao {
     }
 
     @Override
-    public void saveCase(Case c) {
+    public Long saveCase(Case c) {
         lock.writeLock().lock();
         
         try {
@@ -97,6 +97,7 @@ public class FSCaseDao implements CaseDao {
             
             casesCache.put(c.getId(), c);
             storeCases();
+            return  c.getId();
         } finally {
             lock.writeLock().unlock();
         }

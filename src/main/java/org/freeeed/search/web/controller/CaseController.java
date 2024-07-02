@@ -35,6 +35,7 @@ import org.freeeed.search.web.solr.SolrCoreService;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+
 /**
  * 
  * Class CaseController.
@@ -84,7 +85,23 @@ public class CaseController extends BaseController {
             } catch (Exception e) {
                 log.error("Error delete case: " + e.getMessage());
             }
-        } else if ("edit".equals(action)) {
+        }
+        else if ("runprocessing".equals(action))
+        {
+            String caseIdStr = (String) valueStack.get("id");
+
+            try {
+                Long caseId = Long.parseLong(caseIdStr);
+                Case c = caseDao.findCase(caseId);
+                runFreeeedProcess(c.getProjectFileLocation());
+                c.setStatus("Processing...");
+                caseDao.saveCase(c);
+                response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
+            } catch (Exception e) {
+                log.error("Error processing case: " + e.getMessage());
+            }
+        }
+        else if ("edit".equals(action)) {
             try {
                 String caseIdStr = (String) valueStack.get("id");
                 Long caseId = Long.parseLong(caseIdStr);
@@ -110,12 +127,13 @@ public class CaseController extends BaseController {
             String projectIdStr = (String) valueStack.get("projectId");
             if (projectIdStr != null && projectIdStr.length() > 0) {
                 try {
-                    projectId = Long.parseLong(projectIdStr) + 1;
+                    projectId = Long.parseLong(projectIdStr);
                 } catch (Exception e) {
                 }
             }
             Case c = new Case();
             c.setId(id);
+
             c.setProjectId(projectId);
             String name = (String) valueStack.get("name");
             if (name == null || !name.matches("[a-zA-Z0-9\\-_ ]+")) {
@@ -127,34 +145,54 @@ public class CaseController extends BaseController {
             if (!isValidField(description)) {
                 errors.add("Description is missing");
             }
-            
-
             c.setName(name);
             c.setDescription(description);
 
             valueStack.put("errors", errors);
             valueStack.put("usercase", c);
-            
+            String fileOption = (String) valueStack.get("fileOption");
+
+            String dataFolder = "";
+            String projectFileFolder = "";
+            if("uploadFile".equals(fileOption)) {
+                MultipartFile file = (MultipartFile)valueStack.get("file");
+                if (file == null) {
+                    errors.add("Uploaded File is missing or invalid");
+                }
+                dataFolder = caseFileService.uploadFile(file);
+                File folderProject = new File(dataFolder);
+                projectFileFolder = folderProject.getParent()  + "/ProjectFiles";
+                c.setFilesLocation(dataFolder);
+            }
+            else
+            {
+                projectFileFolder = caseFileService.GetUploaderFolderPath() + "/ProjectFiles";
+                String filesLocation = (String) valueStack.get("filesLocation");
+                if (filesLocation == null) {
+                    errors.add("Files Location is missing or invalid");
+                }
+                c.setFilesLocation(filesLocation);
+                dataFolder = filesLocation;
+            }
             if (errors.size() > 0) {
                 return new ModelAndView(WebConstants.CASE_PAGE);
             }
-            MultipartFile file = (MultipartFile)valueStack.get("file");
-            String dest = caseFileService.uploadFile(file);
+            c.setStatus("New");
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm");
+            String formattedDateTime = currentDateTime.format(formatter);
+            String fileProject = projectFileFolder + "/processed_file_" + formattedDateTime.replace(" ", "") + ".project";
+
+            c.setProjectFileLocation(fileProject);
+            projectId = caseDao.saveCase(c);
             try {
                 String projectBaseInfo = readProjectTemplateFile();
-                LocalDateTime currentDateTime = LocalDateTime.now();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm");
-                String formattedDateTime = currentDateTime.format(formatter);
                 projectBaseInfo = projectBaseInfo.replace("{CreatedDate}", formattedDateTime);
-                projectBaseInfo = projectBaseInfo.replace("{ProjectId}", projectIdStr);
-                projectBaseInfo = projectBaseInfo.replace("{inputFile}", dest);
+                projectBaseInfo = projectBaseInfo.replace("{ProjectId}", projectId.toString());
+                projectBaseInfo = projectBaseInfo.replace("{inputFile}", dataFolder);
                 projectBaseInfo = projectBaseInfo.replace("{Name}", name);
-
-                caseDao.saveCase(c);
-                File folderProject = new File(dest);
-                String parentDirectory = folderProject.getParent()  + "/ProjectFiles";
-                String fileProject = saveProjectFile(projectBaseInfo, parentDirectory , formattedDateTime);
-                runFreeeedProcess(fileProject);
+                saveProjectFile(projectBaseInfo, fileProject);
+               // runFreeeedProcess(fileProject);
                 response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
 
             } catch (IOException e) {
@@ -218,12 +256,11 @@ public class CaseController extends BaseController {
         return content.toString();
     }
 
-    private String saveProjectFile(String content, String folderPath, String currentDate) throws IOException {
-        String fileName = folderPath + "/processed_file_" + currentDate.replace(" ", "") + ".project";
+    private void saveProjectFile(String content, String fileName) throws IOException {
         try (FileWriter writer = new FileWriter(fileName)) {
             writer.write(content);
         }
-        return fileName;
+
     }
     private boolean isValidField(String value) {
         return value != null && !value.isEmpty();

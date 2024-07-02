@@ -1009,3 +1009,12 @@ body.loading .modal-loading {
     float: right;
     margin-top: 5px;
 }
+
+.hidden {
+    display: none;
+}
+
+.upload-type {
+    display: inline-block;
+    margin-right: 20px;
+}

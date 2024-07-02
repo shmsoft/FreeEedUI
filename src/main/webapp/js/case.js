@@ -5,8 +5,11 @@
         },
         ajaxStop: function() { 
             $(this).removeClass("loading"); 
-        }    
+        }
     });
+     $('input[name="fileOption"]').change(toggleRows);
+     toggleRows();
+
     
     $('#uploadfile').ajaxfileupload({
           'action': 'fileupload.html',
@@ -30,3 +33,14 @@
           }
     })
 });
+
+ function toggleRows() {
+     const fileOption = $('input[name="fileOption"]:checked').val();
+     if (fileOption === 'uploadFile') {
+         $('#uploadFileRow').removeClass('hidden');
+         $('#serverFolderRow').addClass('hidden');
+     } else if (fileOption === 'serverFolder') {
+         $('#uploadFileRow').addClass('hidden');
+         $('#serverFolderRow').removeClass('hidden');
+     }
+ }
