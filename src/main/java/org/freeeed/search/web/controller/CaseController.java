@@ -18,6 +18,9 @@ package org.freeeed.search.web.controller;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -93,8 +96,10 @@ public class CaseController extends BaseController {
             try {
                 Long caseId = Long.parseLong(caseIdStr);
                 Case c = caseDao.findCase(caseId);
-                runFreeeedProcess(c.getProjectFileLocation());
                 c.setStatus("Processing...");
+                caseDao.saveCase(c);
+                runFreeeedProcess(c.getProjectFileLocation());
+                c.setStatus("Completed.");
                 caseDao.saveCase(c);
                 response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
             } catch (Exception e) {
@@ -174,6 +179,12 @@ public class CaseController extends BaseController {
                 c.setFilesLocation(filesLocation);
                 dataFolder = filesLocation;
             }
+            Path path = Paths.get(projectFileFolder);
+            try {
+                Files.createDirectories(path);
+            } catch (Exception e) {
+                errors.add("Error creation project folder");
+            }
             if (errors.size() > 0) {
                 return new ModelAndView(WebConstants.CASE_PAGE);
             }
@@ -205,6 +216,9 @@ public class CaseController extends BaseController {
     private void runFreeeedProcess(String paramFile) {
 
         try {
+            Path currentRelativePath = Paths.get("");
+            Path currentAbsolutePath = currentRelativePath.toAbsolutePath();
+            String currentDir = currentAbsolutePath.getParent().getParent().toString();
             // Construct the command
             String[] command = {
                     "java",
@@ -215,20 +229,24 @@ public class CaseController extends BaseController {
             // Create a ProcessBuilder
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             // Set the working directory
-            processBuilder.directory(new File("/home/freeeed/Desktop/freeeed_complete_pack/FreeEed/target/"));
+            processBuilder.directory(new File(currentDir + "/FreeEed/target/"));
             // Start the process
             Process process = processBuilder.start();
 
             // Read the output
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder output = new StringBuilder();
             String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
 
+            // Read each line from the BufferedReader and append to the StringBuilder
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append(System.lineSeparator());
+            }
+            reader.close();
             // Wait for the process to complete
             int exitCode = process.waitFor();
             System.out.println("Exited with code: " + exitCode);
+
 
         } catch (Exception e) {
             e.printStackTrace();
