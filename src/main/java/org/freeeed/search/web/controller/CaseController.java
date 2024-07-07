@@ -98,9 +98,7 @@ public class CaseController extends BaseController {
                 Case c = caseDao.findCase(caseId);
                 c.setStatus("Processing...");
                 caseDao.saveCase(c);
-                runFreeeedProcess(c.getProjectFileLocation());
-                c.setStatus("Completed.");
-                caseDao.saveCase(c);
+                runFreeeedProcess(c.getProjectFileLocation(), c);
                 response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
             } catch (Exception e) {
                 log.error("Error processing case: " + e.getMessage());
@@ -213,7 +211,7 @@ public class CaseController extends BaseController {
         return new ModelAndView(WebConstants.CASE_PAGE);
     }
 
-    private void runFreeeedProcess(String paramFile) {
+    private String runFreeeedProcess(String paramFile, Case c) {
 
         try {
             Path currentRelativePath = Paths.get("");
@@ -245,12 +243,15 @@ public class CaseController extends BaseController {
             reader.close();
             // Wait for the process to complete
             int exitCode = process.waitFor();
-            System.out.println("Exited with code: " + exitCode);
 
+            c.setStatus("Completed.");
+            caseDao.saveCase(c);
+            return output.toString();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return "";
     }
 
 
