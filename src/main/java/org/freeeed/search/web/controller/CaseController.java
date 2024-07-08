@@ -58,7 +58,7 @@ public class CaseController extends BaseController {
     @Override
     public ModelAndView execute() {
         //case creation also remotely identified by a remoteCreation
-        String remoteCreation = (String) valueStack.get("removecasecreation");
+        String remoteCreation = (String) valueStack.get("remotecasecreation");
         
         if ((remoteCreation == null || !remoteCreation.equals("yes")) 
                 && !loggedSiteVisitor.getUser().hasRight(User.Right.CASES)) {
