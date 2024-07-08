@@ -27,7 +27,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 import org.freeeed.search.files.CaseFileService;
 import org.freeeed.search.web.WebConstants;
@@ -59,8 +60,8 @@ public class CaseController extends BaseController {
     public ModelAndView execute() {
         //case creation also remotely identified by a remoteCreation
         String remoteCreation = (String) valueStack.get("remotecasecreation");
-        
-        if ((remoteCreation == null || !remoteCreation.equals("yes")) 
+        Boolean remoteCaseCreation = remoteCreation != null && remoteCreation.equals("yes");
+        if (!remoteCaseCreation
                 && !loggedSiteVisitor.getUser().hasRight(User.Right.CASES)) {
             try {
                 response.sendRedirect(WebConstants.MAIN_PAGE_REDIRECT);
@@ -92,18 +93,26 @@ public class CaseController extends BaseController {
         else if ("runprocessing".equals(action))
         {
             String caseIdStr = (String) valueStack.get("id");
-
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Long caseId = Long.parseLong(caseIdStr);
+            Case c = caseDao.findCase(caseId);
             try {
-                Long caseId = Long.parseLong(caseIdStr);
-                Case c = caseDao.findCase(caseId);
+                executor.submit(() -> {
+                    try {
+                        runFreeeedProcess(c.getProjectFileLocation(), c);
+                    } catch (Exception e) {
+                        log.error("Error processing case: " + e.getMessage());
+                    }
+                });
                 c.setStatus("Processing...");
-                caseDao.saveCase(c);
-                runFreeeedProcess(c.getProjectFileLocation());
-                c.setStatus("Completed.");
-                caseDao.saveCase(c);
                 response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
             } catch (Exception e) {
-                log.error("Error processing case: " + e.getMessage());
+                c.setStatus("Error");
+                log.error("Error initiating case processing: " + e.getMessage());
+            } finally {
+                caseDao.saveCase(c);
+                executor.shutdown();
+
             }
         }
         else if ("edit".equals(action)) {
@@ -117,9 +126,9 @@ public class CaseController extends BaseController {
                 log.error("Error while edit case: " + e.getMessage());
             }
         } else if ("save".equals(action)) {
-            
+
             List<String> errors = new ArrayList<String>();
-            
+
             Long id = null;
             String idStr = (String) valueStack.get("id");
             if (idStr != null && idStr.length() > 0) {
@@ -159,61 +168,67 @@ public class CaseController extends BaseController {
 
             String dataFolder = "";
             String projectFileFolder = "";
-            if("uploadFile".equals(fileOption)) {
-                MultipartFile file = (MultipartFile)valueStack.get("file");
-                if (file == null) {
-                    errors.add("Uploaded File is missing or invalid");
-                }
-                dataFolder = caseFileService.uploadFile(file);
-                File folderProject = new File(dataFolder);
-                projectFileFolder = folderProject.getParent()  + "/ProjectFiles";
-                c.setFilesLocation(dataFolder);
-            }
-            else
-            {
-                projectFileFolder = caseFileService.GetUploaderFolderPath() + "/ProjectFiles";
+            if (remoteCaseCreation) {
                 String filesLocation = (String) valueStack.get("filesLocation");
-                if (filesLocation == null) {
-                    errors.add("Files Location is missing or invalid");
-                }
                 c.setFilesLocation(filesLocation);
-                dataFolder = filesLocation;
-            }
-            Path path = Paths.get(projectFileFolder);
-            try {
-                Files.createDirectories(path);
-            } catch (Exception e) {
-                errors.add("Error creation project folder");
-            }
-            if (errors.size() > 0) {
-                return new ModelAndView(WebConstants.CASE_PAGE);
-            }
-            c.setStatus("New");
-            LocalDateTime currentDateTime = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm");
-            String formattedDateTime = currentDateTime.format(formatter);
-            String fileProject = projectFileFolder + "/processed_file_" + formattedDateTime.replace(" ", "") + ".project";
+                c.setStatus("Completed");
+                caseDao.saveCase(c);
+            } else {
+                if ("uploadFile".equals(fileOption)) {
+                    MultipartFile file = (MultipartFile) valueStack.get("file");
+                    if (file == null) {
+                        errors.add("Uploaded File is missing or invalid");
+                    }
+                    dataFolder = caseFileService.uploadFile(file);
+                    File folderProject = new File(dataFolder);
+                    projectFileFolder = folderProject.getParent() + "/ProjectFiles";
+                    c.setFilesLocation(dataFolder);
+                } else {
 
-            c.setProjectFileLocation(fileProject);
-            projectId = caseDao.saveCase(c);
-            try {
-                String projectBaseInfo = readProjectTemplateFile();
-                projectBaseInfo = projectBaseInfo.replace("{CreatedDate}", formattedDateTime);
-                projectBaseInfo = projectBaseInfo.replace("{ProjectId}", projectId.toString());
-                projectBaseInfo = projectBaseInfo.replace("{inputFile}", dataFolder);
-                projectBaseInfo = projectBaseInfo.replace("{Name}", name);
-                saveProjectFile(projectBaseInfo, fileProject);
-               // runFreeeedProcess(fileProject);
-                response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
+                    projectFileFolder = caseFileService.GetUploaderFolderPath() + "/ProjectFiles";
+                    String filesLocation = (String) valueStack.get("filesLocation");
+                    if (filesLocation == null) {
+                        errors.add("Files Location is missing or invalid");
+                    }
+                    c.setFilesLocation(filesLocation);
+                    dataFolder = filesLocation;
+                }
+                Path path = Paths.get(projectFileFolder);
+                try {
+                    Files.createDirectories(path);
+                } catch (Exception e) {
+                    errors.add("Error creation project folder");
+                }
+                if (errors.size() > 0) {
+                    return new ModelAndView(WebConstants.CASE_PAGE);
+                }
+                c.setStatus("New");
+                LocalDateTime currentDateTime = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm");
+                String formattedDateTime = currentDateTime.format(formatter);
+                String fileProject = projectFileFolder + "/processed_file_" + formattedDateTime.replace(" ", "") + ".project";
 
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                c.setProjectFileLocation(fileProject);
+                projectId = caseDao.saveCase(c);
+                try {
+                    String projectBaseInfo = readProjectTemplateFile();
+                    projectBaseInfo = projectBaseInfo.replace("{CreatedDate}", formattedDateTime);
+                    projectBaseInfo = projectBaseInfo.replace("{ProjectId}", projectId.toString());
+                    projectBaseInfo = projectBaseInfo.replace("{inputFile}", dataFolder);
+                    projectBaseInfo = projectBaseInfo.replace("{Name}", name);
+                    saveProjectFile(projectBaseInfo, fileProject);
+                    // runFreeeedProcess(fileProject);
+                    response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
         return new ModelAndView(WebConstants.CASE_PAGE);
     }
 
-    private void runFreeeedProcess(String paramFile) {
+    private String runFreeeedProcess(String paramFile, Case c) {
 
         try {
             Path currentRelativePath = Paths.get("");
@@ -245,12 +260,15 @@ public class CaseController extends BaseController {
             reader.close();
             // Wait for the process to complete
             int exitCode = process.waitFor();
-            System.out.println("Exited with code: " + exitCode);
 
+            c.setStatus("Completed.");
+            caseDao.saveCase(c);
+            return output.toString();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return "";
     }
 
 
