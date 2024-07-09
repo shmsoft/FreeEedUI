@@ -69,7 +69,9 @@ public class CaseController extends BaseController {
             } catch (IOException e) {
             }
         }
-        
+        String isCLIValue = (String) valueStack.get("isCLI");
+        Boolean isCLI = isCLIValue != null && isCLIValue.equals("yes");
+
         List<String> solrCores = solrCoreService.getSolrCores();
         valueStack.put("cores", solrCores);
         valueStack.put("usercase", new Case());
@@ -149,19 +151,21 @@ public class CaseController extends BaseController {
             c.setId(id);
 
             c.setProjectId(projectId);
+
             String name = (String) valueStack.get("name");
             if (name == null || !name.matches("[a-zA-Z0-9\\-_ ]+")) {
-                errors.add("Name is missing or invalid");
+                    errors.add("Name is missing or invalid");
             }
             Date now = new Date();
             String description = (String) valueStack.get("description") + " " +
-                    simpleDateFormat.format(now);
+                        simpleDateFormat.format(now);
             if (!isValidField(description)) {
-                errors.add("Description is missing");
+                    errors.add("Description is missing");
             }
-            c.setName(name);
-            c.setDescription(description);
-
+            if(!isCLI) {
+                c.setName(name);
+                c.setDescription(description);
+            }
             valueStack.put("errors", errors);
             valueStack.put("usercase", c);
             String fileOption = (String) valueStack.get("fileOption");
@@ -169,8 +173,12 @@ public class CaseController extends BaseController {
             String dataFolder = "";
             String projectFileFolder = "";
             if (remoteCaseCreation) {
-                String filesLocation = (String) valueStack.get("filesLocation");
-                c.setFilesLocation(filesLocation);
+                if(!isCLI) {
+                    String filesLocation = (String) valueStack.get("filesLocation");
+                    c.setFilesLocation(filesLocation);
+                }
+                String solrsource = (String) valueStack.get("solrsource");
+                c.setSolrSourceCore(solrsource);
                 c.setStatus("Completed");
                 caseDao.saveCase(c);
             } else {
@@ -219,10 +227,10 @@ public class CaseController extends BaseController {
                     saveProjectFile(projectBaseInfo, fileProject);
                     // runFreeeedProcess(fileProject);
                     response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
-
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+
             }
         }
         return new ModelAndView(WebConstants.CASE_PAGE);
