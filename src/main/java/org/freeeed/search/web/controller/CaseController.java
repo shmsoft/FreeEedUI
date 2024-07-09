@@ -173,9 +173,11 @@ public class CaseController extends BaseController {
             String dataFolder = "";
             String projectFileFolder = "";
             if (remoteCaseCreation) {
-                String filesLocation = (String) valueStack.get("filesLocation");
+                if(!isCLI) {
+                    String filesLocation = (String) valueStack.get("filesLocation");
+                    c.setFilesLocation(filesLocation);
+                }
                 String solrsource = (String) valueStack.get("solrsource");
-                c.setFilesLocation(filesLocation);
                 c.setSolrSourceCore(solrsource);
                 c.setStatus("Completed");
                 caseDao.saveCase(c);
