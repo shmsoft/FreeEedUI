@@ -31,7 +31,11 @@
             <td>${c.filesLocation}</td>
             <td>${c.status}</td>
             <td>
-                <a href="usercase.html?action=runprocessing&id=${c.id}"><i class="bi-play-circle" title="Run Processing"></i></a>
+                <c:if test="${not empty c.projectFileLocation}">
+                    <a href="usercase.html?action=runprocessing&id=${c.id}">
+                        <i class="bi-play-circle" title="Run Processing"></i>
+                    </a>
+                </c:if>
                 <a href="usercase.html?action=delete&id=${c.id}"><i class="bi-trash-fill" title="Remove"></i></a>
             </td>
         </tr>    
