@@ -85,14 +85,12 @@ public abstract class BaseController implements Controller, SiteVisitorAware, Lo
 	}
 
         ModelAndView modelAndView = execute();
-		
 		valueStack.put("visitor", siteVisitor);
 		valueStack.put("loggedVisitor", loggedSiteVisitor);
 		
 		if (addValueStackToModel()) {
 			modelAndView.addAllObjects(valueStack);
 		}
-		
 		return modelAndView;
 	}
 	
