@@ -37,6 +37,7 @@ public class Case implements Serializable {
     private String description;
     private Set<String> tags = new HashSet<String>();
     private String filesLocation;
+    private String sourceDataLocation;
     private String uploadedFile;
     private String status;
     private String projectFileLocation;
@@ -95,14 +96,18 @@ public class Case implements Serializable {
     public void setFilesLocation(String filesLocation) {
         this.filesLocation = filesLocation;
     }
-    
+    public void setSourceDataLocation(String sourceDataLocation) {
+        this.sourceDataLocation = sourceDataLocation;
+    }
     public String getUploadedFile() {
         return uploadedFile;
     }
     public String getProjectFileLocation() {
         return projectFileLocation;
     }
-
+    public String getSourceDataLocation() {
+        return sourceDataLocation;
+    }
     public void setUploadedFile(String uploadedFile) {
         this.uploadedFile = uploadedFile;
     }

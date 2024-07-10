@@ -17,7 +17,8 @@
         <th class="listusers-header">Edit</th>
         <th class="listusers-header">Name</th>
         <th class="listusers-header">Description</th>
-        <th class="listusers-header">Files Location</th>
+        <th class="listusers-header">Source Location</th>
+        <th class="listusers-header">Result Location</th>
         <th class="listusers-header">Status</th>
         <th class="listusers-header">Action</th>
     </tr>
@@ -28,6 +29,7 @@
             </td>
             <td>${c.name}</td>
             <td>${c.description}</td>
+            <td>${c.sourceDataLocation}</td>
             <td>${c.filesLocation}</td>
             <td>${c.status}</td>
             <td>

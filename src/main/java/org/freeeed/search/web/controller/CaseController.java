@@ -131,14 +131,6 @@ public class CaseController extends BaseController {
 
             List<String> errors = new ArrayList<String>();
 
-            Long id = null;
-            String idStr = (String) valueStack.get("id");
-            if (idStr != null && idStr.length() > 0) {
-                try {
-                    id = Long.parseLong(idStr);
-                } catch (Exception e) {
-                }
-            }
             Long projectId = null;
             String projectIdStr = (String) valueStack.get("projectId");
             if (projectIdStr != null && projectIdStr.length() > 0) {
@@ -147,11 +139,21 @@ public class CaseController extends BaseController {
                 } catch (Exception e) {
                 }
             }
+            Long id = null;
+            String idStr = (String) valueStack.get("id");
+            if (idStr != null && idStr.length() > 0) {
+                try {
+                    id = Long.parseLong(idStr);
+                } catch (Exception e) {
+                }
+            }
+            else if(isCLI)
+            {
+                id = projectId;
+            }
             Case c = new Case();
             c.setId(id);
-
             c.setProjectId(projectId);
-
             String name = (String) valueStack.get("name");
             if (name == null || !name.matches("[a-zA-Z0-9\\-_ ]+")) {
                     errors.add("Name is missing or invalid");
@@ -162,10 +164,9 @@ public class CaseController extends BaseController {
             if (!isValidField(description)) {
                     errors.add("Description is missing");
             }
-            if(!isCLI) {
-                c.setName(name);
-                c.setDescription(description);
-            }
+            c.setName(name);
+            c.setDescription(description);
+
             valueStack.put("errors", errors);
             valueStack.put("usercase", c);
             String fileOption = (String) valueStack.get("fileOption");
@@ -173,12 +174,14 @@ public class CaseController extends BaseController {
             String dataFolder = "";
             String projectFileFolder = "";
             if (remoteCaseCreation) {
-                if(!isCLI) {
-                    String filesLocation = (String) valueStack.get("filesLocation");
-                    c.setFilesLocation(filesLocation);
-                }
+                String filesLocation = (String) valueStack.get("filesLocation");
+                c.setFilesLocation(filesLocation);
+                String sourceDataLocation = (String) valueStack.get("sourceDataLocation");
+                c.setSourceDataLocation(sourceDataLocation);
                 String solrsource = (String) valueStack.get("solrsource");
                 c.setSolrSourceCore(solrsource);
+                String projectFileLocation = (String) valueStack.get("projectFileLocation");
+                c.setProjectFileLocation(projectFileLocation);
                 c.setStatus("Completed");
                 caseDao.saveCase(c);
             } else {
@@ -190,16 +193,16 @@ public class CaseController extends BaseController {
                     dataFolder = caseFileService.uploadFile(file);
                     File folderProject = new File(dataFolder);
                     projectFileFolder = folderProject.getParent() + "/ProjectFiles";
-                    c.setFilesLocation(dataFolder);
+                    c.setSourceDataLocation(dataFolder);
                 } else {
 
                     projectFileFolder = caseFileService.GetUploaderFolderPath() + "/ProjectFiles";
-                    String filesLocation = (String) valueStack.get("filesLocation");
-                    if (filesLocation == null) {
+                    String sourceDataLocation = (String) valueStack.get("sourceDataLocation");
+                    if (sourceDataLocation == null) {
                         errors.add("Files Location is missing or invalid");
                     }
-                    c.setFilesLocation(filesLocation);
-                    dataFolder = filesLocation;
+                    c.setSourceDataLocation(sourceDataLocation);
+                    dataFolder = sourceDataLocation;
                 }
                 Path path = Paths.get(projectFileFolder);
                 try {
@@ -223,7 +226,10 @@ public class CaseController extends BaseController {
                     projectBaseInfo = projectBaseInfo.replace("{CreatedDate}", formattedDateTime);
                     projectBaseInfo = projectBaseInfo.replace("{ProjectId}", projectId.toString());
                     projectBaseInfo = projectBaseInfo.replace("{inputFile}", dataFolder);
+                    projectBaseInfo = projectBaseInfo.replace("{Description}", description);
                     projectBaseInfo = projectBaseInfo.replace("{Name}", name);
+                    projectBaseInfo = projectBaseInfo.replace("{ProjectFileLocation}", fileProject);
+
                     saveProjectFile(projectBaseInfo, fileProject);
                     // runFreeeedProcess(fileProject);
                     response.sendRedirect(WebConstants.LIST_CASES_PAGE_REDIRECT);
