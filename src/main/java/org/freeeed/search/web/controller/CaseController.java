@@ -274,9 +274,6 @@ public class CaseController extends BaseController {
             reader.close();
             // Wait for the process to complete
             int exitCode = process.waitFor();
-
-            c.setStatus("Completed.");
-            caseDao.saveCase(c);
             return output.toString();
 
         } catch (Exception e) {

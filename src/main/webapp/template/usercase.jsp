@@ -75,7 +75,7 @@
       </tr>
         <tr id="serverFolderRow">
           <td>Source Location<span class="required">*</span>: </td>
-          <td><input class="form-control" name="filesLocation" value="${usercase.sourceDataLocation}"/></td>
+          <td><input class="form-control" name="sourceDataLocation" value="${usercase.sourceDataLocation}"/></td>
         </tr>
           <tr>
             <td colspan="2">

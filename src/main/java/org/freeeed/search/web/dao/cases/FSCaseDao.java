@@ -121,6 +121,8 @@ public class FSCaseDao implements CaseDao {
         
         try {
             File dir = new File(CASES_FILE);
+            logger.info("Preparing to save the file " + dir.getAbsolutePath());
+
             File parent = dir.getParentFile();
             if (!parent.exists()) {
                 parent.mkdirs();
