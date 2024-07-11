@@ -74,7 +74,7 @@ public class CaseFileDownloadController extends SecureController {
 
         try {
             if ("exportNative".equals(action)) {
-                toDownload = caseFileService.getNativeFile(selectedCase.getName(), docPath, uniqueId);
+                toDownload = caseFileService.getNativeFile(selectedCase.getSourceDataLocation(), docPath);
                 
             } else if ("exportImage".equals(action)) {
                 toDownload = caseFileService.getImageFile(selectedCase.getName(), docPath, uniqueId);

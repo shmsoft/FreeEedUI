@@ -23,6 +23,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.log4j.Logger;
 
 import org.apache.commons.io.FileUtils;
@@ -99,6 +102,12 @@ public class CaseFileService {
         }
     }
 
+    public File getNativeFile(String sourceDataLocation, String documentOriginalPath) {
+        String fileName = documentOriginalPath.contains(File.separator) ?
+                documentOriginalPath.substring(documentOriginalPath.lastIndexOf(File.separator) + 1) : documentOriginalPath;
+        fileName = sourceDataLocation + fileName;
+        return  new File(fileName);
+    }
     public File getNativeFile(String caseName, String documentOriginalPath, String uniqueId) {
         String fileName = documentOriginalPath.contains(File.separator) ?
                 documentOriginalPath.substring(documentOriginalPath.lastIndexOf(File.separator) + 1) : documentOriginalPath;
@@ -144,9 +153,8 @@ public class CaseFileService {
     }
     
     public File getHtmlFile(String projectOutputPath, String documentOriginalPath, String uniqueId) {
-        File dir = new File(projectOutputPath);
-        String folderPath = dir.getParent();
-        documentOriginalPath = folderPath + File.separator + "html_output" + File.separator + documentOriginalPath + ".html";
+
+        documentOriginalPath = projectOutputPath + File.separator + "html_output" + File.separator + documentOriginalPath + ".html";
                 
         File file = new File(documentOriginalPath);
         if (file.exists()) {
@@ -233,7 +241,12 @@ public class CaseFileService {
         String highlightedText = text;
         for (int i = 0; i < queries.size(); i++) {
             String query = queries.get(i).getQuery();
-            highlightedText = highlightedText.replaceAll("(?i)(" + query + ")", "<span class='highlight-" + i + "'>$1</span>");
+            // Escape special characters in the query
+            String escapedQuery = Pattern.quote(query);
+            // Create a regex pattern with the escaped query
+            Pattern pattern = Pattern.compile("(?i)(" + escapedQuery + ")");
+            Matcher matcher = pattern.matcher(highlightedText);
+            highlightedText = matcher.replaceAll("<span class='highlight-" + i + "'>$1</span>");
         }
         return highlightedText;
     }

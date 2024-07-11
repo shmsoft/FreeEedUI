@@ -243,11 +243,12 @@ public class CaseController extends BaseController {
     }
 
     private String runFreeeedProcess(String paramFile, Case c) {
-
+        String output = "";
         try {
             Path currentRelativePath = Paths.get("");
             Path currentAbsolutePath = currentRelativePath.toAbsolutePath();
             String currentDir = currentAbsolutePath.getParent().getParent().toString();
+
             // Construct the command
             String[] command = {
                     "java",
@@ -255,31 +256,29 @@ public class CaseController extends BaseController {
                     "org.freeeed.main.FreeEedMain",
                     "-param_file", paramFile
             };
+
             // Create a ProcessBuilder
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             // Set the working directory
             processBuilder.directory(new File(currentDir + "/FreeEed/target/"));
+
             // Start the process
             Process process = processBuilder.start();
 
-            // Read the output
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
-            String line;
-
-            // Read each line from the BufferedReader and append to the StringBuilder
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append(System.lineSeparator());
-            }
-            reader.close();
             // Wait for the process to complete
             int exitCode = process.waitFor();
-            return output.toString();
 
-        } catch (Exception e) {
+            if (exitCode != 0) {
+                System.err.println("Process exited with code: " + exitCode);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             e.printStackTrace();
         }
-        return "";
+        return output;
     }
 
 
