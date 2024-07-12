@@ -38,6 +38,7 @@ import org.freeeed.search.web.model.User;
 import org.freeeed.search.web.solr.SolrCoreService;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.freeeed.search.web.StreamGobbler;
 
 
 /**
@@ -243,7 +244,7 @@ public class CaseController extends BaseController {
     }
 
     private String runFreeeedProcess(String paramFile, Case c) {
-        String output = "";
+        StringBuilder output = new StringBuilder();
         try {
             Path currentRelativePath = Paths.get("");
             Path currentAbsolutePath = currentRelativePath.toAbsolutePath();
@@ -265,6 +266,12 @@ public class CaseController extends BaseController {
             // Start the process
             Process process = processBuilder.start();
 
+            // Create threads to read the output and error streams
+            StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), output::append);
+            StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), System.err::println);
+            Executors.newSingleThreadExecutor().submit(outputGobbler);
+            Executors.newSingleThreadExecutor().submit(errorGobbler);
+
             // Wait for the process to complete
             int exitCode = process.waitFor();
 
@@ -278,7 +285,7 @@ public class CaseController extends BaseController {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         }
-        return output;
+        return output.toString();
     }
 
 

@@ -103,9 +103,8 @@ public class CaseFileService {
     }
 
     public File getNativeFile(String sourceDataLocation, String documentOriginalPath) {
-        String fileName = documentOriginalPath.contains(File.separator) ?
-                documentOriginalPath.substring(documentOriginalPath.lastIndexOf(File.separator) + 1) : documentOriginalPath;
-        fileName = sourceDataLocation + fileName;
+        File dir = new File(sourceDataLocation);
+        String fileName = dir.getParent() + File.separator  + documentOriginalPath;
         return  new File(fileName);
     }
     public File getNativeFile(String caseName, String documentOriginalPath, String uniqueId) {
