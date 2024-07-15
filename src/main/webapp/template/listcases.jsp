@@ -17,7 +17,8 @@
         <th class="listusers-header">Edit</th>
         <th class="listusers-header">Name</th>
         <th class="listusers-header">Description</th>
-        <th class="listusers-header">Files Location</th>
+        <th class="listusers-header">Source Location</th>
+        <th class="listusers-header">Result Location</th>
         <th class="listusers-header">Status</th>
         <th class="listusers-header">Action</th>
     </tr>
@@ -28,10 +29,15 @@
             </td>
             <td>${c.name}</td>
             <td>${c.description}</td>
+            <td>${c.sourceDataLocation}</td>
             <td>${c.filesLocation}</td>
             <td>${c.status}</td>
             <td>
-                <a href="usercase.html?action=runprocessing&id=${c.id}"><i class="bi-play-circle" title="Run Processing"></i></a>
+                <c:if test="${not empty c.projectFileLocation}">
+                    <a href="usercase.html?action=runprocessing&id=${c.id}">
+                        <i class="bi-play-circle" title="Run Processing"></i>
+                    </a>
+                </c:if>
                 <a href="usercase.html?action=delete&id=${c.id}"><i class="bi-trash-fill" title="Remove"></i></a>
             </td>
         </tr>    

@@ -71,11 +71,11 @@ public class CaseFileDownloadController extends SecureController {
         String docPath = (String) valueStack.get("docPath");
         String uniqueId = (String) valueStack.get("uniqueId");
         boolean isPreviewPDF = (valueStack.get("ispreviewpdf") != null ? valueStack.get("ispreviewpdf") : "") .equals("1");
-
+        boolean uniqueIdAsName = false;
         try {
             if ("exportNative".equals(action)) {
-                toDownload = caseFileService.getNativeFile(selectedCase.getName(), docPath, uniqueId);
-                
+                toDownload = caseFileService.getNativeFile(selectedCase.getSourceDataLocation(), docPath);
+                uniqueIdAsName = true;
             } else if ("exportImage".equals(action)) {
                 toDownload = caseFileService.getImageFile(selectedCase.getName(), docPath, uniqueId);
             } else if ("exportHtml".equals(action)) {
@@ -138,7 +138,12 @@ public class CaseFileDownloadController extends SecureController {
                 response.setContentType(mimetype);
                 response.setContentLength((int) toDownload.length());
                 String fileName = toDownload.getName();
-    
+                if(uniqueIdAsName)
+                {
+                    String extension = fileName.lastIndexOf('.') != -1 ? fileName.substring(fileName.lastIndexOf('.')) : "";
+                    fileName = uniqueId + extension;
+                }
+
                 if (!htmlMode && !isPreviewPDF) {
                     // sets HTTP header
                    response.setHeader("Content-Disposition", "attachment; filename=\""

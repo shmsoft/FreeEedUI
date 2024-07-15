@@ -45,7 +45,7 @@
           <div>
             <label class="upload-type">
               <input type="radio" name="fileOption" value="serverFolder" checked>
-              Files Location
+             Server Folder
             </label>
             <label class="upload-type">
               <input type="radio" name="fileOption" value="uploadFile">
@@ -74,8 +74,8 @@
         </td>
       </tr>
         <tr id="serverFolderRow">
-          <td>Files Location<span class="required">*</span>: </td>
-          <td><input class="form-control" name="filesLocation" value="${usercase.filesLocation}"/></td>
+          <td>Source Location<span class="required">*</span>: </td>
+          <td><input class="form-control" name="sourceDataLocation" value="${usercase.sourceDataLocation}"/></td>
         </tr>
           <tr>
             <td colspan="2">
