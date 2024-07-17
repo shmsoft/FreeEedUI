@@ -193,17 +193,37 @@ public class CaseController extends BaseController {
                     }
                     dataFolder = caseFileService.uploadFile(file);
                     File folderProject = new File(dataFolder);
-                    projectFileFolder = folderProject.getParent() + "/ProjectFiles";
-                    c.setSourceDataLocation(dataFolder);
+                    c.setCaseGuid(folderProject.getParentFile().getName());
+                    projectFileFolder = folderProject.getParentFile().getParent() + "/ProjectFiles";
+                    c.setSourceDataLocation(folderProject.getParent());
+                    if (!caseFileService.expandCaseFiles(dataFolder)) {
+                        errors.add("Not able to use the uploaded file");
+                        return new ModelAndView(WebConstants.CASE_PAGE);
+                    }
+                    folderProject.delete();
+                    dataFolder = folderProject.getParent();
                 } else {
-
                     projectFileFolder = caseFileService.GetUploaderFolderPath() + "/ProjectFiles";
                     String sourceDataLocation = (String) valueStack.get("sourceDataLocation");
                     if (sourceDataLocation == null) {
                         errors.add("Files Location is missing or invalid");
                     }
-                    c.setSourceDataLocation(sourceDataLocation);
                     dataFolder = sourceDataLocation;
+                    c.setSourceDataLocation(dataFolder);
+                    /*if (dataFolder != null && dataFolder.length() > 0 ) {
+                        File filesLocationDir = new File(dataFolder);
+                        if (filesLocationDir.isDirectory()) {
+                            for (File zipFilesLocation : filesLocationDir.listFiles()) {
+                                if (zipFilesLocation.getName().endsWith(".zip")){
+                                    if (!caseFileService.expandCaseFiles(zipFilesLocation.getAbsolutePath())) {
+                                        errors.add("Invalid files location");
+                                        return new ModelAndView(WebConstants.CASE_PAGE);
+                                    }
+                                }
+                            }
+                        }
+                    }*/
+
                 }
                 Path path = Paths.get(projectFileFolder);
                 try {

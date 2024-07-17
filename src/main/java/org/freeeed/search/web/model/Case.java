@@ -35,6 +35,7 @@ public class Case implements Serializable {
     private Long id;
     private String name;
     private String description;
+    private String caseGuid;
     private Set<String> tags = new HashSet<String>();
     private String filesLocation;
     private String sourceDataLocation;
@@ -99,6 +100,15 @@ public class Case implements Serializable {
     public void setSourceDataLocation(String sourceDataLocation) {
         this.sourceDataLocation = sourceDataLocation;
     }
+
+    public void setCaseGuid(String caseGuid) {
+        this.caseGuid = caseGuid;
+    }
+
+    public String getCaseGuid() {
+        return caseGuid;
+    }
+
     public String getUploadedFile() {
         return uploadedFile;
     }

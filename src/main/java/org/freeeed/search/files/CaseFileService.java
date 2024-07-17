@@ -59,17 +59,10 @@ public class CaseFileService {
      * 
      * @return true if the expand operation complete successfully.
      */
-    public boolean expandCaseFiles(String caseName, String zipFile) {
+    public boolean expandCaseFiles(String zipFile) {
         try {
-            log.debug("Start unzip for case: " + caseName + ", zipFile: " + zipFile);
-            
-            File location = new File(FILES_DIR + File.separator + caseName);
-            if (!location.exists()) {
-                location.mkdirs();
-            }
-        
-            ZipUtil.unzipFile(zipFile, location.getAbsolutePath());
-            
+            File location = new File(zipFile);
+            ZipUtil.unzipFile(zipFile, location.getParent());
             return true;
         } catch (Exception e) {
             log.error("Problem unpacking: " + zipFile, e);
@@ -79,9 +72,9 @@ public class CaseFileService {
     }
 
     public String CreatSourceFilesFolder() {
-        File uploadDir = new File(UPLOADED_FOLDER);
+        File uploadDir = new File(UPLOADED_FOLDER + File.separator + java.util.UUID.randomUUID() + File.separator);
         uploadDir.mkdirs();
-        String destinationFolder = UPLOADED_FOLDER + File.separator;
+        String destinationFolder = uploadDir.getAbsolutePath();
         return destinationFolder;
     }
 
@@ -91,7 +84,7 @@ public class CaseFileService {
     
     public String uploadFile(MultipartFile file) {
         String destinationFolder = CreatSourceFilesFolder();
-        String destinationFile = destinationFolder + df.format(new Date()) + "-" + file.getOriginalFilename();
+        String destinationFile = destinationFolder  + File.separator + df.format(new Date()) + "-" + file.getOriginalFilename();
         File destination = new File(destinationFile);
         try {
             file.transferTo(destination);
