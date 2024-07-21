@@ -273,7 +273,7 @@ public class CaseController extends BaseController {
             // Construct the command
             String[] command = {
                     "java",
-                    "-cp", "freeeed-processing-1.0-SNAPSHOT-jar-with-dependencies.jar",
+                    "-cp", "target/freeeed-processing-1.0-SNAPSHOT-jar-with-dependencies.jar",
                     "org.freeeed.main.FreeEedMain",
                     "-param_file", paramFile
             };
@@ -281,7 +281,7 @@ public class CaseController extends BaseController {
             // Create a ProcessBuilder
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             // Set the working directory
-            processBuilder.directory(new File(currentDir + "/FreeEed/target/"));
+            processBuilder.directory(new File(currentDir + "/FreeEed/"));
 
             // Start the process
             Process process = processBuilder.start();
