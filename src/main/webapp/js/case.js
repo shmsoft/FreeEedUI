@@ -1,4 +1,13 @@
- $(document).ready(function() {
+$(document).ready(function() {
+
+    let input = document.getElementById("uploadfile");
+    let fileName = document.getElementById("fileName")
+
+    input.addEventListener("change", ()=>{
+        let inputFile = document.querySelector("input[type=file]").files[0];
+        fileName.innerText = inputFile.name;
+    })
+
     $("body").bind({
         ajaxStart: function() { 
             $(this).addClass("loading"); 
