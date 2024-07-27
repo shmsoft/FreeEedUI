@@ -34,7 +34,6 @@ import org.freeeed.search.files.CaseFileService;
 import org.freeeed.search.web.WebConstants;
 import org.freeeed.search.web.configuration.Configuration;
 import org.freeeed.search.web.dao.cases.CaseDao;
-import org.freeeed.search.web.dao.settings.AppSettingsDao;
 import org.freeeed.search.web.model.Case;
 import org.freeeed.search.web.model.User;
 import org.freeeed.search.web.solr.SolrCoreService;
@@ -196,7 +195,7 @@ public class CaseController extends BaseController {
                     dataFolder = caseFileService.uploadFile(file);
                     File folderProject = new File(dataFolder);
                     c.setCaseGuid(folderProject.getParentFile().getName());
-                    projectFileFolder = folderProject.getParentFile().getParent() + "/ProjectFiles";
+                    projectFileFolder = folderProject.getParentFile().getParentFile().getParent() + "/ProjectFiles";
                     c.setSourceDataLocation(folderProject.getParent());
                     if (!caseFileService.expandCaseFiles(dataFolder)) {
                         errors.add("Not able to use the uploaded file");

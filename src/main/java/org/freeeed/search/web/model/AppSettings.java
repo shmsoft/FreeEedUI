@@ -32,7 +32,7 @@ public class AppSettings implements Serializable {
     private String solrEndpoint;
 
     private String aiApiUrl;
-
+    private String uploadFolderPath;
     private String aiApiKey;
 
     public String getAiApiUrl() {
@@ -55,7 +55,13 @@ public class AppSettings implements Serializable {
         if (resultsPerPage <= 0) resultsPerPage = 10;
         this.resultsPerPage = resultsPerPage;
     }
-    
+    public void setUploadFolderPath(String uploadFolderPath) {
+        this.uploadFolderPath = uploadFolderPath;
+    }
+    public String getUploadFolderPath() {
+        return uploadFolderPath;
+    }
+
     public String getSolrEndpoint() {
         return solrEndpoint;
     }

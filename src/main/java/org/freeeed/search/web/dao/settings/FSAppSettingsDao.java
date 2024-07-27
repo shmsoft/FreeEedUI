@@ -61,7 +61,8 @@ public class FSAppSettingsDao implements AppSettingsDao {
         result.setSolrEndpoint(appSettings.getSolrEndpoint());
         result.setAiApiKey(appSettings.getAiApiKey());
         result.setAiApiUrl(appSettings.getAiApiUrl());
-        
+        result.setUploadFolderPath(appSettings.getUploadFolderPath());
+
         return result;
     }
 

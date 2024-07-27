@@ -16,6 +16,7 @@
 */
 package org.freeeed.search.web.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,10 +84,30 @@ public class AppSettingsController extends SecureController {
 
             String aiAPiKey = (String) valueStack.get("ai_api_key");
 
+            String uploadFolderPath = (String) valueStack.get("upload_folder_path");
+            if (uploadFolderPath != null || uploadFolderPath.length() == 0) {
+               File file = new File(uploadFolderPath);
+               if(!file.exists())
+               {
+                   errors.add("The path used as the Upload folder is not valid or does not exist.");
+               }
+               else {
+                   file = new File(uploadFolderPath + File.separator + "uploads");
+                   if(!file.exists())
+                   {
+                       file.mkdir();
+                   }
+               }
+            }
+            else {
+                errors.add("Uploader Folder Path is required.");
+            }
+
             appSettings.setResultsPerPage(resultsPerPage);
             appSettings.setSolrEndpoint(solrEndpoint);
             appSettings.setAiApiKey(aiAPiKey);
             appSettings.setAiApiUrl(aiAPIUrl);
+            appSettings.setUploadFolderPath(uploadFolderPath);
 
             valueStack.put("errors", errors);
             if (errors.size() == 0) {

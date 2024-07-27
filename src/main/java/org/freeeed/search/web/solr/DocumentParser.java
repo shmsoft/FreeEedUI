@@ -16,6 +16,7 @@
 */
 package org.freeeed.search.web.solr;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +95,8 @@ public class DocumentParser {
             if ("document_original_path".equalsIgnoreCase(name)) {
                 docPath = value;
                 if (subject == null || subject.length() == 0) {
-                    subject = value;
+                    File file = new File(value);
+                    subject = file.getName();;
                 }
             }
             

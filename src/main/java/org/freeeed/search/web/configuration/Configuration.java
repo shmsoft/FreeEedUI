@@ -63,7 +63,13 @@ public class Configuration {
         }
         return "";
     }
-
+    public String getUploadFolderPath() {
+        AppSettings appSettings = appSettingsDao.loadSettings();
+        if (appSettings != null) {
+            return appSettings.getUploadFolderPath();
+        }
+        return "";
+    }
     public void setAppSettingsDao(AppSettingsDao appSettingsDao) {
         this.appSettingsDao = appSettingsDao;
     }

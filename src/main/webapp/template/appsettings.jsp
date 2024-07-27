@@ -24,6 +24,10 @@
             <td>AI API Key<span class="required">*</span>: </td>
             <td><input type="text" class="form-control" name="ai_api_key" value="${appSettings.aiApiKey}"/></td>
         </tr>
+        <tr>
+            <td>Upload Folder Path<span class="required">*</span>:</td>
+            <td><input type="text" class="form-control" name="upload_folder_path" value="${appSettings.uploadFolderPath}"/></td>
+        </tr>
           <tr>
             <td colspan="4">
               <span class="explanation">(Fields marked with <span class="required">*</span> are mandatory)</span>

@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import org.apache.commons.io.FileUtils;
+import org.freeeed.search.web.configuration.Configuration;
 import org.freeeed.search.web.model.solr.SolrDocument;
 import org.freeeed.search.web.model.solr.SolrEntry;
 import org.freeeed.search.web.solr.QuerySearch;
@@ -42,10 +43,11 @@ import org.springframework.web.multipart.MultipartFile;
  *
  */
 public class CaseFileService {
+    private Configuration configuration;
+
     private static final Logger log = Logger.getLogger(CaseFileService.class);
     private static final String FILES_DIR = "files";
     private static final String FILES_TMP_DIR = "tmp";
-    private static final String UPLOADED_FOLDER = "/home/freeeed/FreeEedData/uploads/";
 
     private static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
     
@@ -54,7 +56,6 @@ public class CaseFileService {
      * Expanding the files for a given case. They should be in zip
      * format and will be unzipped to the case's directory.
      * 
-     * @param caseName
      * @param zipFile
      * 
      * @return true if the expand operation complete successfully.
@@ -72,14 +73,15 @@ public class CaseFileService {
     }
 
     public String CreatSourceFilesFolder() {
-        File uploadDir = new File(UPLOADED_FOLDER + File.separator + java.util.UUID.randomUUID() + File.separator);
+        File uploadDir = new File(GetUploaderFolderPath() + java.util.UUID.randomUUID() + File.separator);
         uploadDir.mkdirs();
         String destinationFolder = uploadDir.getAbsolutePath();
         return destinationFolder;
     }
 
     public String GetUploaderFolderPath() {
-        return UPLOADED_FOLDER + File.separator;
+        String path = this.configuration.getUploadFolderPath();
+        return (path != null && path.length() > 0 ? path : "/home/freeeed/FreeEedData/") + File.separator + "/uploads/";
     }
     
     public String uploadFile(MultipartFile file) {
@@ -96,9 +98,13 @@ public class CaseFileService {
     }
 
     public File getNativeFile(String sourceDataLocation, String documentOriginalPath) {
-        File dir = new File(sourceDataLocation);
-        String fileName = dir.getParent() + File.separator  + documentOriginalPath;
-        return  new File(fileName);
+        File file = new File(documentOriginalPath);
+        if (!file.exists()) {
+            file = new File(sourceDataLocation);
+            String fileName = file.getParent() + File.separator + documentOriginalPath;
+            file = new File(fileName);
+        }
+        return file.exists() ? file : null;
     }
     public File getNativeFile(String caseName, String documentOriginalPath, String uniqueId) {
         String fileName = documentOriginalPath.contains(File.separator) ?
@@ -364,4 +370,9 @@ public class CaseFileService {
         File res = new File(zipFileName);
         return res;
     }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
 }
