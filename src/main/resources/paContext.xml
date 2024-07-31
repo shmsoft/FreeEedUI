@@ -107,6 +107,7 @@
     
     <bean id="casePage" class="org.freeeed.search.web.controller.CaseController">
         <property name="caseDao" ref="caseDao" />
+        <property name="configuration" ref="configurationBean" />
         <property name="solrCoreService" ref="solrCoreService" />
         <property name="caseFileService" ref="caseFileService" />
     </bean>
@@ -122,6 +123,7 @@
     </bean>
     
     <bean id="caseFileService" class="org.freeeed.search.files.CaseFileService">
+        <property name="configuration" ref="configurationBean" />
     </bean>
     
     <bean id="caseFilesDownload" class="org.freeeed.search.web.controller.CaseFileDownloadController">

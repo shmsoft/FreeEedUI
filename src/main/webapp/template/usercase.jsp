@@ -4,18 +4,7 @@
 
 <script src="js/jquery-fu.js"></script>
 <script src="js/case.js"></script>
-<script>
-  $(document).ready(function(){
-    let input = document.getElementById("uploadfile");
-    let fileName = document.getElementById("fileName")
 
-    input.addEventListener("change", ()=>{
-        let inputFile = document.querySelector("input[type=file]").files[0];
-        fileName.innerText = inputFile.name;
-    })
-  });
-  
-</script>
 <div class="reg-proj-head">
     Edit Case 
 </div>

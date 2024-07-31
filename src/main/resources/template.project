@@ -36,3 +36,4 @@ text-in-metadata=false
 transcribe=false
 project-template-file-location={ProjectFileLocation}
 review_endpoint=http://localhost:8080/freeeedui/
+ai_key={ai_key}

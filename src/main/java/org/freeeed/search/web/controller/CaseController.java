@@ -32,6 +32,7 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 import org.freeeed.search.files.CaseFileService;
 import org.freeeed.search.web.WebConstants;
+import org.freeeed.search.web.configuration.Configuration;
 import org.freeeed.search.web.dao.cases.CaseDao;
 import org.freeeed.search.web.model.Case;
 import org.freeeed.search.web.model.User;
@@ -51,9 +52,9 @@ import org.freeeed.search.web.StreamGobbler;
 public class CaseController extends BaseController {
     private static final Logger log = Logger.getLogger(CaseController.class);
     private CaseDao caseDao;
+    private Configuration configuration;
     private SolrCoreService solrCoreService;
     private CaseFileService caseFileService;
-
     String pattern = "HH:mm";
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 
@@ -194,7 +195,7 @@ public class CaseController extends BaseController {
                     dataFolder = caseFileService.uploadFile(file);
                     File folderProject = new File(dataFolder);
                     c.setCaseGuid(folderProject.getParentFile().getName());
-                    projectFileFolder = folderProject.getParentFile().getParent() + "/ProjectFiles";
+                    projectFileFolder = folderProject.getParentFile().getParentFile().getParent() + "/ProjectFiles";
                     c.setSourceDataLocation(folderProject.getParent());
                     if (!caseFileService.expandCaseFiles(dataFolder)) {
                         errors.add("Not able to use the uploaded file");
@@ -250,6 +251,7 @@ public class CaseController extends BaseController {
                     projectBaseInfo = projectBaseInfo.replace("{Description}", description);
                     projectBaseInfo = projectBaseInfo.replace("{Name}", name);
                     projectBaseInfo = projectBaseInfo.replace("{ProjectFileLocation}", fileProject);
+                    projectBaseInfo = projectBaseInfo.replace("{ai_key}", this.configuration.getApiKey());
 
                     saveProjectFile(projectBaseInfo, fileProject);
                     // runFreeeedProcess(fileProject);
@@ -341,6 +343,9 @@ public class CaseController extends BaseController {
     
     public void setCaseDao(CaseDao caseDao) {
         this.caseDao = caseDao;
+    }
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     public void setSolrCoreService(SolrCoreService solrCoreService) {
