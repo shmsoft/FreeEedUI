@@ -384,6 +384,77 @@ function loadPdfInIframe(pdfUrl) {
     modalContent.appendChild(iframe);
     $('#html_preview_modal').modal('show');
 }
+
+function loadImageInIframe(imageUrl) {
+    const modalContent = document.querySelector('#html_preview_modal_content');
+    modalContent.innerHTML = ''; // Clear previous content
+    modalContent.style.maxHeight = 'calc(100vh - 240px)';
+    modalContent.style.overflowY = 'auto';
+    modalContent.style.textAlign = 'center'; // Center the image horizontally
+
+    const img = document.createElement('img');
+    img.src = imageUrl;  // Replace with your image URL
+    img.style.width = '100%';
+    img.style.height = 'auto';
+    modalContent.appendChild(img);
+
+// Show the modal
+    $('#html_preview_modal').modal('show');
+}
+function loadTxtInIframe(txtUrl)
+{
+    const modalContent = document.querySelector('#html_preview_modal_content');
+    modalContent.innerHTML = ''; // Clear previous content
+// Fetch and display the TXT file
+    fetch(txtUrl)
+        .then(response => response.text()) // Read file content as text
+        .then(text => {
+            // Create a preformatted container to preserve text formatting
+            const pre = document.createElement('pre');
+            pre.textContent = text;
+
+            // Style the container
+            pre.style.whiteSpace = 'pre-wrap'; // Wrap long lines
+            pre.style.wordWrap = 'break-word'; // Prevent overflow
+            pre.style.maxHeight = 'calc(100vh - 240px)'; // Limit height
+            pre.style.overflowY = 'auto'; // Add vertical scrolling
+            pre.style.padding = '10px';
+            pre.style.backgroundColor = '#f8f9fa';
+            pre.style.border = '1px solid #ddd';
+
+            // Append the preformatted text to the modal
+            modalContent.appendChild(pre);
+
+            // Show the modal
+            $('#html_preview_modal').modal('show');
+        })
+        .catch(error => console.error('Error loading TXT file:', error));
+}
+function loadTiffInIframe(imageUrl) {
+    const modalContent = document.querySelector('#html_preview_modal_content');
+    modalContent.innerHTML = ''; // Clear previous content
+
+
+    fetch(imageUrl)
+        .then(response => response.arrayBuffer())
+        .then(buffer => {
+            const tiff = new Tiff({ buffer });
+            const canvas = tiff.toCanvas();
+
+            // Style the canvas for scrollable display
+            canvas.style.maxWidth = '100%';
+            canvas.style.height = 'auto';
+
+            // Wrap in a scrollable container
+            modalContent.style.maxHeight = 'calc(100vh - 240px)';
+            modalContent.style.overflowY = 'auto';
+            modalContent.style.textAlign = 'center';
+
+            modalContent.appendChild(canvas);
+            $('#html_preview_modal').modal('show');
+        })
+        .catch(error => console.error('Error loading TIFF file:', error));
+}
 function getIndexById(uniqueId) {
     for (var i = 0; i < documents.length; i++) {
         if (documents[i].uniqueId === uniqueId) {
@@ -471,6 +542,21 @@ $(document).ready(function () {
             $('#html_preview_modal_content').html('');
             var url= "filedownload.html?action=exportNative&ispreviewpdf=1&docPath=" + docId + "&uniqueId=" + uId;
             loadPdfInIframe(url)
+        }
+        else if(extension == 'jpg' || extension == 'jpeg' || extension == 'png' || extension == 'tiff' || extension == 'tif') {
+            $('#html_preview_modal_content').html('');
+            var url = "filedownload.html?action=exportNative&ispreviewimage=1&docPath=" + docId + "&uniqueId=" + uId;
+            if (extension == 'tiff' || extension == 'tif') {
+                loadTiffInIframe(url)
+            } else {
+                loadImageInIframe(url)
+            }
+        }
+        else if(extension == 'txt')
+        {
+            $('#html_preview_modal_content').html('');
+            var url= "filedownload.html?action=exportNative&ispreviewpdf=1&docPath=" + docId + "&uniqueId=" + uId;
+            loadTxtInIframe(url);
         }
         else {
             $.ajax({

@@ -71,6 +71,8 @@ public class CaseFileDownloadController extends SecureController {
         String docPath = (String) valueStack.get("docPath");
         String uniqueId = (String) valueStack.get("uniqueId");
         boolean isPreviewPDF = (valueStack.get("ispreviewpdf") != null ? valueStack.get("ispreviewpdf") : "") .equals("1");
+        boolean isPreviewImage= (valueStack.get("ispreviewimage") != null ? valueStack.get("ispreviewimage") : "") .equals("1");
+
         boolean uniqueIdAsName = false;
         try {
             if ("exportNative".equals(action)) {
@@ -130,7 +132,13 @@ public class CaseFileDownloadController extends SecureController {
             try {
                 int length = 0;
                 ServletOutputStream outStream = response.getOutputStream();
-                String mimetype = isPreviewPDF ? "application/pdf" : "application/octet-stream";
+                String mimetype =  "application/octet-stream";
+                if(isPreviewPDF) {
+                    mimetype = "application/pdf";
+                }
+                if(isPreviewImage) {
+                    mimetype = "image/jpeg";
+                }
                 if (htmlMode) {
                     mimetype = "text/html";
                 }
