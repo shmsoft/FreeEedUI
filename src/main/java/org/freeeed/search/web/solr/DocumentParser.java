@@ -92,7 +92,7 @@ public class DocumentParser {
                 from = value;
             }
             
-            if ("document_original_path".equalsIgnoreCase(name)) {
+            if ("document_full_path".equalsIgnoreCase(name)) {
                 docPath = value;
                 if (subject == null || subject.length() == 0) {
                     File file = new File(value);
