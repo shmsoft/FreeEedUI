@@ -9,6 +9,7 @@
     <c:forEach var="doc" items="${result.documents}">
     documents.push({
         documentPath: "${doc.documentPath}",
+        documentName: "${doc.documentName}",
         documentId: "${doc.documentId}",
         uniqueId: "${doc.uniqueId}"
     });
@@ -28,7 +29,7 @@
                         </div>
                         <div class="your-search-box-delete" title="Remove from search">
                             <i class="bi-trash-fill" title="Remove" onclick="removeSearch(${search.id - 1})"></i>
-                        </div>
+                        </div>documentName
                     </div>
                 </div>
             </c:forEach>
@@ -157,7 +158,7 @@
 
             <div class="operations-box">
                 <div class="operation-link">
-                    <a id="preview-${doc.documentId}" class="operation-link-text html-preview action-button" data="${doc.documentPath}" uid="${doc.uniqueId}">Preview</a>
+                    <a id="preview-${doc.documentId}" class="operation-link-text html-preview action-button" fileName="${doc.documentName}" data="${doc.documentPath}" uid="${doc.uniqueId}">Preview</a>
                 </div>
                 <div class="operation-link">
                     <a href="javascript:;" class="operation-link-text action-button" onclick="$('#tag-doc-${doc.documentId}').slideToggle(200);">Tag</a>

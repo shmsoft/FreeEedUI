@@ -52,6 +52,7 @@ public class DocumentParser {
         String subject = "";
         String date = "";
         String docPath = "";
+        String fileName = "";
         String uniqueId = "";
         List<Tag> tags = new ArrayList<Tag>();
         
@@ -94,6 +95,10 @@ public class DocumentParser {
             
             if ("document_full_path".equalsIgnoreCase(name)) {
                 docPath = value;
+            }
+
+            if ("document_original_path".equalsIgnoreCase(name)) {
+                fileName = value;
                 if (subject == null || subject.length() == 0) {
                     File file = new File(value);
                     subject = file.getName();;
@@ -132,6 +137,8 @@ public class DocumentParser {
         doc.setEntries(entries);
         doc.setTags(tags);
         doc.setDocumentPath(docPath);
+        doc.setDocumentName(fileName);
+
         doc.setUniqueId(uniqueId);
         
         return doc;

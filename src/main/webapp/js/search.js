@@ -529,7 +529,7 @@ $(document).ready(function () {
     $("body").on("click", ".html-preview", function () {
         var docId = $(this).attr("data");
         var uId = $(this).attr("uid");
-
+        var docName = $(this).attr("fileName");
         currentIndex = getIndexById(uId);
 
         $('.modal-title').html(uId);
@@ -562,7 +562,7 @@ $(document).ready(function () {
             $.ajax({
                 type: 'GET',
                 url: 'filedownload.html',
-                data: {action: 'exportHtml', docPath: docId, uniqueId: uId},
+                data: {action: 'exportHtml', docPath: docId, uniqueId: uId, docName: docName},
                 success: function (data) {
                     $('#html_preview_modal_content').html('');
                     loadIframeContent(data);

@@ -36,6 +36,7 @@ public class SolrDocument implements Cloneable {
     private String subject;
     private String date;
     private String documentPath;
+    private String name;
     private String uniqueId;
     
     public List<SolrEntry> getEntries() {
@@ -52,6 +53,14 @@ public class SolrDocument implements Cloneable {
 
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
+    }
+
+    public String getDocumentName() {
+        return name;
+    }
+
+    public void setDocumentName(String name) {
+        this.name = name;
     }
 
     public List<Tag> getTags() {

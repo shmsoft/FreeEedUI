@@ -69,6 +69,7 @@ public class CaseFileDownloadController extends SecureController {
         boolean htmlMode = false;
         
         String docPath = (String) valueStack.get("docPath");
+        String docName = (String) valueStack.get("docName");
         String uniqueId = (String) valueStack.get("uniqueId");
         boolean isPreviewPDF = (valueStack.get("ispreviewpdf") != null ? valueStack.get("ispreviewpdf") : "") .equals("1");
         boolean isPreviewImage= (valueStack.get("ispreviewimage") != null ? valueStack.get("ispreviewimage") : "") .equals("1");
@@ -79,10 +80,10 @@ public class CaseFileDownloadController extends SecureController {
                 toDownload = caseFileService.getNativeFile(selectedCase.getSourceDataLocation(), docPath);
                 uniqueIdAsName = true;
             } else if ("exportImage".equals(action)) {
-                toDownload = caseFileService.getImageFile(selectedCase.getName(), docPath, uniqueId);
+                toDownload = caseFileService.getImageFile(selectedCase.getName(), docName, uniqueId);
             } else if ("exportHtml".equals(action)) {
                     String projectPath = selectedCase.getFilesLocation();
-                    toDownload = caseFileService.getHtmlFile(projectPath, docPath, uniqueId);
+                    toDownload = caseFileService.getHtmlFile(projectPath, docName, uniqueId);
                     htmlMode = true;
             } else if ("exportHtmlImage".equals(action)) {
                 toDownload = caseFileService.getHtmlImageFile(selectedCase.getName(), docPath);
