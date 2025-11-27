@@ -51,9 +51,12 @@ public class Configuration {
     public String getApiUrl() {
         AppSettings appSettings = appSettingsDao.loadSettings();
         if (appSettings != null) {
-            return appSettings.getAiApiUrl();
+            String url = appSettings.getAiApiUrl();
+            if (url != null && url.trim().length() > 0) {
+                return url;
+            }
         }
-        return "";
+        return "http://localhost:8000";
     }
 
     public String getApiKey() {
@@ -66,10 +69,26 @@ public class Configuration {
     public String getUploadFolderPath() {
         AppSettings appSettings = appSettingsDao.loadSettings();
         if (appSettings != null) {
-            return appSettings.getUploadFolderPath();
+            String v = appSettings.getUploadFolderPath();
+            if (v != null && v.trim().length() > 0) return v;
         }
+        // Default to user home on macOS/Linux/Windows
+        String home = System.getProperty("user.home", ".");
+        return home + java.io.File.separator + "FreeEedData";
+    }
+
+    public String getReviewEndpoint() {
+        AppSettings appSettings = appSettingsDao.loadSettings();
+        if (appSettings != null) {
+            String endpoint = appSettings.getReviewEndpoint();
+            if (endpoint != null && endpoint.trim().length() > 0) {
+                return endpoint;
+            }
+        }
+        // Default based on current request context
         return "";
     }
+
     public void setAppSettingsDao(AppSettingsDao appSettingsDao) {
         this.appSettingsDao = appSettingsDao;
     }

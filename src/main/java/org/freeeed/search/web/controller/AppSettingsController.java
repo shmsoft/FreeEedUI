@@ -77,30 +77,29 @@ public class AppSettingsController extends SecureController {
             }
 
             String aiAPIUrl = (String) valueStack.get("ai_api_url");
-            if (aiAPIUrl.endsWith("/")) {
-                // Remove the last character if it is '/'
+            if (aiAPIUrl != null && aiAPIUrl.endsWith("/")) {
                 aiAPIUrl = aiAPIUrl.substring(0, aiAPIUrl.length() - 1);
             }
 
             String aiAPiKey = (String) valueStack.get("ai_api_key");
 
             String uploadFolderPath = (String) valueStack.get("upload_folder_path");
-            if (uploadFolderPath != null || uploadFolderPath.length() == 0) {
-               File file = new File(uploadFolderPath);
-               if(!file.exists())
-               {
-                   errors.add("The path used as the Upload folder is not valid or does not exist.");
-               }
-               else {
-                   file = new File(uploadFolderPath + File.separator + "uploads");
-                   if(!file.exists())
-                   {
-                       file.mkdir();
-                   }
-               }
-            }
-            else {
+            if (uploadFolderPath == null || uploadFolderPath.trim().isEmpty()) {
                 errors.add("Uploader Folder Path is required.");
+            } else {
+                File file = new File(uploadFolderPath);
+                if (!file.exists()) {
+                    boolean created = file.mkdirs();
+                    if (!created) {
+                        errors.add("The path used as the Upload folder does not exist and cannot be created: " + uploadFolderPath);
+                    }
+                }
+                if (errors.isEmpty()) {
+                    File uploadsDir = new File(uploadFolderPath + File.separator + "uploads");
+                    if (!uploadsDir.exists()) {
+                        uploadsDir.mkdir();
+                    }
+                }
             }
 
             appSettings.setResultsPerPage(resultsPerPage);

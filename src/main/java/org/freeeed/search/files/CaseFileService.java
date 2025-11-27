@@ -81,7 +81,21 @@ public class CaseFileService {
 
     public String GetUploaderFolderPath() {
         String path = this.configuration.getUploadFolderPath();
-        return (path != null && path.length() > 0 ? path : "/home/freeeed/FreeEedData/") + File.separator + "/uploads/";
+        String basePath = (path != null && path.trim().length() > 0) ? path : System.getProperty("user.home", ".") + File.separator + "FreeEedData";
+        // Normalize: remove trailing slashes
+        while (basePath.endsWith("/") || basePath.endsWith(File.separator)) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+        File baseDir = new File(basePath);
+        if (!baseDir.exists()) {
+            baseDir.mkdirs();
+        }
+        String uploads = basePath + File.separator + "uploads";
+        File uploadsDir = new File(uploads);
+        if (!uploadsDir.exists()) {
+            uploadsDir.mkdirs();
+        }
+        return uploads;
     }
     
     public String uploadFile(MultipartFile file) {

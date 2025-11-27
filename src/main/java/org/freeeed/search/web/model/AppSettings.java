@@ -34,6 +34,7 @@ public class AppSettings implements Serializable {
     private String aiApiUrl;
     private String uploadFolderPath;
     private String aiApiKey;
+    private String reviewEndpoint;
 
     public String getAiApiUrl() {
         return aiApiUrl;
@@ -47,6 +48,15 @@ public class AppSettings implements Serializable {
     public void setAiApiKey(String aiApiKey) {
         this.aiApiKey = aiApiKey;
     }
+
+    public String getReviewEndpoint() {
+        return reviewEndpoint;
+    }
+
+    public void setReviewEndpoint(String reviewEndpoint) {
+        this.reviewEndpoint = reviewEndpoint;
+    }
+
     public int getResultsPerPage() {
         return resultsPerPage;
     }

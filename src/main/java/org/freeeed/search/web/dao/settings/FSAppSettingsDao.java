@@ -63,6 +63,15 @@ public class FSAppSettingsDao implements AppSettingsDao {
         result.setAiApiUrl(appSettings.getAiApiUrl());
         result.setUploadFolderPath(appSettings.getUploadFolderPath());
 
+        // Handle null reviewEndpoint for backward compatibility
+        try {
+            String reviewEndpoint = appSettings.getReviewEndpoint();
+            result.setReviewEndpoint(reviewEndpoint);
+        } catch (Exception e) {
+            log.warn("reviewEndpoint field not found in stored settings (old version), using empty default");
+            result.setReviewEndpoint("");
+        }
+
         return result;
     }
 
