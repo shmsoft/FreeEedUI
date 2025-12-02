@@ -9,6 +9,7 @@
 </div>
 <div class="listusers-newuser align-center">
     <a class="action-button" href="usercase.html">Create new case</a>
+    (coming in the next release)
 </div>
 
 <div class="listusers-box scroll">
