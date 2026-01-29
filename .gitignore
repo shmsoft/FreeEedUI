@@ -4,3 +4,4 @@ target/
 out/
 /.vs/FreeEedUI/FileContentIndex
 .vscode/
+*.dat
