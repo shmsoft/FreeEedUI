@@ -11,28 +11,47 @@ function onSubmit(event)
     var allCases = $("#allCasesCheckbox").prop("checked");
     var url;
     var data = {};
+
+    var aiApiKey = $("#aiApiKey").val();
+    var aiApiUrl = $("#aiApiUrl").val();
+    var selectedCaseDbId = $('.your-case-select').val();
+
+    // Prefer projectId for FastAPI collection naming
+    var selectedOpt = $('#case_Select option:selected');
+    var selectedCaseProjectId = selectedOpt.data('project-id') || $("#aiProjectId").val();
+
     if(allCases)
     {
-        url = $("#aiApiUrl").val() + '/question_cases/';
+        url = aiApiUrl + '/question_cases/';
         data = {
             question: $(".question_input").val()
         };
         var cases = $(".your-case-select").find('option');
         var casesName = [];
 
-        cases.each(function(item) {
-            casesName.push('freeeed_' + $("#aiApiKey").val() + '_' + $(this).val());
+        cases.each(function() {
+            var projectId = $(this).data('project-id');
+            var suffix = (projectId && projectId.length > 0) ? projectId : $(this).val();
+            casesName.push('freeeed_' + aiApiKey + '_' + suffix);
         });
         data["case_ids"] = casesName.join(',');
+        console.log("AI Advisor all-cases query", {url: url, case_ids: data["case_ids"]});
+        $("#aiDebug").remove();
+        $('.chat-wrapper').prepend('<div id="aiDebug" class="answer"><small>AI collections: ' + data["case_ids"] + '</small></div>');
     }
     else {
-        url = $("#aiApiUrl").val() + '/question_case/';
+        url = aiApiUrl + '/question_case/';
+        var aiCollectionSuffix = (selectedCaseProjectId && selectedCaseProjectId.length > 0) ? selectedCaseProjectId : selectedCaseDbId;
         data = {
-            case_id: 'freeeed_' + $("#aiApiKey").val() + '_' + $('.your-case-select').val(),
+            case_id: 'freeeed_' + aiApiKey + '_' + aiCollectionSuffix,
             question: $(".question_input").val()
         };
+        console.log("AI Advisor single-case query", {url: url, selectedCaseDbId: selectedCaseDbId, selectedCaseProjectId: selectedCaseProjectId, case_id: data.case_id});
+        $("#aiDebug").remove();
+        $('.chat-wrapper').prepend('<div id="aiDebug" class="answer"><small>AI collection: ' + data.case_id + '</small></div>');
     }
-        $.ajax({
+
+    $.ajax({
             type: 'GET',
             headers: {
                 'Access-Control-Allow-Origin': '*'
@@ -127,6 +146,13 @@ $(document).ready(function() {
             $("#case_Select").prop('disabled', true);
         } else {
             $("#case_Select").prop('disabled', false);
+        }
+    });
+
+    // Auto-submit case change so the backend session updates selectedCase
+    $("#case_Select").change(function() {
+        if (document.change) {
+            document.change.submit();
         }
     });
 });

@@ -4,7 +4,7 @@
 <script src="js/freeedai.js"></script>
 
 <div class="your-case">
-        <form name="change" method="post" action="search.html">
+        <form name="change" method="post" action="freeeedai.html">
         <input type="hidden" name="action" value="changecase"/>
 
         Selected case:
@@ -12,7 +12,7 @@
                 <input id="allCasesCheckbox" type="checkbox" /> All Cases
                 <select  class="form-control your-case-select" id="case_Select" name="id">
                     <c:forEach var="c" items="${cases}">
-                        <option value="${c.projectId}" ${(selectedCase != null && selectedCase.projectId == c.projectId) ? 'selected' : ''}>${c.name}</option>
+                        <option value="${c.id}" data-project-id="${c.projectId}" ${(selectedCase != null && selectedCase.id == c.id) ? 'selected' : ''}>${c.name}</option>
                     </c:forEach>
                 </select>
             </div>
@@ -22,6 +22,7 @@
 <div>
     <input type="hidden" id="aiApiKey" value="${aiApiKey}"/>
     <input type="hidden" id="aiApiUrl" value="${aiApiUrl}"/>
+    <input type="hidden" id="aiProjectId" value="${selectedCase != null ? selectedCase.projectId : ''}"/>
     <div class="container">
         <div class="chat-wrapper">
 

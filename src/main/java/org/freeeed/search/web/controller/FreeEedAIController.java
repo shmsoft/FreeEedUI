@@ -51,6 +51,19 @@ public class FreeEedAIController extends SecureController {
         List<Case> cases = caseDao.listCases();
         valueStack.put("cases", cases);
 
+        // Optional action: changecase (posted from AI Advisor page)
+        String action = (String) valueStack.get("action");
+        if ("changecase".equalsIgnoreCase(action)) {
+            String caseIdStr = (String) valueStack.get("id");
+            try {
+                Case selected = caseDao.findCase(Long.parseLong(caseIdStr));
+                solrSession.setSelectedCase(selected);
+                log.info("AI Advisor changed selected case: id=" + selected.getId() + ", projectId=" + selected.getProjectId() + ", name=" + selected.getName());
+            } catch (Exception e) {
+                log.warn("AI Advisor failed to change case for id=" + caseIdStr, e);
+            }
+        }
+
         if (solrSession.getSelectedCase() == null) {
             if (cases.size() > 0) {
                 solrSession.setSelectedCase(cases.get(0));
@@ -65,6 +78,11 @@ public class FreeEedAIController extends SecureController {
         valueStack.put("aiApiKey", aiApiKey);
         valueStack.put("aiApiUrl", aiApiUrl);
 
+        if (solrSession.getSelectedCase() != null) {
+            Case sc = solrSession.getSelectedCase();
+            log.info("AI Advisor render: selectedCase id=" + sc.getId() + ", projectId=" + sc.getProjectId() + ", name=" + sc.getName()
+                    + ", aiApiUrl=" + aiApiUrl + ", apiKeyPresent=" + (aiApiKey != null && !aiApiKey.isEmpty()));
+        }
 
         return new ModelAndView(WebConstants.FREEEEDAI_PAGE);
     }
