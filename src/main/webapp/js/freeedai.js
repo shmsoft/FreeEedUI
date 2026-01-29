@@ -2,115 +2,173 @@ function onSubmit(event)
 {
     event.preventDefault();
     let container = $(".chat-wrapper")[0];
-    var question = $(".question_input").val();
+    var $questionInput = $(".question_input");
+    var question = $questionInput.val();
     let newHTMLContent = '<div class="question">' + question + '</p>';
     container.innerHTML += newHTMLContent;
     $('#send_question').prop('disabled', true);
-    $('.question_input').prop('disabled', true);
+    $questionInput.prop('disabled', true);
 
     var allCases = $("#allCasesCheckbox").prop("checked");
-    var url;
-    var data = {};
 
-    var aiApiKey = $("#aiApiKey").val();
     var aiApiUrl = $("#aiApiUrl").val();
-    var selectedCaseDbId = $('.your-case-select').val();
 
-    // Prefer projectId for FastAPI collection naming
+    // dropdown value is DB id; option has data-project-id="case_3" etc.
+    var selectedCaseDbId = $('.your-case-select').val();
     var selectedOpt = $('#case_Select option:selected');
     var selectedCaseProjectId = selectedOpt.data('project-id') || $("#aiProjectId").val();
 
-    if(allCases)
-    {
-        url = aiApiUrl + '/question_cases/';
-        data = {
-            question: $(".question_input").val()
-        };
-        var cases = $(".your-case-select").find('option');
-        var casesName = [];
-
-        cases.each(function() {
-            var projectId = $(this).data('project-id');
-            var suffix = (projectId && projectId.length > 0) ? projectId : $(this).val();
-            casesName.push('freeeed_' + aiApiKey + '_' + suffix);
-        });
-        data["case_ids"] = casesName.join(',');
-        console.log("AI Advisor all-cases query", {url: url, case_ids: data["case_ids"]});
-        $("#aiDebug").remove();
-        $('.chat-wrapper').prepend('<div id="aiDebug" class="answer"><small>AI collections: ' + data["case_ids"] + '</small></div>');
-    }
-    else {
-        url = aiApiUrl + '/question_case/';
-        var aiCollectionSuffix = (selectedCaseProjectId && selectedCaseProjectId.length > 0) ? selectedCaseProjectId : selectedCaseDbId;
-        data = {
-            case_id: 'freeeed_' + aiApiKey + '_' + aiCollectionSuffix,
-            question: $(".question_input").val()
-        };
-        console.log("AI Advisor single-case query", {url: url, selectedCaseDbId: selectedCaseDbId, selectedCaseProjectId: selectedCaseProjectId, case_id: data.case_id});
-        $("#aiDebug").remove();
-        $('.chat-wrapper').prepend('<div id="aiDebug" class="answer"><small>AI collection: ' + data.case_id + '</small></div>');
+    function resetInputs() {
+        $questionInput.val('');
+        $('#send_question').prop('disabled', false);
+        $questionInput.prop('disabled', false);
     }
 
-    $.ajax({
-            type: 'GET',
-            headers: {
-                'Access-Control-Allow-Origin': '*'
-            },
-            url: url,
-            data: data,
-            success:function(data) {
-                var sourcesHtml = '';
+    function renderError(msg, context) {
+        console.error("AI Advisor error", {context: context, message: msg});
+        container.innerHTML += '<div class="answer"><b>AI error (' + context + '):</b> <pre style="white-space:pre-wrap">' + msg + '</pre></div>';
+        resetInputs();
+    }
 
-                if(allCases)
-                {
-                    data.forEach(function(answer) {
-                        var caseId = answer.case_id;
-                        if(answer.sources && answer.sources.length > 0)
-                        {
-                            sourcesHtml = '<small class="source">';
-                            for (let index = 0; index < answer.sources.length; index++) {
-                                var source = answer.sources[index];
-                                source = '<a target="_blank" href="' +  getCurrentUrl() + '/search.html?caseid=' + caseId + '&query=UPI:' + source + '">' + source + '</a>'
-                                sourcesHtml = sourcesHtml +  source + ' | ';
-                            }
-                            sourcesHtml = sourcesHtml + '</small>';
-                        }
-                        newHTMLContent = '<div class="answer">' + answer.answer + sourcesHtml + '</div>';
-                        container.innerHTML += newHTMLContent;
-                     });
-                }
-                else
-                {
-                    var caseId = $("#case_Select").val();
-                    if(data.sources && data.sources.length > 0)
+    function renderAnswer(data, usedCaseId) {
+        var sourcesHtml = '';
+        try {
+            if (data && data.answer && typeof data.answer === 'string' && data.answer.indexOf('No matching documents') >= 0 && usedCaseId) {
+                data.answer = data.answer + ' (case_id=' + usedCaseId + ')';
+            }
+        } catch (e) {}
+
+        if(allCases)
+        {
+            // /question_cases returns JSON; some implementations return a single object, some return {answers:[...]}
+            var answers = Array.isArray(data) ? data : (data && data.answers ? data.answers : null);
+            if (answers && Array.isArray(answers)) {
+                answers.forEach(function(answer) {
+                    var caseId = answer.case_id;
+                    if(answer.sources && answer.sources.length > 0)
                     {
                         sourcesHtml = '<small class="source">';
-                        for (let index = 0; index < data.sources.length; index++) {
-                            var source = data.sources[index];
-                            source = '<a target="_blank" href="' +  getCurrentUrl() + '/search.html?caseid=' + caseId + '&query=UPI:' + source + '">' + source + '</a>'
+                        for (let index = 0; index < answer.sources.length; index++) {
+                            var source = answer.sources[index];
+                            source = '<a target="_blank" href="' +  getCurrentUrl() + '/search.html?caseid=' + encodeURIComponent(caseId) + '&query=UPI:' + encodeURIComponent(source) + '">' + source + '</a>'
                             sourcesHtml = sourcesHtml +  source + ' | ';
                         }
                         sourcesHtml = sourcesHtml + '</small>';
                     }
-
-                    newHTMLContent = '<div class="answer">' + data.answer + sourcesHtml + '</div>';
+                    newHTMLContent = '<div class="answer">' + (answer.answer || JSON.stringify(answer)) + sourcesHtml + '</div>';
                     container.innerHTML += newHTMLContent;
+                });
+            } else {
+                // fallback: show whatever object came back
+                container.innerHTML += '<div class="answer">' + (data && data.answer ? data.answer : JSON.stringify(data)) + '</div>';
+            }
+        }
+        else
+        {
+            var caseId = $("#case_Select").val();
+            if(data && data.sources && data.sources.length > 0)
+            {
+                sourcesHtml = '<small class="source">';
+                for (let index = 0; index < data.sources.length; index++) {
+                    var source = data.sources[index];
+                    source = '<a target="_blank" href="' +  getCurrentUrl() + '/search.html?caseid=' + encodeURIComponent(caseId) + '&query=UPI:' + encodeURIComponent(source) + '">' + source + '</a>'
+                    sourcesHtml = sourcesHtml +  source + ' | ';
                 }
+                sourcesHtml = sourcesHtml + '</small>';
+            }
 
+            newHTMLContent = '<div class="answer">' + ((data && data.answer) ? data.answer : JSON.stringify(data)) + sourcesHtml + '</div>';
+            container.innerHTML += newHTMLContent;
+        }
 
+        resetInputs();
+    }
 
-                $(".question_input").val('');
-                $('#send_question').prop('disabled', false);
-                $('.question_input').prop('disabled', false);
-            },
-            error: function(xhr, status, error) {
-                console.error(xhr.responseText);
-                alert("Technical error, try that again in a few moments!");
-                $('#send_question').prop('disabled', false);
-                $('.question_input').prop('disabled', false);
-                $(".question_input").val('');
+    function toNumericCaseId(value) {
+        if (!value) return null;
+        var m = String(value).match(/(\d+)$/);
+        return m ? m[1] : null;
+    }
+
+    // Show server-side collection list for debugging
+    $.ajax({
+        type: 'GET',
+        url: aiApiUrl + '/describe_index/',
+        dataType: 'json',
+        success: function(indexInfo) {
+            try {
+                var names = [];
+                if (Array.isArray(indexInfo)) {
+                    indexInfo.forEach(function(x) { if (x && x.name) names.push(x.name + '(' + x.count + ')'); });
+                }
+                if (names.length > 0) {
+                    $("#aiIndexDebug").remove();
+                    $('.chat-wrapper').prepend('<div id="aiIndexDebug" class="answer"><small>FastAPI collections: ' + names.join(', ') + '</small></div>');
+                }
+            } catch (e) {}
+        }
+    });
+
+    if (allCases) {
+        var options = $(".your-case-select").find('option');
+        var caseIds = [];
+        options.each(function() {
+            var dbId = $(this).val();
+            var projectId = $(this).data('project-id');
+            var numeric = toNumericCaseId(projectId) || toNumericCaseId(dbId);
+            if (numeric) {
+                caseIds.push(String(numeric));
             }
         });
+
+        if (!caseIds.length) {
+            renderError('Could not derive numeric case ids from dropdown/projectId values.', 'case_id');
+            return;
+        }
+
+        $("#aiDebug").remove();
+        $('.chat-wrapper').prepend('<div id="aiDebug" class="answer"><small>AI case_ids (numeric): ' + caseIds.join(', ') + '</small></div>');
+
+        $.ajax({
+            type: 'GET',
+            url: aiApiUrl + '/question_cases/',
+            data: {question: question, case_ids: caseIds},
+            traditional: true,
+            dataType: 'json',
+            success: function(resp) {
+                renderAnswer(resp, caseIds.join(','));
+            },
+            error: function(xhr) {
+                var msg = (xhr && xhr.responseText) ? xhr.responseText : ("HTTP " + (xhr ? xhr.status : "") );
+                renderError(msg, 'GET');
+            }
+        });
+        return;
+    }
+
+    var numericCaseId = toNumericCaseId(selectedCaseProjectId) || toNumericCaseId(selectedCaseDbId);
+    if (!numericCaseId) {
+        renderError('Could not derive numeric case_id from selected case (dbId=' + selectedCaseDbId + ', projectId=' + selectedCaseProjectId + ')', 'case_id');
+        return;
+    }
+
+    $("#aiDebug").remove();
+    $('.chat-wrapper').prepend('<div id="aiDebug" class="answer"><small>AI case_id (numeric): ' + numericCaseId + '</small></div>');
+
+    $.ajax({
+        type: 'GET',
+        url: aiApiUrl + '/question_case/',
+        data: {question: question, case_id: String(numericCaseId)},
+        traditional: true,
+        dataType: 'json',
+        success: function(resp) {
+            renderAnswer(resp, String(numericCaseId));
+        },
+        error: function(xhr) {
+            var msg = (xhr && xhr.responseText) ? xhr.responseText : ("HTTP " + (xhr ? xhr.status : "") );
+            renderError(msg, 'GET');
+        }
+    });
 
 }
 
