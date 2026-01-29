@@ -165,7 +165,21 @@ function onSubmit(event) {
         return;
     }
 
-    const numericCaseId = toNumericCaseId(selectedCaseProjectId) || toNumericCaseId(selectedCaseDbId);
+    // Prioritize extracting from projectId if it looks like "case_X"
+    let numericCaseId = null;
+    if (selectedCaseProjectId) {
+        // Try to match "case_123" or just "123"
+        const m = String(selectedCaseProjectId).match(/(?:^|case_|_)?(\d+)$/i);
+        if (m) numericCaseId = m[1];
+    }
+
+    // Fallback to dbId if projectId yielded nothing (though dbId usually corresponds to internal ID, not API ID)
+    if (!numericCaseId && selectedCaseDbId) {
+        numericCaseId = selectedCaseDbId;
+    }
+
+
+
     if (!numericCaseId) {
         renderError('Could not derive numeric case_id from selected case (dbId=' + selectedCaseDbId + ', projectId=' + selectedCaseProjectId + ')', 'case_id');
         return;
