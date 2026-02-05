@@ -10,7 +10,8 @@ function onSubmit(event) {
     $questionInput.prop('disabled', true);
 
     const allCases = $("#allCasesCheckbox").prop("checked");
-    const aiApiUrl = $("#aiApiUrl").val();
+    // Normalize to prevent accidental double slashes when concatenating paths
+    const aiApiUrl = String($("#aiApiUrl").val() || '').replace(/\/+$/, '');
 
     // dropdown value is DB id; options have data-project-id="case_3" etc.
     const selectedCaseDbId = $(".your-case-select").val();
@@ -107,7 +108,8 @@ function onSubmit(event) {
     // Optional: show server-side collection list for debugging (non-blocking)
     $.ajax({
         type: 'GET',
-        url: aiApiUrl + '/describe_index/',
+        // new endpoint (support both with/without trailing slash on server)
+        url: aiApiUrl + '/advisors/retrieval/describe_index',
         dataType: 'json',
         success: function (indexInfo) {
             try {
@@ -146,11 +148,12 @@ function onSubmit(event) {
         $('.chat-wrapper').prepend('<div id="aiDebug" class="answer"><small>AI case_ids (numeric): ' + escapeHtml(caseIds.join(', ')) + '</small></div>');
 
         const params = { question: question, case_ids: caseIds };
-        showRequestDebug(aiApiUrl + '/question_cases/', params);
+        // all-cases endpoint moved under /advisors/retrieval
+        showRequestDebug(aiApiUrl + '/advisors/retrieval/question_cases', params);
 
         $.ajax({
             type: 'GET',
-            url: aiApiUrl + '/question_cases/',
+            url: aiApiUrl + '/advisors/retrieval/question_cases',
             data: params,
             traditional: true,
             dataType: 'json',
@@ -189,11 +192,11 @@ function onSubmit(event) {
     $('.chat-wrapper').prepend('<div id="aiDebug" class="answer"><small>AI case_id (numeric): ' + escapeHtml(String(numericCaseId)) + '</small></div>');
 
     const params = { question: question, case_id: String(numericCaseId) };
-    showRequestDebug(aiApiUrl + '/question_case/', params);
+    showRequestDebug(aiApiUrl + '/advisors/retrieval/question_case', params);
 
     $.ajax({
         type: 'GET',
-        url: aiApiUrl + '/question_case/',
+        url: aiApiUrl + '/advisors/retrieval/question_case',
         data: params,
         dataType: 'json',
         success: function (resp) {
