@@ -84,7 +84,11 @@ public class FreeEedAIController extends SecureController {
                     + ", aiApiUrl=" + aiApiUrl + ", apiKeyPresent=" + (aiApiKey != null && !aiApiKey.isEmpty()));
         }
 
-        return new ModelAndView(WebConstants.FREEEEDAI_PAGE);
+        String uri = this.request.getRequestURI() != null ? this.request.getRequestURI() : "";
+        String view = uri.contains("piireport") ? WebConstants.PII_REPORT_PAGE
+                    : uri.contains("casesummary") ? WebConstants.CASE_SUMMARY_PAGE
+                    : WebConstants.FREEEEDAI_PAGE;
+        return new ModelAndView(view);
     }
     public void setCaseDao(CaseDao caseDao) {
         this.caseDao = caseDao;

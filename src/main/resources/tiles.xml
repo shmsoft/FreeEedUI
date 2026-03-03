@@ -26,6 +26,14 @@
         <put-attribute name="body" value="/template/freeEedAi.jsp" />
     </definition>
 
+    <definition name="piiReport" extends="commonLayout">
+        <put-attribute name="body" value="/template/piiReport.jsp" />
+    </definition>
+
+    <definition name="caseSummary" extends="commonLayout">
+        <put-attribute name="body" value="/template/caseSummary.jsp" />
+    </definition>
+
     <definition name="search-ajax" template="/template/search-ajax.jsp"/>
 
     <definition name="logout" extends="commonLayout">
