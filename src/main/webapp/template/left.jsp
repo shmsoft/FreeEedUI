@@ -44,9 +44,7 @@
             <c:if test="${shmwebfunc:hasRight(loggedVisitor.user, 'CASES')}">
                 <li><a class="menulink" href="listcases.html"><i class="bi-folder-fill"></i><span>Cases</span></a></li>
             </c:if>
-            <c:if test="${shmwebfunc:hasRight(loggedVisitor.user, 'APP_CONFIG')}">
-                <li><a class="menulink" href="appsettings.html"><i class="bi-gear-fill"></i><span>App Settings</span></a></li>
-            </c:if>
+
             <c:if test="${shmwebfunc:hasRight(loggedVisitor.user, 'USERS_ADMIN')}">
                 <li><a class="menulink" href="listusers.html"><i class="bi-people-fill"></i><span>Users</span></a></li>
             </c:if>

@@ -28,19 +28,19 @@ public class WebConstants {
 	public static final String SEARCH_AJAX_PAGE = "search-ajax";
 	public static final String TAG_PAGE = "tag";
 	public static final String LOGOUT_PAGE = "logout";
-    public static final String LIST_USERS_PAGE = "listUsers";
-    public static final String LIST_USERS_PAGE_REDIRECT = "listusers.html";
+	public static final String LIST_USERS_PAGE = "listUsers";
+	public static final String LIST_USERS_PAGE_REDIRECT = "listusers.html";
 	public static final String USER_PAGE = "user";
 	public static final String EDIT_PROJECT_PAGE = "edit_project";
 	public static final String MAIN_PAGE_REDIRECT = "main.html";
-	
-    public static final String LIST_CASES_PAGE = "listCases";
-    public static final String LIST_CASES_PAGE_REDIRECT = "listcases.html";
-    public static final String CASE_PAGE = "case";
-    public static final String APP_SETTINGS_PAGE = "appSettings";
-    public static final String TAG_AUTO = "tagAuto";
-    public static final String CASE_FILE_DOWNLOAD = "caseFileDownload";
-    public static final String UPLOAD_FILE = "fileUpload";
-	
+
+	public static final String LIST_CASES_PAGE = "listCases";
+	public static final String LIST_CASES_PAGE_REDIRECT = "listcases.html";
+	public static final String CASE_PAGE = "case";
+
+	public static final String TAG_AUTO = "tagAuto";
+	public static final String CASE_FILE_DOWNLOAD = "caseFileDownload";
+	public static final String UPLOAD_FILE = "fileUpload";
+
 	public static final String WEB_SESSION_SOLR_OBJECT = "solrSession";
 }

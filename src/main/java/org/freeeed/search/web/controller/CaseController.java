@@ -283,12 +283,16 @@ public class CaseController extends BaseController {
                 try {
                     String projectBaseInfo = readProjectTemplateFile();
 
-                    // Build output paths using the user's requested base output location
-                    String baseOutput = "/Users/jatin/Documents/WellomyTech/FreeEed/freeeed-processing/output/freeeed-output";
-                    String projectBaseOut = baseOutput + "/" + projectId + "/output";
-                    String outputDir = projectBaseOut + "/results";
-                    String stagingDir = projectBaseOut + "/staging";
-                    String flatInputPath = stagingDir + "/flat-input";
+                    // Compute output paths dynamically, matching the Swing app:
+                    // Settings.getOutputDir() defaults to "output/"
+                    // + "freeeed-output" + projectCode + "/output"
+                    File processingDir = findFreeEedProcessingDir();
+                    String baseOutput = processingDir.getAbsolutePath() + File.separator
+                            + "output" + File.separator + "freeeed-output";
+                    String projectBaseOut = baseOutput + File.separator + projectId + File.separator + "output";
+                    String outputDir = projectBaseOut + File.separator + "results";
+                    String stagingDir = projectBaseOut + File.separator + "staging";
+                    String flatInputPath = stagingDir + File.separator + "flat-input";
 
                     // Ensure directories exist
                     Files.createDirectories(Paths.get(outputDir));
@@ -484,50 +488,60 @@ public class CaseController extends BaseController {
      * }
      */
 
+    /**
+     * Finds the FreeEed processing directory by traversing up from the current
+     * working directory, looking for a sibling "FreeEed" folder. This mirrors
+     * the path structure the Swing app uses via Settings.getOutputDir().
+     */
+    private File findFreeEedProcessingDir() {
+        Path currentAbsolutePath = Paths.get("").toAbsolutePath();
+        File currentDirFile = new File(currentAbsolutePath.toString());
+        File freeEedDir = null;
+
+        // Traverse up to 5 levels to find FreeEed
+        for (int i = 0; i < 5; i++) {
+            if (currentDirFile == null)
+                break;
+            log.debug("Checking for FreeEed in sibling of: " + currentDirFile.getAbsolutePath());
+            File checkDir = new File(currentDirFile, "FreeEed");
+            if (checkDir.exists() && checkDir.isDirectory()) {
+                freeEedDir = checkDir;
+                break;
+            }
+            currentDirFile = currentDirFile.getParentFile();
+        }
+
+        if (freeEedDir != null) {
+            File processingDir = new File(freeEedDir, "freeeed-processing");
+            if (processingDir.exists()) {
+                return processingDir;
+            }
+            return freeEedDir;
+        }
+
+        // Fallback
+        File fallback = new File(currentAbsolutePath.getParent().toString()
+                + File.separator + "FreeEed" + File.separator + "freeeed-processing");
+        if (fallback.exists()) {
+            return fallback;
+        }
+        return new File(currentAbsolutePath.getParent().toString() + File.separator + "FreeEed");
+    }
+
     private String runFreeeedProcess(String paramFile, Case c) {
         StringBuilder output = new StringBuilder();
         try {
-            // Get the base directory (2 levels up from current working directory)
-            Path currentRelativePath = Paths.get("");
-            Path currentAbsolutePath = currentRelativePath.toAbsolutePath();
-            // Search for FreeEed directory by traversing up
-            File currentDirFile = new File(currentAbsolutePath.toString());
-            File freeEedDir = null;
+            File workingDir = findFreeEedProcessingDir();
+            File freeEedDir = workingDir.getName().equals("freeeed-processing")
+                    ? workingDir.getParentFile()
+                    : workingDir;
 
-            // Traverse up to 5 levels to find FreeEed
-            for (int i = 0; i < 5; i++) {
-                if (currentDirFile == null)
-                    break;
-                log.info("Checking for FreeEed in sibling of: " + currentDirFile.getAbsolutePath());
-
-                File checkDir = new File(currentDirFile, "FreeEed");
-                if (checkDir.exists() && checkDir.isDirectory()) {
-                    freeEedDir = checkDir;
-                    break;
-                }
-                currentDirFile = currentDirFile.getParentFile();
-            }
-
-            String jarPath;
-            File jarFile;
-
-            if (freeEedDir != null) {
-                log.info("Found FreeEed directory at: " + freeEedDir.getAbsolutePath());
+            String jarPath = freeEedDir.getAbsolutePath()
+                    + "/freeeed-processing/target/freeeed-processing-1.0-SNAPSHOT-jar-with-dependencies.jar";
+            File jarFile = new File(jarPath);
+            if (!jarFile.exists()) {
                 jarPath = freeEedDir.getAbsolutePath()
-                        + "/freeeed-processing/target/freeeed-processing-1.0-SNAPSHOT-jar-with-dependencies.jar";
-                jarFile = new File(jarPath);
-
-                if (!jarFile.exists()) {
-                    jarPath = freeEedDir.getAbsolutePath()
-                            + "/target/freeeed-processing-1.0-SNAPSHOT-jar-with-dependencies.jar";
-                    jarFile = new File(jarPath);
-                }
-            } else {
-                // Fallback to original logic if not found (though likely won't work if loop
-                // failed)
-                String currentDirStr = currentAbsolutePath.getParent().toString();
-                jarPath = currentDirStr
-                        + "/FreeEed/freeeed-processing/target/freeeed-processing-1.0-SNAPSHOT-jar-with-dependencies.jar";
+                        + "/target/freeeed-processing-1.0-SNAPSHOT-jar-with-dependencies.jar";
                 jarFile = new File(jarPath);
             }
 
@@ -562,20 +576,6 @@ public class CaseController extends BaseController {
             log.info("Running command: " + String.join(" ", command));
 
             ProcessBuilder processBuilder = new ProcessBuilder(command);
-
-            // Set working directory to FreeEed base directory
-            File workingDir;
-            if (freeEedDir != null) {
-                workingDir = new File(freeEedDir, "freeeed-processing");
-                if (!workingDir.exists()) {
-                    workingDir = freeEedDir;
-                }
-            } else {
-                workingDir = new File(currentAbsolutePath.getParent().toString() + "/FreeEed/freeeed-processing/");
-                if (!workingDir.exists()) {
-                    workingDir = new File(currentAbsolutePath.getParent().toString() + "/FreeEed/");
-                }
-            }
             processBuilder.directory(workingDir);
             processBuilder.redirectErrorStream(true);
 

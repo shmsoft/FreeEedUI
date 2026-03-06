@@ -115,9 +115,7 @@
     <bean id="appSettingsDao" class="org.freeeed.search.web.dao.settings.FSAppSettingsDao" init-method="init">
     </bean>
     
-    <bean id="appSettingsPage" class="org.freeeed.search.web.controller.AppSettingsController">
-        <property name="appSettingsDao" ref="appSettingsDao" />
-    </bean>
+
     
     <bean id="tagAutoPage" class="org.freeeed.search.web.controller.TagAutoCompleteController">
     </bean>
@@ -157,7 +155,7 @@
 				<prop key="/user.html">userPage</prop>
 				<prop key="/listcases.html">listCasesPage</prop>
                 <prop key="/usercase.html">casePage</prop>
-                <prop key="/appsettings.html">appSettingsPage</prop>
+
                 <prop key="/tagauto.html">tagAutoPage</prop>
                 <prop key="/filedownload.html">caseFilesDownload</prop>
                 <prop key="/fileupload.html">fileuploadPage</prop>
