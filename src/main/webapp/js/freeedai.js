@@ -301,7 +301,7 @@ function _piiStepOk(i) {
 
 function _piiStartScan(caseId, caseName, targetId) {
     targetId = targetId || 'pii-body';
-    var PROXY = getCurrentUrl() + '/pii-proxy.jsp';
+    var PROXY = getCurrentUrl() + '/pii-proxy';
     var results = {};
     var _doneCount = 0;
 

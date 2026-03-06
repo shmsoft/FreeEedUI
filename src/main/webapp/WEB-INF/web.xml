@@ -45,6 +45,16 @@
         </init-param>
     </servlet>
 
+    <servlet>
+        <servlet-name>piiProxy</servlet-name>
+        <servlet-class>org.freeeed.search.web.controller.PiiProxyServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>piiProxy</servlet-name>
+        <url-pattern>/pii-proxy</url-pattern>
+    </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>springDispatcher</servlet-name>
         <url-pattern>*.html</url-pattern>
