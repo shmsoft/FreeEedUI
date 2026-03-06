@@ -209,20 +209,20 @@ function sendPiiReport(event) {
         }
     }
 
-    _piiCharts.forEach(function(c) { try { c.destroy(); } catch(e){} });
+    _piiCharts.forEach(function (c) { try { c.destroy(); } catch (e) { } });
     _piiCharts = [];
     $('#pii-report-modal').remove();
     _piiOpenModal(caseName);
 
     if (!numericCaseId) {
         // No valid case selected — show friendly prompt
-        setTimeout(function() {
+        setTimeout(function () {
             $('#pii-body').html(
-                '<div class="pii-err">'+
-                '<div class="pii-err-icon">\uD83D\uDCC2</div>'+
-                '<div class="pii-err-title">No Case Selected</div>'+
-                '<div class="pii-err-msg">Please select a specific case from the dropdown above before running the PII report.</div>'+
-                '<div class="pii-err-hint">The \'default\' case has no indexed documents.</div>'+
+                '<div class="pii-err">' +
+                '<div class="pii-err-icon">\uD83D\uDCC2</div>' +
+                '<div class="pii-err-title">No Case Selected</div>' +
+                '<div class="pii-err-msg">Please select a specific case from the dropdown above before running the PII report.</div>' +
+                '<div class="pii-err-hint">The \'default\' case has no indexed documents.</div>' +
                 '</div>'
             );
         }, 400);
@@ -235,50 +235,50 @@ function sendPiiReport(event) {
 function _piiOpenModal(caseName) {
     $('body').append(
         '<div id="pii-report-modal" class="pii-overlay">' +
-            '<div class="pii-panel">' +
-                '<div class="pii-header">' +
-                    '<div class="pii-header-left">' +
-                        '<span class="pii-header-icon">\uD83D\uDD0F</span>' +
-                        '<span class="pii-header-title">PII Intelligence Report</span>' +
-                        '<span class="pii-header-badge">' + escapeHtml(caseName) + '</span>' +
-                    '</div>' +
-                    '<button class="pii-close" id="pii-close-btn">\u2715</button>' +
-                '</div>' +
-                '<div class="pii-body" id="pii-body">' + _piiScannerHtml() + '</div>' +
-            '</div>' +
+        '<div class="pii-panel">' +
+        '<div class="pii-header">' +
+        '<div class="pii-header-left">' +
+        '<span class="pii-header-icon">\uD83D\uDD0F</span>' +
+        '<span class="pii-header-title">PII Intelligence Report</span>' +
+        '<span class="pii-header-badge">' + escapeHtml(caseName) + '</span>' +
+        '</div>' +
+        '<button class="pii-close" id="pii-close-btn">\u2715</button>' +
+        '</div>' +
+        '<div class="pii-body" id="pii-body">' + _piiScannerHtml() + '</div>' +
+        '</div>' +
         '</div>'
     );
     $('#pii-report-modal').hide().fadeIn(300);
-    $('#pii-close-btn').on('click', function() { $('#pii-report-modal').fadeOut(220, function(){ $(this).remove(); }); });
-    $('#pii-report-modal').on('click', function(e) { if (e.target === this) $(this).fadeOut(220, function(){ $(this).remove(); }); });
+    $('#pii-close-btn').on('click', function () { $('#pii-report-modal').fadeOut(220, function () { $(this).remove(); }); });
+    $('#pii-report-modal').on('click', function (e) { if (e.target === this) $(this).fadeOut(220, function () { $(this).remove(); }); });
 }
 
 function _piiScannerHtml() {
     return (
         '<div class="pii-scanner">' +
-            '<div class="pii-radar-wrap">' +
-                '<svg class="pii-radar-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">' +
-                    '<circle cx="100" cy="100" r="90" fill="none" stroke="rgba(106,13,173,0.15)" stroke-width="1.5"/>' +
-                    '<circle cx="100" cy="100" r="65" fill="none" stroke="rgba(106,13,173,0.2)" stroke-width="1.5"/>' +
-                    '<circle cx="100" cy="100" r="40" fill="none" stroke="rgba(106,13,173,0.28)" stroke-width="1.5"/>' +
-                    '<circle cx="100" cy="100" r="15" fill="rgba(37,0,91,0.3)"/>' +
-                    '<line x1="100" y1="10" x2="100" y2="190" stroke="rgba(106,13,173,0.12)" stroke-width="1"/>' +
-                    '<line x1="10" y1="100" x2="190" y2="100" stroke="rgba(106,13,173,0.12)" stroke-width="1"/>' +
-                    '<path class="pii-beam" d="M100,100 L100,10 A90,90 0 0,1 190,100 Z" fill="rgba(106,13,173,0.18)"/>' +
-                    '<path class="pii-beam-trail" d="M100,100 L100,10 A90,90 0 0,1 163,163 Z" fill="rgba(106,13,173,0.06)"/>' +
-                '</svg>' +
-                '<div class="pii-radar-icon">\uD83D\uDD0D</div>' +
-            '</div>' +
-            '<div class="pii-scan-title">Scanning for PII Entities\u2026</div>' +
-            '<div class="pii-scan-sub">\u26A1 Calling 3 AI detection APIs in <strong>parallel</strong> \u2014 you can switch tabs</div>' +
-            '<div class="pii-steps-list">' +
-                '<div class="pii-step" id="pii-step-0"><div class="pii-dot pii-dot-idle"></div><span class="pii-step-txt">Detecting PII entities</span><span class="pii-step-api">\u2192 /advisors/pii/detect</span></div>' +
-                '<div class="pii-step" id="pii-step-1"><div class="pii-dot pii-dot-idle"></div><span class="pii-step-txt">Calculating average PII per doc</span><span class="pii-step-api">\u2192 /advisors/pii/average_pii_doc</span></div>' +
-                '<div class="pii-step" id="pii-step-2"><div class="pii-dot pii-dot-idle"></div><span class="pii-step-txt">Measuring PII richness</span><span class="pii-step-api">\u2192 /advisors/pii/richness</span></div>' +
-                '<div class="pii-step" id="pii-step-3"><div class="pii-dot pii-dot-idle"></div><span class="pii-step-txt">Compiling intelligence report</span><span class="pii-step-api">\u2192 Building charts</span></div>' +
-            '</div>' +
-            '<div class="pii-prog-track"><div class="pii-prog-bar" id="pii-prog-bar" style="width:0%"></div></div>' +
-            '<div class="pii-prog-pct" id="pii-prog-pct">0%</div>' +
+        '<div class="pii-radar-wrap">' +
+        '<svg class="pii-radar-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">' +
+        '<circle cx="100" cy="100" r="90" fill="none" stroke="rgba(106,13,173,0.15)" stroke-width="1.5"/>' +
+        '<circle cx="100" cy="100" r="65" fill="none" stroke="rgba(106,13,173,0.2)" stroke-width="1.5"/>' +
+        '<circle cx="100" cy="100" r="40" fill="none" stroke="rgba(106,13,173,0.28)" stroke-width="1.5"/>' +
+        '<circle cx="100" cy="100" r="15" fill="rgba(37,0,91,0.3)"/>' +
+        '<line x1="100" y1="10" x2="100" y2="190" stroke="rgba(106,13,173,0.12)" stroke-width="1"/>' +
+        '<line x1="10" y1="100" x2="190" y2="100" stroke="rgba(106,13,173,0.12)" stroke-width="1"/>' +
+        '<path class="pii-beam" d="M100,100 L100,10 A90,90 0 0,1 190,100 Z" fill="rgba(106,13,173,0.18)"/>' +
+        '<path class="pii-beam-trail" d="M100,100 L100,10 A90,90 0 0,1 163,163 Z" fill="rgba(106,13,173,0.06)"/>' +
+        '</svg>' +
+        '<div class="pii-radar-icon">\uD83D\uDD0D</div>' +
+        '</div>' +
+        '<div class="pii-scan-title">Scanning for PII Entities\u2026</div>' +
+        '<div class="pii-scan-sub">\u26A1 Calling 3 AI detection APIs in <strong>parallel</strong> \u2014 you can switch tabs</div>' +
+        '<div class="pii-steps-list">' +
+        '<div class="pii-step" id="pii-step-0"><div class="pii-dot pii-dot-idle"></div><span class="pii-step-txt">Detecting PII entities</span><span class="pii-step-api">\u2192 /advisors/pii/detect</span></div>' +
+        '<div class="pii-step" id="pii-step-1"><div class="pii-dot pii-dot-idle"></div><span class="pii-step-txt">Calculating average PII per doc</span><span class="pii-step-api">\u2192 /advisors/pii/average_pii_doc</span></div>' +
+        '<div class="pii-step" id="pii-step-2"><div class="pii-dot pii-dot-idle"></div><span class="pii-step-txt">Measuring PII richness</span><span class="pii-step-api">\u2192 /advisors/pii/richness</span></div>' +
+        '<div class="pii-step" id="pii-step-3"><div class="pii-dot pii-dot-idle"></div><span class="pii-step-txt">Compiling intelligence report</span><span class="pii-step-api">\u2192 Building charts</span></div>' +
+        '</div>' +
+        '<div class="pii-prog-track"><div class="pii-prog-bar" id="pii-prog-bar" style="width:0%"></div></div>' +
+        '<div class="pii-prog-pct" id="pii-prog-pct">0%</div>' +
         '</div>'
     );
 }
@@ -345,12 +345,12 @@ function _piiStartScan(caseId, caseName, targetId) {
                     caseName: caseName, results: results, ts: Date.now()
                 }));
                 localStorage.removeItem('_piiScanInProgress');
-            } catch(e) {}
+            } catch (e) { }
 
-            setTimeout(function() {
+            setTimeout(function () {
                 _dotOk(3);
                 _progSet(100);
-                setTimeout(function() {
+                setTimeout(function () {
                     if (document.hidden) {
                         // User is in a different browser tab — hold results and notify
                         _piiPendingResults = { caseName: caseName, results: results, targetId: targetId };
@@ -367,23 +367,23 @@ function _piiStartScan(caseId, caseName, targetId) {
     $.ajax({
         type: 'GET', url: PROXY,
         data: { action: 'detect', case_id: String(caseId) }, dataType: 'json', timeout: 90000,
-        success: function(d) { results.detect = d; },
-        error:   function(xhr) { results.detectError = xhr.responseText || ('HTTP ' + xhr.status); },
-        complete: function() { _onApiComplete(0); }
+        success: function (d) { results.detect = d; },
+        error: function (xhr) { results.detectError = xhr.responseText || ('HTTP ' + xhr.status); },
+        complete: function () { _onApiComplete(0); }
     });
     $.ajax({
         type: 'GET', url: PROXY,
         data: { action: 'average_pii_doc', case_id: String(caseId) }, dataType: 'json', timeout: 90000,
-        success: function(d) { results.average = d; },
-        error: function() {},
-        complete: function() { _onApiComplete(1); }
+        success: function (d) { results.average = d; },
+        error: function () { },
+        complete: function () { _onApiComplete(1); }
     });
     $.ajax({
         type: 'GET', url: PROXY,
         data: { action: 'richness', case_id: String(caseId) }, dataType: 'json', timeout: 90000,
-        success: function(d) { results.richness = d; },
-        error: function() {},
-        complete: function() { _onApiComplete(2); }
+        success: function (d) { results.richness = d; },
+        error: function () { },
+        complete: function () { _onApiComplete(2); }
     });
 }
 
@@ -393,27 +393,27 @@ var _piiTableData = { headers: [], rows: [], caseName: '' };
 function _piiExportCsv() {
     var h = _piiTableData.headers, rows = _piiTableData.rows;
     if (!h.length) { alert('No data to export.'); return; }
-    var esc = function(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; };
+    var esc = function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; };
     var lines = [h.map(esc).join(',')];
-    rows.forEach(function(r) { lines.push(h.map(function(k){ return esc(r[k]); }).join(',')); });
+    rows.forEach(function (r) { lines.push(h.map(function (k) { return esc(r[k]); }).join(',')); });
     var blob = new Blob([lines.join('\r\n')], { type: 'text/csv' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url; a.download = 'pii_report_' + (_piiTableData.caseName || 'export') + '.csv';
     document.body.appendChild(a); a.click();
-    setTimeout(function() { URL.revokeObjectURL(url); document.body.removeChild(a); }, 500);
+    setTimeout(function () { URL.revokeObjectURL(url); document.body.removeChild(a); }, 500);
 }
 
 function _piiFlatRow(obj, prefix) {
     prefix = prefix || '';
     var out = {};
-    Object.keys(obj || {}).forEach(function(k) {
+    Object.keys(obj || {}).forEach(function (k) {
         var v = obj[k], key = prefix ? prefix + '_' + k : k;
         if (v !== null && !Array.isArray(v) && typeof v === 'object') {
             var sub = _piiFlatRow(v, key);
-            Object.keys(sub).forEach(function(sk){ out[sk] = sub[sk]; });
+            Object.keys(sub).forEach(function (sk) { out[sk] = sub[sk]; });
         } else if (Array.isArray(v)) {
-            out[key] = v.map(function(x){ return typeof x === 'object' ? JSON.stringify(x) : x; }).join(' | ');
+            out[key] = v.map(function (x) { return typeof x === 'object' ? JSON.stringify(x) : x; }).join(' | ');
         } else {
             out[key] = v;
         }
@@ -423,7 +423,7 @@ function _piiFlatRow(obj, prefix) {
 
 function _piiExtractRows(data) {
     if (Array.isArray(data)) return data;
-    var keys = ['documents','results','items','data','records','entities','pii_results','detections','files'];
+    var keys = ['documents', 'results', 'items', 'data', 'records', 'entities', 'pii_results', 'detections', 'files'];
     for (var i = 0; i < keys.length; i++) {
         if (Array.isArray(data[keys[i]])) return data[keys[i]];
     }
@@ -435,26 +435,26 @@ function _piiKpi(icon, value, label, color) {
         '<div class="pii-kpi-icon">' + icon + '</div>' +
         '<div class="pii-kpi-val" data-target="' + value + '">0</div>' +
         '<div class="pii-kpi-lbl">' + label + '</div>' +
-    '</div>';
+        '</div>';
 }
 
 function _piiRender(caseName, results, targetId) {
     targetId = targetId || 'pii-body';
     _piiTableData.caseName = caseName;
     var PII_META = {
-        email:        { icon: '\u2709',  color: '#3498db' },
-        ssn:          { icon: '\uD83D\uDD12', color: '#e74c3c' },
-        phone:        { icon: '\uD83D\uDCDE', color: '#2ecc71' },
-        address:      { icon: '\uD83C\uDFE0', color: '#e67e22' },
-        credit_card:  { icon: '\uD83D\uDCB3', color: '#9b59b6' },
-        creditcard:   { icon: '\uD83D\uDCB3', color: '#9b59b6' },
-        passport:     { icon: '\uD83D\uDEC2', color: '#1abc9c' },
-        name:         { icon: '\uD83D\uDC64', color: '#f39c12' },
-        full_name:    { icon: '\uD83D\uDC64', color: '#f39c12' },
-        dob:          { icon: '\uD83D\uDCC5', color: '#e91e63' },
-        ip:           { icon: '\uD83C\uDF10', color: '#00bcd4' },
-        ip_address:   { icon: '\uD83C\uDF10', color: '#00bcd4' },
-        medical:      { icon: '\uD83C\uDFE5', color: '#ff5722' },
+        email: { icon: '\u2709', color: '#3498db' },
+        ssn: { icon: '\uD83D\uDD12', color: '#e74c3c' },
+        phone: { icon: '\uD83D\uDCDE', color: '#2ecc71' },
+        address: { icon: '\uD83C\uDFE0', color: '#e67e22' },
+        credit_card: { icon: '\uD83D\uDCB3', color: '#9b59b6' },
+        creditcard: { icon: '\uD83D\uDCB3', color: '#9b59b6' },
+        passport: { icon: '\uD83D\uDEC2', color: '#1abc9c' },
+        name: { icon: '\uD83D\uDC64', color: '#f39c12' },
+        full_name: { icon: '\uD83D\uDC64', color: '#f39c12' },
+        dob: { icon: '\uD83D\uDCC5', color: '#e91e63' },
+        ip: { icon: '\uD83C\uDF10', color: '#00bcd4' },
+        ip_address: { icon: '\uD83C\uDF10', color: '#00bcd4' },
+        medical: { icon: '\uD83C\uDFE5', color: '#ff5722' },
         bank_account: { icon: '\uD83C\uDFE6', color: '#607d8b' }
     };
     var SEVC = { high: '#e74c3c', medium: '#f39c12', low: '#27ae60' };
@@ -471,8 +471,8 @@ function _piiRender(caseName, results, targetId) {
         if (err) rawHtml += '<div class="pii-err-msg" style="font-size:11px;margin-top:6px">' + escapeHtml(String(err)) + '</div>';
         rawHtml += '</div>';
         rawHtml += '<div style="font-weight:700;font-size:12px;color:#5a0099;margin:10px 0 5px">\uD83D\uDD0E Raw API Responses (for debugging):</div>';
-        ['detect','average','richness'].forEach(function(k) {
-            rawHtml += '<div style="margin-bottom:8px"><b style="font-size:11px;color:#666">' + k + ':</b><pre style="font-size:11px;background:#f5f2ff;border:1px solid #ddd;border-radius:6px;padding:8px;margin:3px 0;white-space:pre-wrap;word-break:break-all;max-height:140px;overflow:auto">' + escapeHtml(JSON.stringify(results[k] || results[k+'Error'] || null, null, 2)) + '</pre></div>';
+        ['detect', 'average', 'richness'].forEach(function (k) {
+            rawHtml += '<div style="margin-bottom:8px"><b style="font-size:11px;color:#666">' + k + ':</b><pre style="font-size:11px;background:#f5f2ff;border:1px solid #ddd;border-radius:6px;padding:8px;margin:3px 0;white-space:pre-wrap;word-break:break-all;max-height:140px;overflow:auto">' + escapeHtml(JSON.stringify(results[k] || results[k + 'Error'] || null, null, 2)) + '</pre></div>';
         });
         rawHtml += '</div>';
         $('#' + targetId).stop(true).show().html(rawHtml);
@@ -480,11 +480,11 @@ function _piiRender(caseName, results, targetId) {
 
     if (results.detectError && !Object.keys(data).length) {
         var errMsg = results.detectError;
-        try { var ep = JSON.parse(errMsg); if (ep.detail) errMsg = ep.detail; } catch(e) {}
+        try { var ep = JSON.parse(errMsg); if (ep.detail) errMsg = ep.detail; } catch (e) { }
         // HTTP 0 = connection refused = Python backend not running
         if (/^HTTP 0$/i.test($.trim(errMsg)) || /connection refused|econnrefused/i.test(errMsg)) {
             errMsg = 'Cannot connect to the PII backend (HTTP 0 — connection refused). ' +
-                     'Please start the Python backend server on port 3000 and try again.';
+                'Please start the Python backend server and try again.';
         }
         _showRaw('\uD83D\uDEA8 Backend Unreachable', errMsg);
         return;
@@ -492,175 +492,176 @@ function _piiRender(caseName, results, targetId) {
 
     try {  // ── guard: if ANY render error, show raw JSON instead of blank popup
 
-    // ── Extract document rows from detect response ──
-    var rows     = _piiExtractRows(data);
-    var flatRows = rows.map(function(r) { return _piiFlatRow(r); });
-    _piiTableData.headers = [];
-    _piiTableData.rows    = flatRows;
+        // ── Extract document rows from detect response ──
+        var rows = _piiExtractRows(data);
+        var flatRows = rows.map(function (r) { return _piiFlatRow(r); });
+        _piiTableData.headers = [];
+        _piiTableData.rows = flatRows;
 
-    // Build ordered headers (put common id/name fields first)
-    var allKeys = {}, priorityKeys = ['doc_id','document_id','file_id','filename','file_name','document_name','name'];
-    flatRows.forEach(function(r) { Object.keys(r).forEach(function(k) { allKeys[k] = true; }); });
-    var headers = priorityKeys.filter(function(k){ return allKeys[k]; });
-    Object.keys(allKeys).forEach(function(k) { if (headers.indexOf(k) < 0) headers.push(k); });
-    _piiTableData.headers = headers;
+        // Build ordered headers (put common id/name fields first)
+        var allKeys = {}, priorityKeys = ['doc_id', 'document_id', 'file_id', 'filename', 'file_name', 'document_name', 'name'];
+        flatRows.forEach(function (r) { Object.keys(r).forEach(function (k) { allKeys[k] = true; }); });
+        var headers = priorityKeys.filter(function (k) { return allKeys[k]; });
+        Object.keys(allKeys).forEach(function (k) { if (headers.indexOf(k) < 0) headers.push(k); });
+        _piiTableData.headers = headers;
 
-    // ── Compute KPIs from actual detect data ──
-    var catMap = {};
-    var piiItemsTotal = 0, piiDocCount = 0;
-    rows.forEach(function(r) {
-        var docPii = parseInt(r.pii_count || r.total_pii || r.count || 0) || 0;
-        var entities = r.pii_entities || r.entities || r.pii_types || r.detections || [];
-        if (Array.isArray(entities)) {
-            if (!docPii) docPii = entities.length;
-            entities.forEach(function(e) {
-                var t = (typeof e === 'string' ? e : (e.type || e.pii_type || e.entity_type || 'unknown')).toLowerCase();
-                catMap[t] = (catMap[t] || 0) + 1;
-            });
-        }
-        if (docPii > 0) { piiDocCount++; piiItemsTotal += docPii; }
-    });
-
-    var cats = data.categories || data.pii_types || avg.categories || rich.categories || [];
-    if (!Object.keys(catMap).length && cats.length) {
-        cats.forEach(function(c) { catMap[(c.type||c.name||'unknown').toLowerCase()] = c.count||c.occurrences||0; });
-        piiItemsTotal = cats.reduce(function(s,c){ return s+(c.count||c.occurrences||0); }, 0);
-    }
-    if (!cats.length && Object.keys(catMap).length) {
-        cats = Object.keys(catMap).sort(function(a,b){ return catMap[b]-catMap[a]; }).map(function(k){ return { type: k, count: catMap[k] }; });
-    }
-
-    var total   = data.total_documents || data.total || avg.total_documents || avg.total || rows.length || 0;
-    var found   = data.pii_found || data.pii_count || avg.pii_found || piiDocCount || 0;
-    var avgPii  = avg.average_pii_per_doc || avg.average || avg.avg || data.average_pii_per_doc || 0;
-    if ((!avgPii || avgPii === 0) && piiItemsTotal && total) avgPii = (piiItemsTotal / total);
-    var richVal = rich.richness || rich.richness_score || rich.score || data.richness || 0;
-    var score   = data.risk_score != null ? data.risk_score : rich.risk_score != null ? rich.risk_score : avg.risk_score != null ? avg.risk_score : (found > 0 ? Math.min(100, Math.round((found / Math.max(total,1)) * 150)) : 0);
-    score = Math.min(100, Math.max(0, parseInt(score) || 0));
-    var rl    = score >= 70 ? 'high' : score >= 30 ? 'medium' : 'low';
-    var rc    = SEVC[rl];
-    var rEmoji = rl === 'high' ? '\uD83D\uDEA8' : rl === 'medium' ? '\u26A0\uFE0F' : '\u2705';
-    var avgDisplay  = (typeof avgPii  === 'number' ? avgPii.toFixed(2)  : String(avgPii  || '0.00'));
-    var richDisplay = (typeof richVal === 'number'  ? richVal.toFixed(2) : String(richVal || '0.00'));
-
-    // ── API status bar ──
-    var apiBar = [
-        results.detect  ? '<span class="pii-api-ok">\u2713 detect</span>'          : '<span class="pii-api-err">\u2717 detect</span>',
-        results.average ? '<span class="pii-api-ok">\u2713 avg_pii_doc</span>'     : '<span class="pii-api-err">\u2717 avg_pii_doc</span>',
-        results.richness? '<span class="pii-api-ok">\u2713 richness</span>'        : '<span class="pii-api-err">\u2717 richness</span>'
-    ].join('');
-
-    var html = '<div class="pii-api-bar">' + apiBar + '</div>';
-    html += '<div class="pii-risk-banner pii-rb-' + rl + '">' + rEmoji + '&nbsp; Risk Level: <strong>' + rl.toUpperCase() + '</strong>&nbsp;&nbsp;<span style="opacity:.75">Score: ' + score + '%</span></div>';
-    html += '<div class="pii-kpi-row">' +
-        _piiKpi('\uD83D\uDCC2', total,      'Total Documents', '#3498db') +
-        _piiKpi('\uD83D\uDD0D', found,      'PII Detected',    '#9b59b6') +
-        _piiKpi('\uD83D\uDCC8', avgDisplay, 'Avg PII / Doc',   '#e67e22') +
-        _piiKpi('\uD83D\uDCAF', richDisplay,'PII Richness',    '#1abc9c') +
-    '</div>';
-
-    // ── Tabs ──
-    html += '<div class="pii-tabs">'+
-        '<button class="pii-tab pii-tab-active" data-tab="detail">\uD83D\uDCCB Detailed PII Data</button>'+
-        '<button class="pii-tab" data-tab="analytics">\uD83D\uDCCA Analytics</button>'+
-    '</div>';
-
-    // ── DETAIL TAB: Excel-like table ──
-    html += '<div class="pii-tab-pane" id="pii-tab-detail">';
-    html += '<div class="pii-tbl-toolbar">'+
-        '<button class="pii-csv-btn" onclick="_piiExportCsv()">\u2B07 Export CSV</button>'+
-        '<span class="pii-tbl-count">' + flatRows.length + ' document(s) &bull; ' + headers.length + ' column(s)</span>'+
-    '</div>';
-    if (flatRows.length > 0 && headers.length > 0) {
-        html += '<div class="pii-tbl-wrap"><table class="pii-tbl"><thead><tr>';
-        headers.forEach(function(h) { html += '<th>' + escapeHtml(h.replace(/_/g,' ')) + '</th>'; });
-        html += '</tr></thead><tbody>';
-        flatRows.forEach(function(row, i) {
-            html += '<tr class="' + (i%2===0?'pii-tr-even':'pii-tr-odd') + '">';
-            headers.forEach(function(h) {
-                var v = String(row[h] == null ? '' : row[h]);
-                html += '<td title="' + escapeHtml(v) + '">' + escapeHtml(v) + '</td>';
-            });
-            html += '</tr>';
-        });
-        html += '</tbody></table></div>';
-    } else {
-        html += '<div class="pii-raw"><pre>' + escapeHtml(JSON.stringify(data, null, 2)) + '</pre></div>';
-    }
-    html += '</div>';
-
-    // ── ANALYTICS TAB ──
-    html += '<div class="pii-tab-pane pii-tab-hidden" id="pii-tab-analytics">';
-    html += '<div class="pii-gauge-section"><div class="pii-gauge-head"><span>Risk Exposure Meter</span><span>' + score + ' / 100</span></div><div class="pii-gauge-track"><div class="pii-gauge-bar" data-w="' + score + '" style="width:0%;background:linear-gradient(90deg,' + rc + ',' + (rl==='high'?'#ff6b6b':rl==='medium'?'#ffd166':'#06d6a0') + ')"></div></div><div class="pii-gauge-ticks"><span>Low</span><span>Medium</span><span>High</span><span>Critical</span></div></div>';
-    if (cats.length > 0) {
-        html += '<div class="pii-charts-row"><div class="pii-chart-card"><div class="pii-chart-head">\uD83E\uDD67 PII Distribution</div><canvas id="pii-donut"></canvas></div><div class="pii-chart-card"><div class="pii-chart-head">\uD83D\uDCCA Occurrences by Type</div><canvas id="pii-bar"></canvas></div></div>';
-    }
-    html += '<div class="pii-section-head">\uD83D\uDCCB Detected PII Categories</div>';
-    if (cats.length > 0) {
-        var maxCnt = Math.max.apply(null, cats.map(function(c){ return c.count||c.occurrences||1; }));
-        html += '<div class="pii-cat-list">';
-        cats.forEach(function(cat) {
-            var key  = (cat.type||cat.name||'').toLowerCase().replace(/[\s\-]+/g,'_');
-            var meta = PII_META[key] || { icon: '\uD83D\uDCC4', color: '#607d8b' };
-            var cnt  = cat.count||cat.occurrences||0;
-            var sev  = cat.severity||(cnt>50?'high':cnt>10?'medium':'low');
-            var pct  = Math.round((cnt/Math.max(maxCnt,1))*100);
-            html += '<div class="pii-cat-row"><div class="pii-cat-l"><span class="pii-cat-ico">' + meta.icon + '</span><span class="pii-cat-nm">' + escapeHtml(cat.type||cat.name||'Unknown') + '</span></div><div class="pii-cat-bar-wrap"><div class="pii-cat-bar" data-w="' + pct + '" style="width:0%;background:' + meta.color + '"></div></div><div class="pii-cat-r"><span class="pii-cat-cnt">' + cnt + '</span><span class="pii-sev pii-sev-' + sev + '">' + sev.toUpperCase() + '</span></div></div>';
-        });
-        html += '</div>';
-    } else {
-        html += '<p style="color:#999;font-size:13px;padding:12px 0">No category breakdown available from API.</p>';
-    }
-    html += '</div>';
-
-    $('#' + targetId).fadeOut(180, function() {
-        var $self = $(this);
-        try {
-            $self.html(html).fadeIn(280);
-            // Re-enable the generate button (PII report page)
-            $('#pii-gen-btn').prop('disabled', false)
-                .html('<i class="bi-shield-shaded"></i>&nbsp;Generate Report');
-
-            // Tab switching
-            $(document).off('click.piitab').on('click.piitab', '.pii-tab', function() {
-                var tab = $(this).data('tab');
-                $('.pii-tab').removeClass('pii-tab-active');
-                $(this).addClass('pii-tab-active');
-                $('.pii-tab-pane').addClass('pii-tab-hidden');
-                $('#pii-tab-' + tab).removeClass('pii-tab-hidden');
-                // Render charts when analytics tab becomes visible
-                if (tab === 'analytics' && cats.length > 0 && typeof Chart !== 'undefined' && !_piiCharts.length) {
-                    _piiBuildCharts(cats, PII_META);
-                }
-            });
-
-            // Animate KPI counters
-            $('.pii-kpi-val[data-target]').each(function() {
-                var $el = $(this), raw = $el.data('target'), t = parseFloat(raw) || 0;
-                var isFloat = String(raw).indexOf('.') >= 0;
-                $({ n: 0 }).animate({ n: t }, { duration: 1400, easing: 'swing',
-                    step: function() { $el.text(isFloat ? this.n.toFixed(2) : Math.round(this.n)); },
-                    complete: function() { $el.text(isFloat ? t.toFixed(2) : t); }
+        // ── Compute KPIs from actual detect data ──
+        var catMap = {};
+        var piiItemsTotal = 0, piiDocCount = 0;
+        rows.forEach(function (r) {
+            var docPii = parseInt(r.pii_count || r.total_pii || r.count || 0) || 0;
+            var entities = r.pii_entities || r.entities || r.pii_types || r.detections || [];
+            if (Array.isArray(entities)) {
+                if (!docPii) docPii = entities.length;
+                entities.forEach(function (e) {
+                    var t = (typeof e === 'string' ? e : (e.type || e.pii_type || e.entity_type || 'unknown')).toLowerCase();
+                    catMap[t] = (catMap[t] || 0) + 1;
                 });
-            });
-        } catch(cbErr) {
-            // Ensure element never stays permanently hidden if callback throws
-            $self.show();
+            }
+            if (docPii > 0) { piiDocCount++; piiItemsTotal += docPii; }
+        });
+
+        var cats = data.categories || data.pii_types || avg.categories || rich.categories || [];
+        if (!Object.keys(catMap).length && cats.length) {
+            cats.forEach(function (c) { catMap[(c.type || c.name || 'unknown').toLowerCase()] = c.count || c.occurrences || 0; });
+            piiItemsTotal = cats.reduce(function (s, c) { return s + (c.count || c.occurrences || 0); }, 0);
         }
-    });
-    } catch(renderErr) {
+        if (!cats.length && Object.keys(catMap).length) {
+            cats = Object.keys(catMap).sort(function (a, b) { return catMap[b] - catMap[a]; }).map(function (k) { return { type: k, count: catMap[k] }; });
+        }
+
+        var total = data.total_documents || data.total || avg.total_documents || avg.total || rows.length || 0;
+        var found = data.pii_found || data.pii_count || avg.pii_found || piiDocCount || 0;
+        var avgPii = avg.average_pii_per_doc || avg.average || avg.avg || data.average_pii_per_doc || 0;
+        if ((!avgPii || avgPii === 0) && piiItemsTotal && total) avgPii = (piiItemsTotal / total);
+        var richVal = rich.richness || rich.richness_score || rich.score || data.richness || 0;
+        var score = data.risk_score != null ? data.risk_score : rich.risk_score != null ? rich.risk_score : avg.risk_score != null ? avg.risk_score : (found > 0 ? Math.min(100, Math.round((found / Math.max(total, 1)) * 150)) : 0);
+        score = Math.min(100, Math.max(0, parseInt(score) || 0));
+        var rl = score >= 70 ? 'high' : score >= 30 ? 'medium' : 'low';
+        var rc = SEVC[rl];
+        var rEmoji = rl === 'high' ? '\uD83D\uDEA8' : rl === 'medium' ? '\u26A0\uFE0F' : '\u2705';
+        var avgDisplay = (typeof avgPii === 'number' ? avgPii.toFixed(2) : String(avgPii || '0.00'));
+        var richDisplay = (typeof richVal === 'number' ? richVal.toFixed(2) : String(richVal || '0.00'));
+
+        // ── API status bar ──
+        var apiBar = [
+            results.detect ? '<span class="pii-api-ok">\u2713 detect</span>' : '<span class="pii-api-err">\u2717 detect</span>',
+            results.average ? '<span class="pii-api-ok">\u2713 avg_pii_doc</span>' : '<span class="pii-api-err">\u2717 avg_pii_doc</span>',
+            results.richness ? '<span class="pii-api-ok">\u2713 richness</span>' : '<span class="pii-api-err">\u2717 richness</span>'
+        ].join('');
+
+        var html = '<div class="pii-api-bar">' + apiBar + '</div>';
+        html += '<div class="pii-risk-banner pii-rb-' + rl + '">' + rEmoji + '&nbsp; Risk Level: <strong>' + rl.toUpperCase() + '</strong>&nbsp;&nbsp;<span style="opacity:.75">Score: ' + score + '%</span></div>';
+        html += '<div class="pii-kpi-row">' +
+            _piiKpi('\uD83D\uDCC2', total, 'Total Documents', '#3498db') +
+            _piiKpi('\uD83D\uDD0D', found, 'PII Detected', '#9b59b6') +
+            _piiKpi('\uD83D\uDCC8', avgDisplay, 'Avg PII / Doc', '#e67e22') +
+            _piiKpi('\uD83D\uDCAF', richDisplay, 'PII Richness', '#1abc9c') +
+            '</div>';
+
+        // ── Tabs ──
+        html += '<div class="pii-tabs">' +
+            '<button class="pii-tab pii-tab-active" data-tab="detail">\uD83D\uDCCB Detailed PII Data</button>' +
+            '<button class="pii-tab" data-tab="analytics">\uD83D\uDCCA Analytics</button>' +
+            '</div>';
+
+        // ── DETAIL TAB: Excel-like table ──
+        html += '<div class="pii-tab-pane" id="pii-tab-detail">';
+        html += '<div class="pii-tbl-toolbar">' +
+            '<button class="pii-csv-btn" onclick="_piiExportCsv()">\u2B07 Export CSV</button>' +
+            '<span class="pii-tbl-count">' + flatRows.length + ' document(s) &bull; ' + headers.length + ' column(s)</span>' +
+            '</div>';
+        if (flatRows.length > 0 && headers.length > 0) {
+            html += '<div class="pii-tbl-wrap"><table class="pii-tbl"><thead><tr>';
+            headers.forEach(function (h) { html += '<th>' + escapeHtml(h.replace(/_/g, ' ')) + '</th>'; });
+            html += '</tr></thead><tbody>';
+            flatRows.forEach(function (row, i) {
+                html += '<tr class="' + (i % 2 === 0 ? 'pii-tr-even' : 'pii-tr-odd') + '">';
+                headers.forEach(function (h) {
+                    var v = String(row[h] == null ? '' : row[h]);
+                    html += '<td title="' + escapeHtml(v) + '">' + escapeHtml(v) + '</td>';
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+        } else {
+            html += '<div class="pii-raw"><pre>' + escapeHtml(JSON.stringify(data, null, 2)) + '</pre></div>';
+        }
+        html += '</div>';
+
+        // ── ANALYTICS TAB ──
+        html += '<div class="pii-tab-pane pii-tab-hidden" id="pii-tab-analytics">';
+        html += '<div class="pii-gauge-section"><div class="pii-gauge-head"><span>Risk Exposure Meter</span><span>' + score + ' / 100</span></div><div class="pii-gauge-track"><div class="pii-gauge-bar" data-w="' + score + '" style="width:0%;background:linear-gradient(90deg,' + rc + ',' + (rl === 'high' ? '#ff6b6b' : rl === 'medium' ? '#ffd166' : '#06d6a0') + ')"></div></div><div class="pii-gauge-ticks"><span>Low</span><span>Medium</span><span>High</span><span>Critical</span></div></div>';
+        if (cats.length > 0) {
+            html += '<div class="pii-charts-row"><div class="pii-chart-card"><div class="pii-chart-head">\uD83E\uDD67 PII Distribution</div><canvas id="pii-donut"></canvas></div><div class="pii-chart-card"><div class="pii-chart-head">\uD83D\uDCCA Occurrences by Type</div><canvas id="pii-bar"></canvas></div></div>';
+        }
+        html += '<div class="pii-section-head">\uD83D\uDCCB Detected PII Categories</div>';
+        if (cats.length > 0) {
+            var maxCnt = Math.max.apply(null, cats.map(function (c) { return c.count || c.occurrences || 1; }));
+            html += '<div class="pii-cat-list">';
+            cats.forEach(function (cat) {
+                var key = (cat.type || cat.name || '').toLowerCase().replace(/[\s\-]+/g, '_');
+                var meta = PII_META[key] || { icon: '\uD83D\uDCC4', color: '#607d8b' };
+                var cnt = cat.count || cat.occurrences || 0;
+                var sev = cat.severity || (cnt > 50 ? 'high' : cnt > 10 ? 'medium' : 'low');
+                var pct = Math.round((cnt / Math.max(maxCnt, 1)) * 100);
+                html += '<div class="pii-cat-row"><div class="pii-cat-l"><span class="pii-cat-ico">' + meta.icon + '</span><span class="pii-cat-nm">' + escapeHtml(cat.type || cat.name || 'Unknown') + '</span></div><div class="pii-cat-bar-wrap"><div class="pii-cat-bar" data-w="' + pct + '" style="width:0%;background:' + meta.color + '"></div></div><div class="pii-cat-r"><span class="pii-cat-cnt">' + cnt + '</span><span class="pii-sev pii-sev-' + sev + '">' + sev.toUpperCase() + '</span></div></div>';
+            });
+            html += '</div>';
+        } else {
+            html += '<p style="color:#999;font-size:13px;padding:12px 0">No category breakdown available from API.</p>';
+        }
+        html += '</div>';
+
+        $('#' + targetId).fadeOut(180, function () {
+            var $self = $(this);
+            try {
+                $self.html(html).fadeIn(280);
+                // Re-enable the generate button (PII report page)
+                $('#pii-gen-btn').prop('disabled', false)
+                    .html('<i class="bi-shield-shaded"></i>&nbsp;Generate Report');
+
+                // Tab switching
+                $(document).off('click.piitab').on('click.piitab', '.pii-tab', function () {
+                    var tab = $(this).data('tab');
+                    $('.pii-tab').removeClass('pii-tab-active');
+                    $(this).addClass('pii-tab-active');
+                    $('.pii-tab-pane').addClass('pii-tab-hidden');
+                    $('#pii-tab-' + tab).removeClass('pii-tab-hidden');
+                    // Render charts when analytics tab becomes visible
+                    if (tab === 'analytics' && cats.length > 0 && typeof Chart !== 'undefined' && !_piiCharts.length) {
+                        _piiBuildCharts(cats, PII_META);
+                    }
+                });
+
+                // Animate KPI counters
+                $('.pii-kpi-val[data-target]').each(function () {
+                    var $el = $(this), raw = $el.data('target'), t = parseFloat(raw) || 0;
+                    var isFloat = String(raw).indexOf('.') >= 0;
+                    $({ n: 0 }).animate({ n: t }, {
+                        duration: 1400, easing: 'swing',
+                        step: function () { $el.text(isFloat ? this.n.toFixed(2) : Math.round(this.n)); },
+                        complete: function () { $el.text(isFloat ? t.toFixed(2) : t); }
+                    });
+                });
+            } catch (cbErr) {
+                // Ensure element never stays permanently hidden if callback throws
+                $self.show();
+            }
+        });
+    } catch (renderErr) {
         // If rendering fails for any reason, show raw JSON instead of disappearing
         _showRaw('Render error (showing raw API data)', renderErr);
     }
 }
 
 function _piiBuildCharts(cats, PII_META) {
-    var labels = cats.map(function(c) { return c.type||c.name||'Unknown'; });
-    var counts = cats.map(function(c) { return c.count||c.occurrences||0; });
-    var colors = cats.map(function(c) { var k=(c.type||c.name||'').toLowerCase().replace(/[\s\-]+/g,'_'); return (PII_META[k]||{color:'#607d8b'}).color; });
-    setTimeout(function() {
+    var labels = cats.map(function (c) { return c.type || c.name || 'Unknown'; });
+    var counts = cats.map(function (c) { return c.count || c.occurrences || 0; });
+    var colors = cats.map(function (c) { var k = (c.type || c.name || '').toLowerCase().replace(/[\s\-]+/g, '_'); return (PII_META[k] || { color: '#607d8b' }).color; });
+    setTimeout(function () {
         $('.pii-gauge-bar[data-w]').animate({ width: $('.pii-gauge-bar').data('w') + '%' }, 1100);
-        $('.pii-cat-bar[data-w]').each(function(i) { var $b=$(this); setTimeout(function(){ $b.animate({ width: $b.data('w')+'%' }, 500); }, i*90); });
+        $('.pii-cat-bar[data-w]').each(function (i) { var $b = $(this); setTimeout(function () { $b.animate({ width: $b.data('w') + '%' }, 500); }, i * 90); });
         var dc = document.getElementById('pii-donut');
         if (dc) _piiCharts.push(new Chart(dc, { type: 'doughnut', data: { labels: labels, datasets: [{ data: counts, backgroundColor: colors, borderWidth: 3, borderColor: '#fff', hoverOffset: 12 }] }, options: { responsive: true, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 8, boxWidth: 10 } } }, animation: { animateRotate: true, duration: 1000 } } }));
         var bc = document.getElementById('pii-bar');
@@ -673,10 +674,10 @@ function _piiBuildCharts(cats, PII_META) {
 function sendTemplateQuestion(event, type) {
     event.preventDefault();
     var questions = {
-        'responsive':  'Which documents are responsive to the legal matter?',
-        'privileged':  'Which documents may be legally privileged?',
+        'responsive': 'Which documents are responsive to the legal matter?',
+        'privileged': 'Which documents may be legally privileged?',
         'smoking_gun': 'Are there any smoking gun documents in this case?',
-        'timeline':    'What is the timeline of key events in this case?',
+        'timeline': 'What is the timeline of key events in this case?',
         'key_parties': 'Who are the key parties and what are their roles in this case?'
     };
     var q = questions[type] || type;
@@ -699,7 +700,7 @@ function generatePiiReport() {
             if (pm && pm[1] !== '0') numericCaseId = pm[1];
         }
     }
-    _piiCharts.forEach(function(c) { try { c.destroy(); } catch(e){} });
+    _piiCharts.forEach(function (c) { try { c.destroy(); } catch (e) { } });
     _piiCharts = [];
     var $area = $('#pii-report-area');
     if (!numericCaseId) {
@@ -725,7 +726,7 @@ function generatePiiReport() {
             caseName: caseName,
             ts: Date.now()
         }));
-    } catch(e) {}
+    } catch (e) { }
     _piiStartScan(numericCaseId, caseName, 'pii-report-area');
 }
 
@@ -735,12 +736,12 @@ function _piiNotifyTabDone(caseName) {
     document.title = alertTitle;
 
     // Blink the browser tab title every 1.5s
-    var blinkTimer = setInterval(function() {
+    var blinkTimer = setInterval(function () {
         document.title = (document.title === alertTitle) ? origTitle : alertTitle;
     }, 1500);
 
     // When user returns to this tab, render results
-    var onVisible = function() {
+    var onVisible = function () {
         if (!document.hidden) {
             document.removeEventListener('visibilitychange', onVisible);
             clearInterval(blinkTimer);
@@ -769,8 +770,8 @@ function _piiToast(html, duration) {
     duration = duration || 5000;
     var $t = $('<div class="pii-toast"><div class="pii-toast-inner">' + html + '</div></div>');
     $('body').append($t);
-    setTimeout(function() { $t.addClass('pii-toast-show'); }, 10);
-    setTimeout(function() { $t.removeClass('pii-toast-show'); setTimeout(function() { $t.remove(); }, 400); }, duration);
+    setTimeout(function () { $t.addClass('pii-toast-show'); }, 10);
+    setTimeout(function () { $t.removeClass('pii-toast-show'); setTimeout(function () { $t.remove(); }, 400); }, duration);
 }
 
 $(document).ready(function () {
@@ -799,14 +800,16 @@ $(document).ready(function () {
                 var $savedOpt = $('#pii-page-case-select option[value="' + savedDbId + '"]');
                 if ($savedOpt.length) { $savedOpt.prop('selected', true); }
             }
-        } catch(e) {}
+        } catch (e) { }
 
         // 2) When user changes case, update server session via silent AJAX + save to localStorage
-        $('#pii-page-case-select').on('change', function() {
+        $('#pii-page-case-select').on('change', function () {
             var newDbId = $(this).val();
-            try { localStorage.setItem('_piiCaseDbId', newDbId); } catch(e) {}
-            $.ajax({ type: 'POST', url: 'piireport.html',
-                data: { action: 'changecase', id: newDbId }, error: function() {} });
+            try { localStorage.setItem('_piiCaseDbId', newDbId); } catch (e) { }
+            $.ajax({
+                type: 'POST', url: 'piireport.html',
+                data: { action: 'changecase', id: newDbId }, error: function () { }
+            });
         });
 
         // 3a) If a scan was interrupted by page navigation, auto-restart it
@@ -821,7 +824,7 @@ $(document).ready(function () {
                     if ($ipOpt.length) { $ipOpt.prop('selected', true); }
                     _scanResumed = true;
                     _piiToast('\uD83D\uDD04 Resuming interrupted scan &mdash; <strong>' + escapeHtml(ip.caseName) + '</strong>');
-                    setTimeout(function() {
+                    setTimeout(function () {
                         $('#pii-gen-btn').prop('disabled', true).html('<i class="bi-hourglass-split"></i>&nbsp;Scanning&hellip;');
                         $('#pii-report-area').html(_piiScannerHtml());
                         _piiStartScan(ip.numericCaseId, ip.caseName, 'pii-report-area');
@@ -830,7 +833,7 @@ $(document).ready(function () {
                     localStorage.removeItem('_piiScanInProgress');
                 }
             }
-        } catch(e) {}
+        } catch (e) { }
 
         // 3b) Restore last completed scan from localStorage (if < 10 minutes old)
         if (!_scanResumed) {
@@ -839,17 +842,17 @@ $(document).ready(function () {
                 if (saved) {
                     var parsed = JSON.parse(saved);
                     if (parsed && parsed.results && (Date.now() - parsed.ts) < 600000) {
-                        var $matchOpt = $('#pii-page-case-select option').filter(function() {
+                        var $matchOpt = $('#pii-page-case-select option').filter(function () {
                             return $.trim($(this).text()) === parsed.caseName;
                         });
                         if ($matchOpt.length) { $matchOpt.prop('selected', true); }
                         _piiToast('\u26A1 Restoring last scan &mdash; <strong>' + escapeHtml(parsed.caseName) + '</strong>');
-                        setTimeout(function() {
+                        setTimeout(function () {
                             _piiRender(parsed.caseName, parsed.results, 'pii-report-area');
                         }, 600);
                     }
                 }
-            } catch(e) {}
+            } catch (e) { }
         }
     }
 
@@ -861,9 +864,9 @@ $(document).ready(function () {
                 var $csOpt = $('#cs-case-select option[value="' + csDbId + '"]');
                 if ($csOpt.length) $csOpt.prop('selected', true);
             }
-        } catch(e) {}
-        $('#cs-case-select').on('change', function() {
-            try { localStorage.setItem('_csCaseDbId', $(this).val()); } catch(e) {}
+        } catch (e) { }
+        $('#cs-case-select').on('change', function () {
+            try { localStorage.setItem('_csCaseDbId', $(this).val()); } catch (e) { }
         });
     }
 });
@@ -873,30 +876,46 @@ $(document).ready(function () {
 ═══════════════════════════════════════════════════════════════ */
 
 var CS_CATEGORIES = [
-    { id: 'actors',        icon: '\uD83D\uDC65', label: 'Actors & Identity',         color: '#3498db',
-      question: 'Who are all the actors (senders, recipients, authors, signers) in this case? Identify aliases, name variants, shared accounts. Classify actors as internal, external, or unknown. Which appear only once vs consistently? List the most important actors and explain why each matters for the investigation.' },
-    { id: 'relationships', icon: '\uD83D\uDD17', label: 'Relationships & Connections', color: '#9b59b6',
-      question: 'What connections exist between actors? Who communicates with whom and how often? Is communication one-way or reciprocal? How strong are connections by frequency, duration, and topic? Who are the most central, influential, or controlling actors — who initiates, approves, or bridges different groups?' },
-    { id: 'groups',        icon: '\uD83C\uDFE2', label: 'Groups & Structure',          color: '#e67e22',
-      question: 'What clusters or groups emerge from the documents? Identify formal teams vs informal groups, internal vs external clusters, stable vs temporary groupings. Are there silos or isolated sub-networks? Who communicates outside normal channels? Flag any red-flag structural patterns.' },
-    { id: 'timeline',      icon: '\uD83D\uDCC5', label: 'Time & Change',               color: '#27ae60',
-      question: 'How do relationships and actor roles evolve over time? When do new actors appear or disappear? When do connections intensify or dissolve? Do changes correlate with key events? Who becomes more or less influential over time? Are there leadership shifts, sudden delegation, or crisis behavior patterns?' },
-    { id: 'topics',        icon: '\uD83D\uDCA1', label: 'Topics, Events & Intent',    color: '#f39c12',
-      question: 'What topics connect actors? What events can be inferred — decisions, approvals, incidents, transactions? Provide a chronological event timeline with supporting documents. Who knew what and when? Identify earliest mentions of key issues, who was informed first, and who was informed late or excluded.' },
-    { id: 'behavior',      icon: '\u26A0\uFE0F',  label: 'Behavior & Anomalies',       color: '#e74c3c',
-      question: 'Are there behavioral anomalies? Identify: communication outside normal hierarchy, sudden volume spikes, unusual after-hours activity, use of personal or external channels. Are there missing or silent actors who should have been present? Are there signs of attempts to obscure activity — vague language, increased use of attachments, sudden switches to informal phrasing?' },
-    { id: 'evidence',      icon: '\uD83D\uDD2C', label: 'Evidence & Confidence',      color: '#1abc9c',
-      question: 'What specific evidence (documents, metadata, text excerpts, frequency counts) supports the main conclusions? For each key finding rate confidence as High, Medium, or Low and explain the reasoning. Identify conflicting signals and alternative interpretations. Format as: Finding | Confidence: High/Medium/Low | Evidence: [details]' },
-    { id: 'review',        icon: '\uD83C\uDFAF', label: 'Review & Actionability',     color: '#e91e63',
-      question: 'What actors or relationships should be prioritized for human review — high influence combined with sensitive topics, anomalous behavior, or central connectors? What follow-up questions should a reviewer ask? Which documents or time periods need deeper review? What hypotheses does the data support: coordination vs coincidence, awareness vs ignorance, policy compliance vs deviation?' }
+    {
+        id: 'actors', icon: '\uD83D\uDC65', label: 'Actors & Identity', color: '#3498db',
+        question: 'Who are all the actors (senders, recipients, authors, signers) in this case? Identify aliases, name variants, shared accounts. Classify actors as internal, external, or unknown. Which appear only once vs consistently? List the most important actors and explain why each matters for the investigation.'
+    },
+    {
+        id: 'relationships', icon: '\uD83D\uDD17', label: 'Relationships & Connections', color: '#9b59b6',
+        question: 'What connections exist between actors? Who communicates with whom and how often? Is communication one-way or reciprocal? How strong are connections by frequency, duration, and topic? Who are the most central, influential, or controlling actors — who initiates, approves, or bridges different groups?'
+    },
+    {
+        id: 'groups', icon: '\uD83C\uDFE2', label: 'Groups & Structure', color: '#e67e22',
+        question: 'What clusters or groups emerge from the documents? Identify formal teams vs informal groups, internal vs external clusters, stable vs temporary groupings. Are there silos or isolated sub-networks? Who communicates outside normal channels? Flag any red-flag structural patterns.'
+    },
+    {
+        id: 'timeline', icon: '\uD83D\uDCC5', label: 'Time & Change', color: '#27ae60',
+        question: 'How do relationships and actor roles evolve over time? When do new actors appear or disappear? When do connections intensify or dissolve? Do changes correlate with key events? Who becomes more or less influential over time? Are there leadership shifts, sudden delegation, or crisis behavior patterns?'
+    },
+    {
+        id: 'topics', icon: '\uD83D\uDCA1', label: 'Topics, Events & Intent', color: '#f39c12',
+        question: 'What topics connect actors? What events can be inferred — decisions, approvals, incidents, transactions? Provide a chronological event timeline with supporting documents. Who knew what and when? Identify earliest mentions of key issues, who was informed first, and who was informed late or excluded.'
+    },
+    {
+        id: 'behavior', icon: '\u26A0\uFE0F', label: 'Behavior & Anomalies', color: '#e74c3c',
+        question: 'Are there behavioral anomalies? Identify: communication outside normal hierarchy, sudden volume spikes, unusual after-hours activity, use of personal or external channels. Are there missing or silent actors who should have been present? Are there signs of attempts to obscure activity — vague language, increased use of attachments, sudden switches to informal phrasing?'
+    },
+    {
+        id: 'evidence', icon: '\uD83D\uDD2C', label: 'Evidence & Confidence', color: '#1abc9c',
+        question: 'What specific evidence (documents, metadata, text excerpts, frequency counts) supports the main conclusions? For each key finding rate confidence as High, Medium, or Low and explain the reasoning. Identify conflicting signals and alternative interpretations. Format as: Finding | Confidence: High/Medium/Low | Evidence: [details]'
+    },
+    {
+        id: 'review', icon: '\uD83C\uDFAF', label: 'Review & Actionability', color: '#e91e63',
+        question: 'What actors or relationships should be prioritized for human review — high influence combined with sensitive topics, anomalous behavior, or central connectors? What follow-up questions should a reviewer ask? Which documents or time periods need deeper review? What hypotheses does the data support: coordination vs coincidence, awareness vs ignorance, policy compliance vs deviation?'
+    }
 ];
 
 function generateCaseSummary() {
-    var $select    = $('#cs-case-select');
+    var $select = $('#cs-case-select');
     var selectedOpt = $select.find('option:selected');
-    var caseName   = $.trim(selectedOpt.text()) || 'Unknown Case';
-    var caseDbId   = selectedOpt.val();
-    var projectId  = selectedOpt.data('project-id');
+    var caseName = $.trim(selectedOpt.text()) || 'Unknown Case';
+    var caseDbId = selectedOpt.val();
+    var projectId = selectedOpt.data('project-id');
 
     var numericCaseId = null;
     var nm = caseName.match(/case_?(\d+)$/i);
@@ -913,17 +932,17 @@ function generateCaseSummary() {
         return;
     }
 
-    try { localStorage.setItem('_csCaseDbId', String(caseDbId)); } catch(e) {}
+    try { localStorage.setItem('_csCaseDbId', String(caseDbId)); } catch (e) { }
 
     $('#cs-analyze-btn').prop('disabled', true).html('<i class="bi-hourglass-split"></i>&nbsp;Analyzing\u2026');
     $('#cs-report-area').html(_csScannerHtml(caseName));
 
-    var results   = {};
+    var results = {};
     var doneCount = 0;
-    var errCount  = 0;
-    var total     = CS_CATEGORIES.length;
+    var errCount = 0;
+    var total = CS_CATEGORIES.length;
 
-    CS_CATEGORIES.forEach(function(cat, idx) {
+    CS_CATEGORIES.forEach(function (cat, idx) {
         _csDotState(idx, 'active', 'Analyzing\u2026');
         $.ajax({
             type: 'GET',
@@ -931,21 +950,21 @@ function generateCaseSummary() {
             data: { question: cat.question, case_id: String(numericCaseId) },
             dataType: 'json',
             timeout: 120000,
-            success: function(d) {
+            success: function (d) {
                 results[cat.id] = d;
                 _csDotState(idx, 'done', '\u2713 Done');
             },
-            error: function() {
+            error: function () {
                 results[cat.id] = { answer: null, sources: [] };
                 errCount++;
                 _csDotState(idx, 'err', '\u2717 Error');
             },
-            complete: function() {
+            complete: function () {
                 doneCount++;
                 _csProgSet(Math.round((doneCount / total) * 100));
                 _csRenderCard(cat, results[cat.id], caseDbId);
                 if (doneCount === total) {
-                    setTimeout(function() { _csFinalise(caseName, total, errCount); }, 500);
+                    setTimeout(function () { _csFinalise(caseName, total, errCount); }, 500);
                 }
             }
         });
@@ -954,12 +973,12 @@ function generateCaseSummary() {
 
 function _csScannerHtml(caseName) {
     var stepsHtml = '';
-    CS_CATEGORIES.forEach(function(cat, i) {
+    CS_CATEGORIES.forEach(function (cat, i) {
         stepsHtml +=
             '<div class="cs-step" id="cs-step-' + i + '">' +
-                '<div class="cs-dot" id="cs-dot-' + i + '"></div>' +
-                '<span class="cs-step-label">' + cat.icon + '\u00a0' + escapeHtml(cat.label) + '</span>' +
-                '<span class="cs-step-status" id="cs-ss-' + i + '">Queued</span>' +
+            '<div class="cs-dot" id="cs-dot-' + i + '"></div>' +
+            '<span class="cs-step-label">' + cat.icon + '\u00a0' + escapeHtml(cat.label) + '</span>' +
+            '<span class="cs-step-status" id="cs-ss-' + i + '">Queued</span>' +
             '</div>';
     });
     return '<div class="cs-scanner">' +
@@ -968,8 +987,8 @@ function _csScannerHtml(caseName) {
         '<div class="cs-prog-wrap"><div class="cs-prog-bar" id="cs-prog-bar"></div></div>' +
         '<span class="cs-prog-pct" id="cs-prog-pct">0% complete</span>' +
         '<div class="cs-steps">' + stepsHtml + '</div>' +
-    '</div>' +
-    '<div class="cs-grid" id="cs-cards-grid" style="margin-top:20px"></div>';
+        '</div>' +
+        '<div class="cs-grid" id="cs-cards-grid" style="margin-top:20px"></div>';
 }
 
 function _csDotState(i, state, txt) {
@@ -984,27 +1003,27 @@ function _csProgSet(pct) {
 }
 
 function _csRenderCard(cat, data, caseDbId) {
-    var answer  = (data && data.answer)  ? data.answer  : null;
+    var answer = (data && data.answer) ? data.answer : null;
     var sources = (data && data.sources && data.sources.length) ? data.sources : [];
 
     // Detect confidence level from AI response text
     var conf = 'medium';
     if (answer) {
         var al = answer.toLowerCase();
-        if      (/confidence:\s*high/i.test(al) || /\bhigh confidence\b/i.test(al))                        conf = 'high';
-        else if (/confidence:\s*low/i.test(al)  || /\blow confidence\b|\buncertain\b|\blimited evidence\b/i.test(al)) conf = 'low';
+        if (/confidence:\s*high/i.test(al) || /\bhigh confidence\b/i.test(al)) conf = 'high';
+        else if (/confidence:\s*low/i.test(al) || /\blow confidence\b|\buncertain\b|\blimited evidence\b/i.test(al)) conf = 'low';
     } else {
         conf = 'error';
     }
 
     var confLabels = { high: 'High Confidence', medium: 'Medium Confidence', low: 'Low Confidence', error: 'Unavailable' };
-    var bodyHtml   = answer ? _csFormatAnswer(answer)
+    var bodyHtml = answer ? _csFormatAnswer(answer)
         : '<div style="color:#c0392b;font-size:12px">\u26A0\uFE0F Analysis unavailable — AI backend may be offline or case has no indexed documents.</div>';
 
     var srcHtml = '';
     if (sources.length) {
         srcHtml = '<div class="cs-card-sources"><span class="cs-src-lbl">Sources</span>';
-        sources.forEach(function(src) {
+        sources.forEach(function (src) {
             var href = getCurrentUrl() + '/search.html?caseid=' + encodeURIComponent(caseDbId) + '&query=UPI:' + encodeURIComponent(src);
             srcHtml += '<a class="cs-src-pill" href="' + href + '" target="_blank">' + escapeHtml(String(src)) + '</a>';
         });
@@ -1013,28 +1032,28 @@ function _csRenderCard(cat, data, caseDbId) {
 
     var cardHtml =
         '<div class="cs-card" id="cs-card-' + cat.id + '" style="--cat-color:' + cat.color + ';opacity:0;transform:translateY(14px)">' +
-            '<div class="cs-card-head">' +
-                '<span class="cs-card-ico">' + cat.icon + '</span>' +
-                '<span class="cs-card-label">' + escapeHtml(cat.label) + '</span>' +
-                '<span class="cs-card-conf cs-conf-' + conf + '">' + (confLabels[conf] || 'Medium Confidence') + '</span>' +
-            '</div>' +
-            '<div class="cs-card-body">' + bodyHtml + '</div>' +
-            srcHtml +
+        '<div class="cs-card-head">' +
+        '<span class="cs-card-ico">' + cat.icon + '</span>' +
+        '<span class="cs-card-label">' + escapeHtml(cat.label) + '</span>' +
+        '<span class="cs-card-conf cs-conf-' + conf + '">' + (confLabels[conf] || 'Medium Confidence') + '</span>' +
+        '</div>' +
+        '<div class="cs-card-body">' + bodyHtml + '</div>' +
+        srcHtml +
         '</div>';
 
     $('#cs-cards-grid').append(cardHtml);
     // Animate card in
-    setTimeout(function() {
+    setTimeout(function () {
         $('#cs-card-' + cat.id).css({ opacity: 1, transform: 'translateY(0)' });
     }, 40);
 }
 
 function _csFormatAnswer(raw) {
-    var lines  = String(raw).split('\n');
-    var html   = '';
+    var lines = String(raw).split('\n');
+    var html = '';
     var inList = false;
-    lines.forEach(function(line) {
-        var esc = line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    lines.forEach(function (line) {
+        var esc = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         // Bold **text**
         esc = esc.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
         // Italic *text* (simple non-greedy)
@@ -1042,9 +1061,9 @@ function _csFormatAnswer(raw) {
         // Strip leading ### headings
         esc = esc.replace(/^#{1,3}\s+/, '');
         // Inline confidence badges
-        esc = esc.replace(/Confidence:\s*High/gi,   'Confidence: <span class="cs-inline-conf cs-conf-high">High</span>');
+        esc = esc.replace(/Confidence:\s*High/gi, 'Confidence: <span class="cs-inline-conf cs-conf-high">High</span>');
         esc = esc.replace(/Confidence:\s*Medium/gi, 'Confidence: <span class="cs-inline-conf cs-conf-medium">Medium</span>');
-        esc = esc.replace(/Confidence:\s*Low/gi,    'Confidence: <span class="cs-inline-conf cs-conf-low">Low</span>');
+        esc = esc.replace(/Confidence:\s*Low/gi, 'Confidence: <span class="cs-inline-conf cs-conf-low">Low</span>');
 
         var trimmed = $.trim(esc);
         var isBullet = /^[-\u2022]\s/.test(trimmed) || /^\d+\.\s/.test(trimmed);
@@ -1075,24 +1094,24 @@ function _csFinalise(caseName, total, errCount) {
     // Insert dark overview banner before the cards
     var ovHtml =
         '<div class="cs-overview" id="cs-overview" style="display:none">' +
-            '<div class="cs-ov-icon">\uD83E\uDDE0</div>' +
-            '<div class="cs-ov-body">' +
-                '<div class="cs-ov-eyebrow">Case Intelligence Summary</div>' +
-                '<div class="cs-ov-name">' + escapeHtml(caseName) + '</div>' +
-                '<div class="cs-ov-meta">' + total + ' dimensions analyzed &mdash; ' + new Date().toLocaleTimeString() + '</div>' +
-            '</div>' +
-            '<div class="cs-ov-pills">' +
-                '<span class="cs-ov-pill ok">\u2713 ' + okCount + ' section' + (okCount !== 1 ? 's' : '') + '</span>' +
-                (errCount ? '<span class="cs-ov-pill err">\u2717 ' + errCount + ' error' + (errCount !== 1 ? 's' : '') + '</span>' : '') +
-            '</div>' +
+        '<div class="cs-ov-icon">\uD83E\uDDE0</div>' +
+        '<div class="cs-ov-body">' +
+        '<div class="cs-ov-eyebrow">Case Intelligence Summary</div>' +
+        '<div class="cs-ov-name">' + escapeHtml(caseName) + '</div>' +
+        '<div class="cs-ov-meta">' + total + ' dimensions analyzed &mdash; ' + new Date().toLocaleTimeString() + '</div>' +
+        '</div>' +
+        '<div class="cs-ov-pills">' +
+        '<span class="cs-ov-pill ok">\u2713 ' + okCount + ' section' + (okCount !== 1 ? 's' : '') + '</span>' +
+        (errCount ? '<span class="cs-ov-pill err">\u2717 ' + errCount + ' error' + (errCount !== 1 ? 's' : '') + '</span>' : '') +
+        '</div>' +
         '</div>';
 
     var actionHtml =
         '<div class="cs-action-bar" id="cs-action-bar">' +
-            '<div class="cs-action-meta">Analysis complete for <strong>' + escapeHtml(caseName) + '</strong></div>' +
-            '<div class="cs-action-btns">' +
-                '<button class="cs-action-btn" onclick="window.print()"><i class="bi-printer"></i>&nbsp;Print Report</button>' +
-            '</div>' +
+        '<div class="cs-action-meta">Analysis complete for <strong>' + escapeHtml(caseName) + '</strong></div>' +
+        '<div class="cs-action-btns">' +
+        '<button class="cs-action-btn" onclick="window.print()"><i class="bi-printer"></i>&nbsp;Print Report</button>' +
+        '</div>' +
         '</div>';
 
     $('#cs-cards-grid').before(ovHtml);

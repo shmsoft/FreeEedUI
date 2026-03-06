@@ -4,11 +4,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Properties;
+import org.freeeed.search.web.configuration.EnvConfig;
 
 /**
  * Proxies PII analysis requests to the AI Advisor backend.
@@ -49,31 +52,8 @@ public class PiiProxyServlet extends HttpServlet {
             return;
         }
 
-        // Read PORT from ~/.freeeed/.env; fall back to 8000
-        String piiPort = "8000";
-        File envFile = new File(System.getProperty("user.home") + "/.freeeed/.env");
-        if (envFile.exists()) {
-            Properties envProps = new Properties();
-            FileInputStream fis = null;
-            try {
-                fis = new FileInputStream(envFile);
-                envProps.load(fis);
-            } catch (IOException ignored) {
-            } finally {
-                if (fis != null) {
-                    try {
-                        fis.close();
-                    } catch (IOException ignored2) {
-                    }
-                }
-            }
-            String portVal = envProps.getProperty("PORT");
-            if (portVal != null && !portVal.trim().isEmpty()) {
-                piiPort = portVal.trim();
-            }
-        }
-
-        String piiBackendBase = "http://localhost:" + piiPort;
+        // Read PORT from ~/.freeeed/.env via EnvConfig; fall back to 8000
+        String piiBackendBase = EnvConfig.getAiBackendUrl(8000);
         String backendUrl = piiBackendBase + "/advisors/pii/" + action
                 + "?case_id=" + URLEncoder.encode(caseId, "UTF-8");
 

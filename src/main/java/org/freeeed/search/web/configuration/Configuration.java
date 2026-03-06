@@ -23,20 +23,21 @@ import org.freeeed.search.web.model.AppSettings;
  * 
  * Class Configuration.
  * 
- * Implements the lifecycle of the product configuration - saving and loading configuration.
+ * Implements the lifecycle of the product configuration - saving and loading
+ * configuration.
  * 
  * @author ilazarov
  *
  */
 public class Configuration {
     private AppSettingsDao appSettingsDao;
-    
+
     public String getSolrEndpoint() {
         AppSettings appSettings = appSettingsDao.loadSettings();
         if (appSettings != null) {
             return appSettings.getSolrEndpoint();
         }
-        
+
         return "http://localhost:8983";
     }
 
@@ -56,7 +57,7 @@ public class Configuration {
                 return url;
             }
         }
-        return "http://localhost:8000";
+        return EnvConfig.getAiBackendUrl(8000);
     }
 
     public String getApiKey() {
@@ -66,11 +67,13 @@ public class Configuration {
         }
         return "";
     }
+
     public String getUploadFolderPath() {
         AppSettings appSettings = appSettingsDao.loadSettings();
         if (appSettings != null) {
             String v = appSettings.getUploadFolderPath();
-            if (v != null && v.trim().length() > 0) return v;
+            if (v != null && v.trim().length() > 0)
+                return v;
         }
         // Default to user home on macOS/Linux/Windows
         String home = System.getProperty("user.home", ".");
