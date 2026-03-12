@@ -270,7 +270,7 @@ function _piiScannerHtml() {
         '<div class="pii-radar-icon">\uD83D\uDD0D</div>' +
         '</div>' +
         '<div class="pii-scan-title">Scanning for PII Entities\u2026</div>' +
-        '<div class="pii-scan-sub">\u26A1 Calling 3 AI detection APIs in <strong>parallel</strong> \u2014 you can switch tabs</div>' +
+        '<div class="pii-scan-sub">\u26A1 Running 3 AI detection APIs <strong>sequentially</strong> \u2014 you can switch tabs</div>' +
         '<div class="pii-steps-list">' +
         '<div class="pii-step" id="pii-step-0"><div class="pii-dot pii-dot-idle"></div><span class="pii-step-txt">Detecting PII entities</span><span class="pii-step-api">\u2192 /advisors/pii/detect</span></div>' +
         '<div class="pii-step" id="pii-step-1"><div class="pii-dot pii-dot-idle"></div><span class="pii-step-txt">Calculating average PII per doc</span><span class="pii-step-api">\u2192 /advisors/pii/average_pii_doc</span></div>' +
@@ -303,9 +303,7 @@ function _piiStartScan(caseId, caseName, targetId) {
     targetId = targetId || 'pii-body';
     var PROXY = getCurrentUrl() + '/pii-proxy';
     var results = {};
-    var _doneCount = 0;
 
-    // Safe dot-only helpers — don't touch progress bar (we manage it here)
     function _dotOn(i) {
         var $s = $('#pii-step-' + i);
         if ($s.length) {
@@ -320,6 +318,13 @@ function _piiStartScan(caseId, caseName, targetId) {
             $s.find('.pii-step-txt').css({ color: '#27ae60', fontWeight: '700' });
         }
     }
+    function _dotErr(i) {
+        var $s = $('#pii-step-' + i);
+        if ($s.length) {
+            $s.find('.pii-dot').removeClass('pii-dot-idle pii-dot-active').addClass('pii-dot-done');
+            $s.find('.pii-step-txt').css({ color: '#e74c3c', fontWeight: '700' });
+        }
+    }
     function _progSet(pct) {
         if ($('#pii-prog-bar').length) {
             $('#pii-prog-bar').stop(true).animate({ width: pct + '%' }, 280);
@@ -327,63 +332,69 @@ function _piiStartScan(caseId, caseName, targetId) {
         }
     }
 
-    // Activate all 3 API steps simultaneously
-    _dotOn(0); _dotOn(1); _dotOn(2);
-    _progSet(5);
-
-    function _onApiComplete(idx) {
-        _dotOk(idx);
-        _doneCount++;
-        _progSet(Math.min(88, Math.round(_doneCount * 28 + 5)));
-
-        if (_doneCount === 3) {
-            // All 3 parallel calls finished
-            _dotOn(3);
-            // Save to localStorage so page-navigation restores results; clear in-progress marker
-            try {
-                localStorage.setItem('_piiLastScan', JSON.stringify({
-                    caseName: caseName, results: results, ts: Date.now()
-                }));
-                localStorage.removeItem('_piiScanInProgress');
-            } catch (e) { }
-
-            setTimeout(function () {
-                _dotOk(3);
-                _progSet(100);
-                setTimeout(function () {
-                    if (document.hidden) {
-                        // User is in a different browser tab — hold results and notify
-                        _piiPendingResults = { caseName: caseName, results: results, targetId: targetId };
-                        _piiNotifyTabDone(caseName);
-                    } else {
-                        _piiRender(caseName, results, targetId);
-                    }
-                }, 400);
-            }, 500);
-        }
+    // Helper: make one API call, returns a jQuery Deferred
+    function _callApi(action) {
+        var d = $.Deferred();
+        $.ajax({
+            type: 'GET', url: PROXY,
+            data: { action: action, case_id: String(caseId) },
+            dataType: 'json', timeout: 180000,
+            success: function (resp) { d.resolve(resp); },
+            error: function (xhr) { d.resolve({ _error: xhr.responseText || ('HTTP ' + xhr.status) }); }
+        });
+        return d.promise();
     }
 
-    // ── Fire all 3 API calls in parallel ──
-    $.ajax({
-        type: 'GET', url: PROXY,
-        data: { action: 'detect', case_id: String(caseId) }, dataType: 'json', timeout: 90000,
-        success: function (d) { results.detect = d; },
-        error: function (xhr) { results.detectError = xhr.responseText || ('HTTP ' + xhr.status); },
-        complete: function () { _onApiComplete(0); }
-    });
-    $.ajax({
-        type: 'GET', url: PROXY,
-        data: { action: 'average_pii_doc', case_id: String(caseId) }, dataType: 'json', timeout: 90000,
-        success: function (d) { results.average = d; },
-        error: function () { },
-        complete: function () { _onApiComplete(1); }
-    });
-    $.ajax({
-        type: 'GET', url: PROXY,
-        data: { action: 'richness', case_id: String(caseId) }, dataType: 'json', timeout: 90000,
-        success: function (d) { results.richness = d; },
-        error: function () { },
-        complete: function () { _onApiComplete(2); }
+    function _finish() {
+        _dotOn(3);
+        try {
+            localStorage.setItem('_piiLastScan', JSON.stringify({
+                caseName: caseName, results: results, ts: Date.now()
+            }));
+            localStorage.removeItem('_piiScanInProgress');
+        } catch (e) {}
+        setTimeout(function () {
+            _dotOk(3);
+            _progSet(100);
+            setTimeout(function () {
+                if (document.hidden) {
+                    _piiPendingResults = { caseName: caseName, results: results, targetId: targetId };
+                    _piiNotifyTabDone(caseName);
+                } else {
+                    _piiRender(caseName, results, targetId);
+                }
+            }, 400);
+        }, 500);
+    }
+
+    // ── Sequential: detect → average_pii_doc → richness → compile ──
+    _progSet(2);
+
+    // Step 0: detect
+    _dotOn(0);
+    _callApi('detect').then(function (d) {
+        if (d && d._error) { results.detectError = d._error; _dotErr(0); }
+        else { results.detect = d; _dotOk(0); }
+        _progSet(25);
+
+        // Step 1: average_pii_doc
+        _dotOn(1);
+        return _callApi('average_pii_doc');
+    }).then(function (d) {
+        if (d && d._error) { _dotErr(1); }
+        else { results.average = d; _dotOk(1); }
+        _progSet(50);
+
+        // Step 2: richness
+        _dotOn(2);
+        return _callApi('richness');
+    }).then(function (d) {
+        if (d && d._error) { _dotErr(2); }
+        else { results.richness = d; _dotOk(2); }
+        _progSet(75);
+
+        // Step 3: compile report
+        _finish();
     });
 }
 
@@ -505,37 +516,84 @@ function _piiRender(caseName, results, targetId) {
         Object.keys(allKeys).forEach(function (k) { if (headers.indexOf(k) < 0) headers.push(k); });
         _piiTableData.headers = headers;
 
-        // ── Compute KPIs from actual detect data ──
+        // ── Compute KPIs from actual API responses ──
+        // /richness returns: total_documents, documents_with_pii, total_pii_incidents,
+        //   average_density_score, pii_type_frequency, severity_totals,
+        //   overall_richness_rating, pii_coverage_rate
+        // /average_pii_doc returns: total_documents, total_pii_incidents,
+        //   average_pii_per_document, per_document_breakdown
+        // /detect returns: case_id, total_chunks, chunks_analyzed, sources_analyzed, analysis, summary
+
+        // Total documents (source files, not chunks)
+        var total = rich.total_documents || avg.total_documents || data.total_documents || data.total || 0;
+        if (!total && data.sources_analyzed) total = data.sources_analyzed.length || 0;
+        if (!total) total = rows.length || 0;
+
+        // PII detected (documents containing PII)
+        var found = rich.documents_with_pii || rich.total_pii_incidents || avg.total_pii_incidents || data.pii_found || data.pii_count || 0;
+
+        // Average PII per document
+        var avgPii = avg.average_pii_per_document || rich.average_pii_per_document || avg.average || data.average_pii_per_doc || 0;
+
+        // PII richness / density score (0–10)
+        var richVal = rich.average_density_score || rich.pii_density_score || rich.richness || rich.score || data.richness || 0;
+
+        // ── Categories for charts ──
+        // rich.pii_type_frequency is an object {type: count}; convert to array
         var catMap = {};
-        var piiItemsTotal = 0, piiDocCount = 0;
-        rows.forEach(function (r) {
-            var docPii = parseInt(r.pii_count || r.total_pii || r.count || 0) || 0;
-            var entities = r.pii_entities || r.entities || r.pii_types || r.detections || [];
-            if (Array.isArray(entities)) {
-                if (!docPii) docPii = entities.length;
-                entities.forEach(function (e) {
-                    var t = (typeof e === 'string' ? e : (e.type || e.pii_type || e.entity_type || 'unknown')).toLowerCase();
-                    catMap[t] = (catMap[t] || 0) + 1;
+        var typeFreq = rich.pii_type_frequency || data.pii_type_frequency || {};
+        if (typeof typeFreq === 'object' && !Array.isArray(typeFreq)) {
+            Object.keys(typeFreq).forEach(function (k) {
+                catMap[k.toLowerCase()] = typeFreq[k] || 0;
+            });
+        }
+        // Fallback: try per_document_breakdown from avg or per_document_profiles from rich
+        if (!Object.keys(catMap).length) {
+            var profiles = rich.per_document_profiles || avg.per_document_breakdown || [];
+            if (Array.isArray(profiles)) {
+                profiles.forEach(function (p) {
+                    var ptc = p.pii_type_counts || {};
+                    Object.keys(ptc).forEach(function (k) {
+                        catMap[k.toLowerCase()] = (catMap[k.toLowerCase()] || 0) + (ptc[k] || 0);
+                    });
+                    var ptf = p.pii_types_found || [];
+                    if (Array.isArray(ptf)) {
+                        ptf.forEach(function (t) {
+                            var tk = (typeof t === 'string' ? t : (t.type || 'unknown')).toLowerCase();
+                            if (!catMap[tk]) catMap[tk] = (catMap[tk] || 0) + 1;
+                        });
+                    }
                 });
             }
-            if (docPii > 0) { piiDocCount++; piiItemsTotal += docPii; }
-        });
-
+        }
+        // Also try legacy array formats
         var cats = data.categories || data.pii_types || avg.categories || rich.categories || [];
         if (!Object.keys(catMap).length && cats.length) {
             cats.forEach(function (c) { catMap[(c.type || c.name || 'unknown').toLowerCase()] = c.count || c.occurrences || 0; });
-            piiItemsTotal = cats.reduce(function (s, c) { return s + (c.count || c.occurrences || 0); }, 0);
         }
-        if (!cats.length && Object.keys(catMap).length) {
+        // Build sorted cats array from catMap
+        if (Object.keys(catMap).length) {
             cats = Object.keys(catMap).sort(function (a, b) { return catMap[b] - catMap[a]; }).map(function (k) { return { type: k, count: catMap[k] }; });
         }
 
-        var total = data.total_documents || data.total || avg.total_documents || avg.total || rows.length || 0;
-        var found = data.pii_found || data.pii_count || avg.pii_found || piiDocCount || 0;
-        var avgPii = avg.average_pii_per_doc || avg.average || avg.avg || data.average_pii_per_doc || 0;
-        if ((!avgPii || avgPii === 0) && piiItemsTotal && total) avgPii = (piiItemsTotal / total);
-        var richVal = rich.richness || rich.richness_score || rich.score || data.richness || 0;
-        var score = data.risk_score != null ? data.risk_score : rich.risk_score != null ? rich.risk_score : avg.risk_score != null ? avg.risk_score : (found > 0 ? Math.min(100, Math.round((found / Math.max(total, 1)) * 150)) : 0);
+        // ── Risk score & level ──
+        // Best source: overall_richness_rating from /richness endpoint
+        var ratingMap = { 'critical': 90, 'high': 70, 'medium': 45, 'low': 20, 'none': 0 };
+        var rating = (rich.overall_richness_rating || '').toLowerCase();
+        var score = 0;
+        if (ratingMap[rating] != null) {
+            score = ratingMap[rating];
+        } else {
+            // Fallback: compute from severity_totals
+            var sev = rich.severity_totals || {};
+            var sevTotal = (parseInt(sev.high) || 0) + (parseInt(sev.medium) || 0) + (parseInt(sev.low) || 0);
+            if (sevTotal > 0) {
+                var weighted = (parseInt(sev.high) || 0) * 3 + (parseInt(sev.medium) || 0) * 2 + (parseInt(sev.low) || 0) * 1;
+                score = Math.min(100, Math.round((weighted / (sevTotal * 3)) * 100));
+            } else if (found > 0) {
+                score = Math.min(100, Math.round((found / Math.max(total, 1)) * 150));
+            }
+        }
         score = Math.min(100, Math.max(0, parseInt(score) || 0));
         var rl = score >= 70 ? 'high' : score >= 30 ? 'medium' : 'low';
         var rc = SEVC[rl];
@@ -938,18 +996,23 @@ function generateCaseSummary() {
     $('#cs-report-area').html(_csScannerHtml(caseName));
 
     var results = {};
-    var doneCount = 0;
     var errCount = 0;
     var total = CS_CATEGORIES.length;
 
-    CS_CATEGORIES.forEach(function (cat, idx) {
+    // ── Sequential: process one category at a time ──
+    function _processCategory(idx) {
+        if (idx >= total) {
+            setTimeout(function () { _csFinalise(caseName, total, errCount); }, 500);
+            return;
+        }
+        var cat = CS_CATEGORIES[idx];
         _csDotState(idx, 'active', 'Analyzing\u2026');
         $.ajax({
             type: 'GET',
             url: aiApiUrl + '/advisors/retrieval/question_case',
             data: { question: cat.question, case_id: String(numericCaseId) },
             dataType: 'json',
-            timeout: 120000,
+            timeout: 180000,
             success: function (d) {
                 results[cat.id] = d;
                 _csDotState(idx, 'done', '\u2713 Done');
@@ -960,15 +1023,14 @@ function generateCaseSummary() {
                 _csDotState(idx, 'err', '\u2717 Error');
             },
             complete: function () {
-                doneCount++;
-                _csProgSet(Math.round((doneCount / total) * 100));
+                _csProgSet(Math.round(((idx + 1) / total) * 100));
                 _csRenderCard(cat, results[cat.id], caseDbId);
-                if (doneCount === total) {
-                    setTimeout(function () { _csFinalise(caseName, total, errCount); }, 500);
-                }
+                // Process next category
+                _processCategory(idx + 1);
             }
         });
-    });
+    }
+    _processCategory(0);
 }
 
 function _csScannerHtml(caseName) {
@@ -983,7 +1045,7 @@ function _csScannerHtml(caseName) {
     });
     return '<div class="cs-scanner">' +
         '<div class="cs-scanner-title">\uD83E\uDDE0 Analyzing: <em style="font-weight:500">' + escapeHtml(caseName) + '</em></div>' +
-        '<div class="cs-scanner-sub">Running 8 parallel AI analyses — each section appears as it completes.</div>' +
+        '<div class="cs-scanner-sub">Running 8 AI analyses sequentially &mdash; each section appears as it completes.</div>' +
         '<div class="cs-prog-wrap"><div class="cs-prog-bar" id="cs-prog-bar"></div></div>' +
         '<span class="cs-prog-pct" id="cs-prog-pct">0% complete</span>' +
         '<div class="cs-steps">' + stepsHtml + '</div>' +

@@ -62,7 +62,7 @@ public class PiiProxyServlet extends HttpServlet {
             URL url = new URL(backendUrl);
             conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(10000);
-            conn.setReadTimeout(90000);
+            conn.setReadTimeout(180000);
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
 
