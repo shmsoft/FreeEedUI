@@ -4,6 +4,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <link rel="icon" type="image/x-icon" href="images/freeeedfavicon.ico" />
         <title><tiles:getAsString name="title" /></title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
