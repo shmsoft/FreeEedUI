@@ -15,11 +15,16 @@ import org.freeeed.search.web.configuration.EnvConfig;
 
 /**
  * Proxies PII analysis requests to the AI Advisor backend.
+ * Supports both synchronous calls (detect, average_pii_doc, richness)
+ * and async background jobs (start → status polling).
+ *
  * Backend port is read from ~/.freeeed/.env (key: PORT), defaulting to 8000.
  */
 public class PiiProxyServlet extends HttpServlet {
 
-    private static final String[] ALLOWED_ACTIONS = { "detect", "average_pii_doc", "richness" };
+    private static final String[] ALLOWED_ACTIONS = {
+            "detect", "average_pii_doc", "richness", "start", "status"
+    };
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -30,11 +35,10 @@ public class PiiProxyServlet extends HttpServlet {
         response.setHeader("Cache-Control", "no-cache");
 
         String action = request.getParameter("action");
-        String caseId = request.getParameter("case_id");
 
-        if (action == null || action.isEmpty() || caseId == null || caseId.isEmpty()) {
+        if (action == null || action.isEmpty()) {
             response.setStatus(400);
-            response.getWriter().print("{\"error\":\"Missing action or case_id parameter\"}");
+            response.getWriter().print("{\"error\":\"Missing action parameter\"}");
             return;
         }
 
@@ -52,17 +56,52 @@ public class PiiProxyServlet extends HttpServlet {
             return;
         }
 
-        // Read PORT from ~/.freeeed/.env via EnvConfig; fall back to 8000
         String piiBackendBase = EnvConfig.getAiBackendUrl(8000);
-        String backendUrl = piiBackendBase + "/advisors/pii/" + action
-                + "?case_id=" + URLEncoder.encode(caseId, "UTF-8");
+        String backendUrl;
+
+        if ("start".equals(action)) {
+            // /start requires sub (detect|average_pii_doc|richness) and case_id
+            String sub = request.getParameter("sub");
+            String caseId = request.getParameter("case_id");
+            if (sub == null || sub.isEmpty() || caseId == null || caseId.isEmpty()) {
+                response.setStatus(400);
+                response.getWriter().print("{\"error\":\"Missing sub or case_id parameter\"}");
+                return;
+            }
+            backendUrl = piiBackendBase + "/advisors/pii/start"
+                    + "?action=" + URLEncoder.encode(sub, "UTF-8")
+                    + "&case_id=" + URLEncoder.encode(caseId, "UTF-8");
+        } else if ("status".equals(action)) {
+            // /status requires job_id
+            String jobId = request.getParameter("job_id");
+            if (jobId == null || jobId.isEmpty()) {
+                response.setStatus(400);
+                response.getWriter().print("{\"error\":\"Missing job_id parameter\"}");
+                return;
+            }
+            backendUrl = piiBackendBase + "/advisors/pii/status"
+                    + "?job_id=" + URLEncoder.encode(jobId, "UTF-8");
+        } else {
+            // Synchronous calls: detect, average_pii_doc, richness
+            String caseId = request.getParameter("case_id");
+            if (caseId == null || caseId.isEmpty()) {
+                response.setStatus(400);
+                response.getWriter().print("{\"error\":\"Missing case_id parameter\"}");
+                return;
+            }
+            backendUrl = piiBackendBase + "/advisors/pii/" + action
+                    + "?case_id=" + URLEncoder.encode(caseId, "UTF-8");
+        }
+
+        // Short timeout for start/status (quick calls); long for sync analysis
+        int readTimeout = ("start".equals(action) || "status".equals(action)) ? 15000 : 180000;
 
         HttpURLConnection conn = null;
         try {
             URL url = new URL(backendUrl);
             conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(10000);
-            conn.setReadTimeout(180000);
+            conn.setReadTimeout(readTimeout);
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
 

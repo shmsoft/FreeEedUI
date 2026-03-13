@@ -3348,27 +3348,139 @@ input[id='uploadfilebutton'] {
 
 /* ── Print styles ── */
 @media print {
-
+    /* Hide global layout elements when printing */
+    .header,
+    .left,
     .cs-scanner,
     .cs-controls,
     .cs-analyze-btn,
-    .cs-action-bar {
+    .cs-action-bar,
+    .menu_button,
+    .modal-loading {
         display: none !important;
     }
 
-    .cs-card {
-        break-inside: avoid;
-        box-shadow: none;
-        border: 1px solid #ddd;
+    html, body {
+        height: auto !important;
+        min-height: auto !important;
+        overflow: visible !important;
+        position: static !important;
     }
 
-    .cs-grid {
-        grid-template-columns: 1fr 1fr;
+    .content {
+        margin: 0 !important;
+        width: 100% !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        overflow: visible !important;
+        min-height: auto !important;
+        height: auto !important;
     }
 
+    .wrapper {
+        background: transparent !important;
+        overflow: visible !important;
+        min-height: auto !important;
+        height: auto !important;
+    }
+
+    /* Print-friendly Case Summary */
+    .cs-page {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        overflow: visible !important;
+        min-height: auto !important;
+        height: auto !important;
+    }
+
+    /* Core override config to prevent browsers/Bootstrap stripping colors */
+    .cs-page, .cs-page * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Re-apply EXACT background gradients and colors because Bootstrap strips them via `* { background: transparent !important; color: #000 !important; }` */
     .cs-overview {
-        background: #1a0a2e !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        background: linear-gradient(135deg, #1a0a2e 0%, #2a114f 100%) !important;
+        border: none !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    
+    .cs-ov-title, .cs-ov-desc, .cs-overview strong {
+        color: #fff !important;
+        text-shadow: none !important;
+    }
+    
+    .cs-ov-icon {
+        color: #fff !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .cs-card {
+        background: #fff !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+        border: 1px solid #eaeaea !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    
+    .cs-card-header {
+        border-bottom: 1px solid #f0f0f0 !important;
+    }
+    
+    .cs-card-header h3 {
+        color: #1a0a2e !important;
+    }
+
+    .cs-fact-item {
+        background: #fdfbf5 !important;
+        border: 1px solid #f2ead3 !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    
+    .cs-doc-card { 
+        background: #f2eefc !important; 
+        border: 1px solid #ddd1f2 !important; 
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .cs-fact-label, .cs-doc-meta { color: #666 !important; }
+    .cs-fact-val, .cs-doc-title { color: #111 !important; }
+
+    .cs-timeline-line { background: #e0d4f5 !important; }
+    .cs-timeline-dot { background: #fff !important; border-color: #5c00a3 !important; }
+    .cs-timeline-item::after { background: #5c00a3 !important; }
+    
+    .cs-time-date { color: #5c00a3 !important; }
+    .cs-time-title { color: #111 !important; }
+    .cs-time-desc { color: #555 !important; }
+    
+    .cs-markdown-body { color: #333 !important; }
+    .cs-markdown-body h1, .cs-markdown-body h2, .cs-markdown-body h3, .cs-markdown-body h4 { color: #1a0a2e !important; }
+    .cs-markdown-body p, .cs-markdown-body li { color: #444 !important; }
+    .cs-markdown-body a { color: #5c00a3 !important; }
+    .cs-markdown-body strong { color: #111 !important; }
+    
+    /* Retain original grids */
+    .cs-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 20px !important;
+    }
+    .cs-facts-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+        gap: 12px !important;
+    }
+    .cs-doc-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+        gap: 15px !important;
     }
 }

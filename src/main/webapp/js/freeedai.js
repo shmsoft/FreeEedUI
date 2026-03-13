@@ -303,6 +303,7 @@ function _piiStartScan(caseId, caseName, targetId) {
     targetId = targetId || 'pii-body';
     var PROXY = getCurrentUrl() + '/pii-proxy';
     var results = {};
+    var POLL_INTERVAL = 3000;  // 3 seconds between polls
 
     function _dotOn(i) {
         var $s = $('#pii-step-' + i);
@@ -332,17 +333,49 @@ function _piiStartScan(caseId, caseName, targetId) {
         }
     }
 
-    // Helper: make one API call, returns a jQuery Deferred
-    function _callApi(action) {
+    // Start a background job, poll until done, then resolve
+    function _startAndPoll(sub) {
         var d = $.Deferred();
         $.ajax({
             type: 'GET', url: PROXY,
-            data: { action: action, case_id: String(caseId) },
-            dataType: 'json', timeout: 180000,
-            success: function (resp) { d.resolve(resp); },
-            error: function (xhr) { d.resolve({ _error: xhr.responseText || ('HTTP ' + xhr.status) }); }
+            data: { action: 'start', sub: sub, case_id: String(caseId) },
+            dataType: 'json', timeout: 15000,
+            success: function (resp) {
+                if (resp && resp.job_id) {
+                    _poll(resp.job_id, d);
+                } else {
+                    d.resolve({ _error: 'No job_id returned' });
+                }
+            },
+            error: function (xhr) {
+                d.resolve({ _error: xhr.responseText || ('HTTP ' + xhr.status) });
+            }
         });
         return d.promise();
+    }
+
+    function _poll(jobId, deferred) {
+        setTimeout(function () {
+            $.ajax({
+                type: 'GET', url: PROXY,
+                data: { action: 'status', job_id: jobId },
+                dataType: 'json', timeout: 15000,
+                success: function (resp) {
+                    if (resp.status === 'done') {
+                        deferred.resolve(resp.result);
+                    } else if (resp.status === 'error') {
+                        deferred.resolve({ _error: resp.error || 'Job failed' });
+                    } else {
+                        // Still pending — poll again
+                        _poll(jobId, deferred);
+                    }
+                },
+                error: function (xhr) {
+                    // Network glitch during poll — retry once more
+                    setTimeout(function () { _poll(jobId, deferred); }, POLL_INTERVAL);
+                }
+            });
+        }, POLL_INTERVAL);
     }
 
     function _finish() {
@@ -367,33 +400,36 @@ function _piiStartScan(caseId, caseName, targetId) {
         }, 500);
     }
 
-    // ── Sequential: detect → average_pii_doc → richness → compile ──
+    // ── Fire all 3 actions in PARALLEL for max speed ──
     _progSet(2);
+    _dotOn(0); _dotOn(1); _dotOn(2);
+    var _doneCount = 0;
 
-    // Step 0: detect
-    _dotOn(0);
-    _callApi('detect').then(function (d) {
+    function _onOne() {
+        _doneCount++;
+        _progSet(Math.round(_doneCount * 25 + 2));
+    }
+
+    var pDetect = _startAndPoll('detect').then(function (d) {
         if (d && d._error) { results.detectError = d._error; _dotErr(0); }
         else { results.detect = d; _dotOk(0); }
-        _progSet(25);
+        _onOne();
+    });
 
-        // Step 1: average_pii_doc
-        _dotOn(1);
-        return _callApi('average_pii_doc');
-    }).then(function (d) {
+    var pAvg = _startAndPoll('average_pii_doc').then(function (d) {
         if (d && d._error) { _dotErr(1); }
         else { results.average = d; _dotOk(1); }
-        _progSet(50);
+        _onOne();
+    });
 
-        // Step 2: richness
-        _dotOn(2);
-        return _callApi('richness');
-    }).then(function (d) {
+    var pRich = _startAndPoll('richness').then(function (d) {
         if (d && d._error) { _dotErr(2); }
         else { results.richness = d; _dotOk(2); }
-        _progSet(75);
+        _onOne();
+    });
 
-        // Step 3: compile report
+    $.when(pDetect, pAvg, pRich).then(function () {
+        // All 3 done — compile report
         _finish();
     });
 }
@@ -576,6 +612,48 @@ function _piiRender(caseName, results, targetId) {
             cats = Object.keys(catMap).sort(function (a, b) { return catMap[b] - catMap[a]; }).map(function (k) { return { type: k, count: catMap[k] }; });
         }
 
+        // Dynamically discover actual severity for each category from the detailed rows (flatRows)
+        var catSeverityMap = {};
+        flatRows.forEach(function (r) {
+            var typeKey = null;
+            var sevKey = null;
+            Object.keys(r).forEach(function (k) {
+                var lk = k.toLowerCase();
+                if (lk.indexOf('type') >= 0 || lk.indexOf('category') >= 0 || lk.indexOf('entity') >= 0) {
+                    typeKey = k;
+                }
+                if (/severity|risk|level/i.test(lk)) {
+                    sevKey = k;
+                }
+            });
+            if (typeKey && sevKey && r[typeKey]) {
+                var catName = String(r[typeKey]).toLowerCase();
+                var sevVal = String(r[sevKey]).toLowerCase();
+                var rank = sevVal.indexOf('critical') >= 0 ? 4 : sevVal.indexOf('high') >= 0 ? 3 : sevVal.indexOf('medium') >= 0 ? 2 : 1;
+                
+                var existingRank = 0;
+                if (catSeverityMap[catName]) {
+                    var ex = catSeverityMap[catName];
+                    existingRank = ex === 'critical' ? 4 : ex === 'high' ? 3 : ex === 'medium' ? 2 : 1;
+                }
+                if (rank > existingRank) {
+                    catSeverityMap[catName] = sevVal.indexOf('critical') >= 0 ? 'critical' : sevVal.indexOf('high') >= 0 ? 'high' : sevVal.indexOf('medium') >= 0 ? 'medium' : 'low';
+                }
+            }
+        });
+        
+        // Also map some inherent severities for standard types via substring matching
+        function getInherentSeverity(name) {
+            name = (name || '').toLowerCase();
+            if (/ssn|social security/i.test(name)) return 'high'; // maps to red pill
+            if (/credit|card|cc\b|payment|bank|account|financial/i.test(name)) return 'high';
+            if (/password|credential|patient|health|medical|biometric|passport|driver|license/i.test(name)) return 'high';
+            if (/dob|date of birth/i.test(name)) return 'medium';
+            if (/phone|address|location/i.test(name)) return 'low';
+            if (/name|email|ip\b/i.test(name)) return 'low';
+            return null;
+        }
+
         // ── Risk score & level ──
         // Best source: overall_richness_rating from /richness endpoint
         var ratingMap = { 'critical': 90, 'high': 70, 'medium': 45, 'low': 20, 'none': 0 };
@@ -595,6 +673,23 @@ function _piiRender(caseName, results, targetId) {
             }
         }
         score = Math.min(100, Math.max(0, parseInt(score) || 0));
+
+        // Safegaurd: if the detailed CSV rows contain 'high' or 'critical' severity, force the UI to reflect it
+        var hasHighSeverity = false;
+        flatRows.forEach(function(r) {
+            Object.keys(r).forEach(function(k) {
+                if (/severity|risk|level/i.test(k)) {
+                    var val = String(r[k]).toLowerCase();
+                    if (val.indexOf('high') >= 0 || val.indexOf('critical') >= 0 || val.indexOf('severe') >= 0) {
+                        hasHighSeverity = true;
+                    }
+                }
+            });
+        });
+        if (hasHighSeverity && score < 70) {
+            score = 75; // artificial boost to push it into 'high'
+        }
+
         var rl = score >= 70 ? 'high' : score >= 30 ? 'medium' : 'low';
         var rc = SEVC[rl];
         var rEmoji = rl === 'high' ? '\uD83D\uDEA8' : rl === 'medium' ? '\u26A0\uFE0F' : '\u2705';
@@ -661,7 +756,26 @@ function _piiRender(caseName, results, targetId) {
                 var key = (cat.type || cat.name || '').toLowerCase().replace(/[\s\-]+/g, '_');
                 var meta = PII_META[key] || { icon: '\uD83D\uDCC4', color: '#607d8b' };
                 var cnt = cat.count || cat.occurrences || 0;
-                var sev = cat.severity || (cnt > 50 ? 'high' : cnt > 10 ? 'medium' : 'low');
+                
+                // Determine severity from dynamic map, then inherent pattern matcher, then default to low
+                var sev = 'low';
+                var searchKey = (cat.type || cat.name || '').toLowerCase();
+                
+                // Try dynamic map first (if CSV parsing picked up severity)
+                if (catSeverityMap[searchKey]) {
+                    sev = catSeverityMap[searchKey];
+                    if (sev === 'critical') sev = 'high';
+                } else {
+                    // Try robust inherent severity matching
+                    var inherent = getInherentSeverity(searchKey);
+                    if (inherent) {
+                        sev = inherent;
+                    } else {
+                        // Fallback to strict count thresholds
+                        sev = cat.severity || (cnt > 50 ? 'high' : cnt > 10 ? 'medium' : 'low');
+                    }
+                }
+
                 var pct = Math.round((cnt / Math.max(maxCnt, 1)) * 100);
                 html += '<div class="pii-cat-row"><div class="pii-cat-l"><span class="pii-cat-ico">' + meta.icon + '</span><span class="pii-cat-nm">' + escapeHtml(cat.type || cat.name || 'Unknown') + '</span></div><div class="pii-cat-bar-wrap"><div class="pii-cat-bar" data-w="' + pct + '" style="width:0%;background:' + meta.color + '"></div></div><div class="pii-cat-r"><span class="pii-cat-cnt">' + cnt + '</span><span class="pii-sev pii-sev-' + sev + '">' + sev.toUpperCase() + '</span></div></div>';
             });
@@ -998,39 +1112,92 @@ function generateCaseSummary() {
     var results = {};
     var errCount = 0;
     var total = CS_CATEGORIES.length;
+    var POLL_INTERVAL = 3000;
 
-    // ── Sequential: process one category at a time ──
-    function _processCategory(idx) {
-        if (idx >= total) {
+    // Start a background job, poll until done
+    function _csStartAndPoll(question, csId) {
+        var d = $.Deferred();
+        $.ajax({
+            type: 'GET',
+            url: aiApiUrl + '/advisors/retrieval/start',
+            data: { question: question, case_id: String(csId) },
+            dataType: 'json', timeout: 15000,
+            success: function (resp) {
+                if (resp && resp.job_id) {
+                    _csPoll(resp.job_id, d);
+                } else {
+                    d.resolve({ _error: true });
+                }
+            },
+            error: function () { d.resolve({ _error: true }); }
+        });
+        return d.promise();
+    }
+
+    function _csPoll(jobId, deferred) {
+        setTimeout(function () {
+            $.ajax({
+                type: 'GET',
+                url: aiApiUrl + '/advisors/retrieval/status',
+                data: { job_id: jobId },
+                dataType: 'json', timeout: 15000,
+                success: function (resp) {
+                    if (resp.status === 'done') {
+                        deferred.resolve(resp.result);
+                    } else if (resp.status === 'error') {
+                        deferred.resolve({ _error: true, _msg: resp.error });
+                    } else {
+                        _csPoll(jobId, deferred);
+                    }
+                },
+                error: function () {
+                    // Network glitch — retry
+                    setTimeout(function () { _csPoll(jobId, deferred); }, POLL_INTERVAL);
+                }
+            });
+        }, POLL_INTERVAL);
+    }
+
+    // ── Process categories in parallel batches of 3 for speed ──
+    var BATCH_SIZE = 3;
+    var _csDoneCount = 0;
+
+    function _processBatch(startIdx) {
+        if (startIdx >= total) {
             setTimeout(function () { _csFinalise(caseName, total, errCount); }, 500);
             return;
         }
-        var cat = CS_CATEGORIES[idx];
-        _csDotState(idx, 'active', 'Analyzing\u2026');
-        $.ajax({
-            type: 'GET',
-            url: aiApiUrl + '/advisors/retrieval/question_case',
-            data: { question: cat.question, case_id: String(numericCaseId) },
-            dataType: 'json',
-            timeout: 180000,
-            success: function (d) {
-                results[cat.id] = d;
-                _csDotState(idx, 'done', '\u2713 Done');
-            },
-            error: function () {
-                results[cat.id] = { answer: null, sources: [] };
-                errCount++;
-                _csDotState(idx, 'err', '\u2717 Error');
-            },
-            complete: function () {
-                _csProgSet(Math.round(((idx + 1) / total) * 100));
-                _csRenderCard(cat, results[cat.id], caseDbId);
-                // Process next category
-                _processCategory(idx + 1);
-            }
+        var endIdx = Math.min(startIdx + BATCH_SIZE, total);
+        var promises = [];
+
+        for (var i = startIdx; i < endIdx; i++) {
+            (function (idx) {
+                var cat = CS_CATEGORIES[idx];
+                _csDotState(idx, 'active', 'Analyzing\u2026');
+
+                var p = _csStartAndPoll(cat.question, numericCaseId).then(function (d) {
+                    if (d && d._error) {
+                        results[cat.id] = { answer: null, sources: [] };
+                        errCount++;
+                        _csDotState(idx, 'err', '\u2717 Error');
+                    } else {
+                        results[cat.id] = d;
+                        _csDotState(idx, 'done', '\u2713 Done');
+                    }
+                    _csDoneCount++;
+                    _csProgSet(Math.round((_csDoneCount / total) * 100));
+                    _csRenderCard(cat, results[cat.id], caseDbId);
+                });
+                promises.push(p);
+            })(i);
+        }
+
+        // When this batch finishes, start the next batch
+        $.when.apply($, promises).then(function () {
+            _processBatch(endIdx);
         });
     }
-    _processCategory(0);
+    _processBatch(0);
 }
 
 function _csScannerHtml(caseName) {

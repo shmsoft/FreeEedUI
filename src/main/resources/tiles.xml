@@ -20,17 +20,21 @@
 	<definition name="tag" template="/template/tag.jsp"/>
     
     <definition name="search" extends="commonLayout">
+        <put-attribute name="title" value="Search | FreeEed" type="string" />
         <put-attribute name="body" value="/template/search.jsp" />
     </definition>
     <definition name="freeeedai" extends="commonLayout">
+        <put-attribute name="title" value="AI Advisor | FreeEed" type="string" />
         <put-attribute name="body" value="/template/freeEedAi.jsp" />
     </definition>
 
     <definition name="piiReport" extends="commonLayout">
+        <put-attribute name="title" value="PII Report | FreeEed" type="string" />
         <put-attribute name="body" value="/template/piiReport.jsp" />
     </definition>
 
     <definition name="caseSummary" extends="commonLayout">
+        <put-attribute name="title" value="Case Intelligence | FreeEed" type="string" />
         <put-attribute name="body" value="/template/caseSummary.jsp" />
     </definition>
 
@@ -41,6 +45,7 @@
     </definition>
 
     <definition name="listUsers" extends="commonLayout">
+        <put-attribute name="title" value="Users | FreeEed" type="string" />
         <put-attribute name="body" value="/template/listusers.jsp" />
     </definition>
     
@@ -49,10 +54,12 @@
     </definition>
 
     <definition name="listCases" extends="commonLayout">
+        <put-attribute name="title" value="Cases | FreeEed" type="string" />
         <put-attribute name="body" value="/template/listcases.jsp" />
     </definition>
     
     <definition name="case" extends="commonLayout">
+        <put-attribute name="title" value="Case Editor | FreeEed" type="string" />
         <put-attribute name="body" value="/template/usercase.jsp" />
     </definition>
     
@@ -61,6 +68,7 @@
     <definition name="tagAuto" template="/template/tag-auto.jsp"/>
     
     <definition name="caseFileDownload" extends="commonLayout">
+        <put-attribute name="title" value="Downloads | FreeEed" type="string" />
         <put-attribute name="body" value="/template/caseFileDownload.jsp" />
     </definition>
     
