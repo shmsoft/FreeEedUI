@@ -11,8 +11,8 @@ function onSubmit(event) {
     $questionInput.prop('disabled', true);
 
     const allCases = $("#allCasesCheckbox").prop("checked");
-    // Normalize to prevent accidental double slashes when concatenating paths
-    const aiApiUrl = String($("#aiApiUrl").val() || '').replace(/\/+$/, '');
+    // Normalize to prevent accidental double slashes when concatenating paths. Fallback to default local backend if unconfigured.
+    const aiApiUrl = String($("#aiApiUrl").val() || 'http://127.0.0.1:8000').replace(/\/+$/, '');
 
     // --- runtime diagnostics removed (was showing extra details above answers) ---
 
@@ -1098,7 +1098,7 @@ function generateCaseSummary() {
     }
     if (!numericCaseId) numericCaseId = String(caseDbId);
 
-    var aiApiUrl = String($('#cs-ai-url').val() || '').replace(/\/+$/, '');
+    var aiApiUrl = String($('#cs-ai-url').val() || 'http://127.0.0.1:8000').replace(/\/+$/, '');
     if (!aiApiUrl) {
         $('#cs-report-area').html('<div style="padding:48px;text-align:center;color:#888"><div style="font-size:48px;opacity:0.3;margin-bottom:12px">\u2699\uFE0F</div>AI API URL not configured. Please check <strong>App Settings</strong>.</div>');
         return;

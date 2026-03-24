@@ -3,7 +3,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="js/freeedai.js?v=25"></script>
+<script src="js/freeedai.js?v=26"></script>
 
 <div class="pii-page">
 
