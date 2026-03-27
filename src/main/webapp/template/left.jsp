@@ -30,7 +30,7 @@
                                 </form>
                             </div>
                             <div class="login-footer">
-                                FreeEed&trade; Review V10.8.1-SNAPSHOT &mdash;
+                                FreeEed&trade; Review V10.8.1 &mdash;
                                 <a href="https://github.com/shmsoft/FreeEed/wiki/Review"
                                     target="_blank">Documentation</a>
                             </div>
