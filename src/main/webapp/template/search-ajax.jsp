@@ -158,7 +158,7 @@
 
             <div class="operations-box">
                 <div class="operation-link">
-                    <a id="preview-${doc.documentId}" class="operation-link-text html-preview action-button" fileName="${doc.documentName}" data="${doc.documentPath}" uid="${doc.uniqueId}">Preview</a>
+                    <a href="javascript:;" class="operation-link-text action-button" onclick="showMetadataModal('${doc.documentId}')">Metadata</a>
                 </div>
                 <div class="operation-link">
                     <a href="javascript:;" class="operation-link-text action-button" onclick="$('#tag-doc-${doc.documentId}').slideToggle(200);">Tag</a>
@@ -175,8 +175,11 @@
                 <input type="button" class="action-button" value="Tag" onclick="newTag('${doc.documentId}')"/>
                 <input type="button" class="action-button" value="Cancel" onclick="document.getElementById('tag-doc-${doc.documentId}').style.display='none';return false;"/>
             </div>
-            <div class="result-div scroll">
-            <table border = 0>
+            <div class="inline-preview-container" id="inline-preview-${doc.documentId}">
+                <div class="inline-preview-loading">Loading preview...</div>
+            </div>
+            <div id="metadata-content-${doc.documentId}" style="display:none">
+            <table border="0" class="metadata-table">
                 <c:forEach var="entry" items="${doc.entries}">
                     <tr>
                       <c:choose>
@@ -185,7 +188,7 @@
                           <td><div class="result-box-value">${entry.value}</div></td>
                         </c:when>
                         <c:otherwise>
-                            <td colspan=2 class="result-box-text">
+                            <td colspan="2" class="result-box-text">
                               <c:choose>
                                 <c:when test="${fn:length(entry.value) > 300}">
                                   <div id="textid-txt-${doc.documentId}" class="result-box-text-container">

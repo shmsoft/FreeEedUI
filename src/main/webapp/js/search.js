@@ -1,6 +1,7 @@
 var lastDocId = null;
 var documentsMap = new Object();
 var allTags = new Object();
+var documentInfoMap = new Object();
 
 function selectDocument(docId) {
     if (docId == lastDocId) {
@@ -16,11 +17,105 @@ function selectDocument(docId) {
     }
 
     lastDocId = docId;
+    loadInlinePreview(docId);
 }
 
 function initPage(docId) {
     selectDocument(docId);
     initTags();
+}
+
+function loadInlinePreview(docId) {
+    var container = $("#inline-preview-" + docId);
+    // Don't reload if already loaded
+    if (container.data('loaded')) {
+        return;
+    }
+
+    var info = documentInfoMap[docId];
+    if (!info) {
+        container.html('<div class="inline-preview-loading">No preview available</div>');
+        return;
+    }
+
+    var docPath = info.documentPath;
+    var uniqueId = info.uniqueId;
+    var docName = info.documentName;
+
+    var parts = docPath.split('.');
+    var extension = '';
+    if (parts.length > 1) {
+        extension = parts.pop().toLowerCase();
+    }
+
+    if (extension == 'pdf') {
+        var url = 'filedownload.html?action=exportNative&ispreviewpdf=1&docPath=' + docPath + '&uniqueId=' + uniqueId;
+        container.html('<iframe src="' + url + '" style="width:100%;height:calc(100vh - 520px);border:none;"></iframe>');
+        container.data('loaded', true);
+    } else if (extension == 'jpg' || extension == 'jpeg' || extension == 'png') {
+        var url = 'filedownload.html?action=exportNative&ispreviewimage=1&docPath=' + docPath + '&uniqueId=' + uniqueId;
+        container.html('<div style="text-align:center;max-height:calc(100vh - 520px);overflow-y:auto;"><img src="' + url + '" style="max-width:100%;height:auto;"/></div>');
+        container.data('loaded', true);
+    } else if (extension == 'tiff' || extension == 'tif') {
+        var url = 'filedownload.html?action=exportNative&ispreviewimage=1&docPath=' + docPath + '&uniqueId=' + uniqueId;
+        container.html('<div class="inline-preview-loading">Loading TIFF preview...</div>');
+        fetch(url)
+            .then(function(response) { return response.arrayBuffer(); })
+            .then(function(buffer) {
+                var tiff = new Tiff({ buffer: buffer });
+                var canvas = tiff.toCanvas();
+                canvas.style.maxWidth = '100%';
+                canvas.style.height = 'auto';
+                container.html('');
+                container.css({'text-align': 'center', 'max-height': 'calc(100vh - 520px)', 'overflow-y': 'auto'});
+                container[0].appendChild(canvas);
+                container.data('loaded', true);
+            })
+            .catch(function(error) {
+                container.html('<div class="inline-preview-loading">Error loading TIFF preview</div>');
+            });
+    } else if (extension == 'txt') {
+        var url = 'filedownload.html?action=exportNative&ispreviewpdf=1&docPath=' + docPath + '&uniqueId=' + uniqueId;
+        fetch(url)
+            .then(function(response) { return response.text(); })
+            .then(function(text) {
+                container.html('<pre style="white-space:pre-wrap;word-wrap:break-word;max-height:calc(100vh - 520px);overflow-y:auto;padding:10px;background:#f8f9fa;border:1px solid #ddd;">' + $('<span>').text(text).html() + '</pre>');
+                container.data('loaded', true);
+            })
+            .catch(function(error) {
+                container.html('<div class="inline-preview-loading">Error loading preview</div>');
+            });
+    } else {
+        // HTML preview (e.g., .eml files)
+        $.ajax({
+            type: 'GET',
+            url: 'filedownload.html',
+            data: {action: 'exportHtml', docPath: docPath, uniqueId: uniqueId, docName: docName},
+            success: function (data) {
+                var iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = 'calc(100vh - 520px)';
+                iframe.style.border = 'none';
+                container.html('');
+                container[0].appendChild(iframe);
+                var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                iframeDoc.open();
+                iframeDoc.write(data);
+                iframeDoc.close();
+                container.data('loaded', true);
+            },
+            error: function () {
+                container.html('<div class="inline-preview-loading">Error loading preview</div>');
+            }
+        });
+    }
+}
+
+function showMetadataModal(docId) {
+    var content = $('#metadata-content-' + docId).html();
+    $('#metadata_modal_content').html(content);
+    $('#metadata-modal-title').text('Metadata - ' + docId);
+    $('#metadata_modal').modal('show');
 }
 
 function newTagEnter(docId, e) {
@@ -106,6 +201,14 @@ function deleteTag(docId, el, tag) {
     });
 }
 
+function buildDocumentInfoMap() {
+    documentInfoMap = new Object();
+    for (var i = 0; i < documents.length; i++) {
+        var doc = documents[i];
+        documentInfoMap[doc.documentId] = doc;
+    }
+}
+
 function search() {
 
     var queryStr = $("#search-query").val();
@@ -118,6 +221,7 @@ function search() {
             lastDocId = null;
 
             $("#result-ajax").html(data);
+            buildDocumentInfoMap();
 
             var solrId = $("#solrid").val();
             if (solrId != null) {
@@ -148,6 +252,7 @@ function addTagToSearch(tag) {
             lastDocId = null;
 
             $("#result-ajax").html(data);
+            buildDocumentInfoMap();
 
             var solrId = $("#solrid").val();
             if (solrId != null) {
@@ -185,6 +290,7 @@ function changePage(page, fromNavigation) {
             lastDocId = null;
 
             $("#result-ajax").html(data);
+            buildDocumentInfoMap();
 
             var solrId = $("#solrid").val();
             if (solrId != null) {
@@ -195,7 +301,6 @@ function changePage(page, fromNavigation) {
                 currentIndex = lastSelectedPage < page ? 0 : documents.length - 1;
                 var docId = documents[currentIndex].documentId;
                 selectDocument(docId);
-                $("#preview-" + docId).click();
             }
         },
         error: function () {
@@ -213,6 +318,7 @@ function removeSearch(id) {
             lastDocId = null;
 
             $("#result-ajax").html(data);
+            buildDocumentInfoMap();
 
             var solrId = $("#solrid").val();
             if (solrId != null) {
@@ -234,6 +340,7 @@ function removeAllSearch() {
             lastDocId = null;
 
             $("#result-ajax").html(data);
+            buildDocumentInfoMap();
 
             var solrId = $("#solrid").val();
             if (solrId != null) {
@@ -471,7 +578,6 @@ function nextDocument() {
         currentIndex++;
         var docId = documents[currentIndex].documentId;
         selectDocument(docId);
-        $("#preview-" + docId).click();
     }
     else
     {
@@ -486,7 +592,6 @@ function prevDocument() {
         currentIndex--;
         var docId = documents[currentIndex].documentId;
         selectDocument(docId);
-        $("#preview-" + docId).click();
     }
     else
     {

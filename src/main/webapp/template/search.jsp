@@ -31,6 +31,22 @@
       </div><!-- /.modal-dialog -->
     </div>
 
+    <div id="metadata_modal" class="modal fade">
+      <div class="modal-dialog modal-wide">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="metadata-modal-title">Metadata</h4>
+          </div>
+          <div class="modal-body" id="metadata_modal_content" style="max-height: calc(100vh - 200px); overflow-y: auto;">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 <div class="your-case">
         <form name="change" method="post" action="search.html">
         <input type="hidden" name="action" value="changecase"/>
