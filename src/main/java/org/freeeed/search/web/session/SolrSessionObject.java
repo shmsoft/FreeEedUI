@@ -37,6 +37,15 @@ public class SolrSessionObject {
     private int totalDocuments;
     private List<QuerySearch> queries = new ArrayList<QuerySearch>();
     private Case selectedCase;
+    private int pageSize = 0;
+    
+    public int getPageSize() {
+        return pageSize;
+    }
+    
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
     
     public int getCurrentPage() {
         return currentPage;

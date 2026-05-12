@@ -547,7 +547,7 @@ function switchPreviewTab(el, tabId) {
         html += '<div class="ptc-add-tag" style="display:flex; gap:8px; margin-bottom:12px;">' +
             '<select id="ptc-predefined-tag-select" class="form-control" style="flex:1; padding:6px 12px; border:1px solid #cbd5e1; border-radius:4px; font-size:13px;" onchange="if(this.value){applyQuickTag(this.value);this.value=\'\';switchPreviewTab(document.querySelector(\'#preview-tags-tab\'),\'tags\')}">' +
             '<option value="">Select predefined tag...</option>';
-        var quickTags = ['Responsive','Privileged','Hot','Needs Review','Confidential'];
+        var quickTags = ['Responsive','Privileged','Hot','Needs Review','Confidential','Relevant'];
         for (var q = 0; q < quickTags.length; q++) {
             html += '<option value="' + quickTags[q] + '">' + quickTags[q] + '</option>';
         }
@@ -848,7 +848,8 @@ $(document).ready(function() {
         'Privileged': '#f59e0b',
         'Hot': '#ef4444',
         'Confidential': '#8b5cf6',
-        'Needs Review': '#06b6d4'
+        'Needs Review': '#06b6d4',
+        'Relevant': '#3b82f6'
     };
     var defaultColor = '#6b7280';
     var container = $('.case-tags-filter-list');

@@ -69,7 +69,7 @@ public class SearchController extends SecureController {
         }
         
         int page = 1;
-        int rows = configuration.getNumberOfRows();
+        int rows = solrSession.getPageSize() > 0 ? solrSession.getPageSize() : configuration.getNumberOfRows();
         int from = 0;
         
         if ("search".equals(action)) {
@@ -115,7 +115,19 @@ public class SearchController extends SecureController {
                 } catch (Exception e) {
                 }
                 
-                from = (page - 1) * configuration.getNumberOfRows();
+                from = (page - 1) * rows;
+            }
+        } else if ("changerows".equals(action)) {
+            String rowsStr = (String) valueStack.get("rows");
+            if (rowsStr != null) {
+                try {
+                    rows = Integer.parseInt(rowsStr);
+                    solrSession.setPageSize(rows);
+                    page = 1;
+                    solrSession.setCurrentPage(1);
+                    from = 0;
+                } catch (Exception e) {
+                }
             }
         }
         
@@ -150,8 +162,8 @@ public class SearchController extends SecureController {
     
                 solrSession.setCurrentPage(page);
                 
-                int total = result.getTotalSize() / configuration.getNumberOfRows();
-                if (result.getTotalSize() % configuration.getNumberOfRows() > 0) {
+                int total = result.getTotalSize() / rows;
+                if (result.getTotalSize() % rows > 0) {
                     total ++;
                 }
                 
@@ -174,6 +186,22 @@ public class SearchController extends SecureController {
         valueStack.put("showPrev", session.getCurrentPage() > 1);
         valueStack.put("showNext", session.getCurrentPage() < session.getTotalPage());
         valueStack.put("searchPerformed", true);
+        
+        int pageSize = session.getPageSize() > 0 ? session.getPageSize() : configuration.getNumberOfRows();
+        int startItem = (session.getCurrentPage() - 1) * pageSize + 1;
+        
+        org.freeeed.search.web.view.solr.SearchResult resultView = (org.freeeed.search.web.view.solr.SearchResult) valueStack.get("result");
+        int currentDocCount = resultView != null && resultView.getDocuments() != null ? resultView.getDocuments().size() : 0;
+        int endItem = startItem + currentDocCount - 1;
+        
+        if (currentDocCount == 0) {
+            startItem = 0;
+            endItem = 0;
+        }
+        
+        valueStack.put("pageSize", pageSize);
+        valueStack.put("startItem", startItem);
+        valueStack.put("endItem", endItem);
     }
     
     public void setConfiguration(Configuration configuration) {

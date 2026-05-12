@@ -8,8 +8,6 @@
     var documents = [];
     <c:forEach var="doc" items="${result.documents}">
     documents.push({
-        documentPath: "${doc.documentPath}",
-        documentName: "${doc.documentName}",
         documentId: "${doc.documentId}",
         uniqueId: "${doc.uniqueId}"
     });
@@ -58,7 +56,8 @@
             <div class="toolbar-dropdown">
                 <button type="button" class="toolbar-btn" onclick="var menu = document.getElementById('export-dropdown'); menu.style.display = menu.style.display === 'none' ? 'block' : 'none';">Export <i class="bi-chevron-down"></i></button>
                 <div class="toolbar-dropdown-menu" id="export-dropdown" style="display:none;">
-                    <a href="filedownload.html?action=exportNativeAll">Export as Natives</a>
+                    <a href="filedownload.html?action=exportNativeAll">Export All as Natives</a>
+                    <a href="javascript:;" onclick="exportSelectedNatives()">Export Selected Natives</a>
                     <a id="export-link" target="_blank" href="filedownload.html?action=exportReport">Export Report</a>
                 </div>
             </div>
@@ -75,6 +74,15 @@
     <!-- Tag All / Tag Page forms -->
     <div id="tag-all" class="tag-box-modern">
         <span class="tag-box-label">Tag All Results:</span>
+        <select id="tag-all-predefined" class="tag-input-modern form-control" style="width: 150px; display: inline-block; margin-right: 8px;" onchange="if(this.value) document.getElementById('tag-all-text').value = this.value;">
+            <option value="">Predefined tags...</option>
+            <option value="Responsive">Responsive</option>
+            <option value="Privileged">Privileged</option>
+            <option value="Hot">Hot</option>
+            <option value="Needs Review">Needs Review</option>
+            <option value="Confidential">Confidential</option>
+            <option value="Relevant">Relevant</option>
+        </select>
         <input id="tag-all-text" class="tag-input-modern form-control" type="text" name="tag" onkeypress="newAllTagEnter(tagAll, event)" placeholder="Enter tag name..."/>
         <button type="button" class="tag-action-btn" onclick="tagAll()">Apply</button>
         <button type="button" class="tag-cancel-btn" onclick="document.getElementById('tag-all').style.display='none';return false;">Cancel</button>
@@ -82,10 +90,18 @@
     
     <div id="tag-page" class="tag-box-modern">
         <span class="tag-box-label">Tag This Page:</span>
+        <select id="tag-page-predefined" class="tag-input-modern form-control" style="width: 150px; display: inline-block; margin-right: 8px;" onchange="if(this.value) document.getElementById('tag-page-text').value = this.value;">
+            <option value="">Predefined tags...</option>
+            <option value="Responsive">Responsive</option>
+            <option value="Privileged">Privileged</option>
+            <option value="Hot">Hot</option>
+            <option value="Needs Review">Needs Review</option>
+            <option value="Confidential">Confidential</option>
+            <option value="Relevant">Relevant</option>
+        </select>
         <input id="tag-page-text" class="tag-input-modern form-control" type="text" name="tag" onkeypress="newAllTagEnter(tagPage, event)" placeholder="Enter tag name..."/>
         <button type="button" class="tag-action-btn" onclick="tagPage()">Apply</button>
         <button type="button" class="tag-cancel-btn" onclick="document.getElementById('tag-page').style.display='none';return false;">Cancel</button>
-        </form>
     </div>
 
     <!-- Results Table -->
@@ -105,7 +121,7 @@
             </thead>
             <tbody>
                 <c:forEach var="doc" items="${result.documents}" varStatus="status">
-                <tr id="row-${doc.documentId}" class="results-row" onclick="selectDocument('${doc.documentId}');showPreviewPanel('${doc.documentId}', '${doc.documentName}', ${status.index + 1}, ${result.totalSize})">
+                <tr id="row-${doc.documentId}" class="results-row" data-docname="${fn:escapeXml(doc.documentName)}" onclick="selectDocument('${doc.documentId}');showPreviewPanel('${doc.documentId}', this.getAttribute('data-docname'), ${status.index + 1}, ${result.totalSize})">
                     <td class="results-td-check"><input type="checkbox" class="result-check" onclick="event.stopPropagation()" /></td>
                     <td><div class="results-cell-id">${doc.documentId}</div></td>
                     <td><div class="results-cell-name">${doc.subject}</div></td>
@@ -143,13 +159,13 @@
     <div class="results-pagination">
         <div class="results-pagination-left">
             <span class="results-page-info">Show</span>
-            <select class="results-page-size">
-                <option>25</option>
-                <option>50</option>
-                <option>100</option>
+            <select class="results-page-size" onchange="changeRows(this.value)">
+                <option value="25" <c:if test="${pageSize == 25}">selected</c:if>>25</option>
+                <option value="50" <c:if test="${pageSize == 50}">selected</c:if>>50</option>
+                <option value="100" <c:if test="${pageSize == 100}">selected</c:if>>100</option>
             </select>
             <span class="results-page-info">per page</span>
-            <span class="results-page-range">1-${fn:length(result.documents)} of ${result.totalSize}</span>
+            <span class="results-page-range">${startItem}-${endItem} of ${result.totalSize}</span>
         </div>
         <div class="results-pagination-right">
             <button type="button" class="page-btn" <c:if test="${!showPrev}">disabled</c:if> onclick="changePage(1)" title="First page"><i class="bi-chevron-bar-left"></i></button>
@@ -188,7 +204,7 @@
 
             <div class="operations-box">
                 <div class="operation-link">
-                    <a id="preview-${doc.documentId}" class="operation-link-text html-preview action-button" fileName="${doc.documentName}" data="${doc.documentPath}" uid="${doc.uniqueId}">Preview</a>
+                    <a id="preview-${doc.documentId}" class="operation-link-text html-preview action-button" fileName="${fn:escapeXml(doc.documentName)}" data="${fn:escapeXml(doc.documentPath)}" uid="${doc.uniqueId}">Preview</a>
                 </div>
                 <div class="operation-link">
                     <a href="javascript:;" class="operation-link-text action-button" onclick="$('#tag-doc-${doc.documentId}').slideToggle(200);">Tag</a>
@@ -258,6 +274,7 @@
                             <span class="tag-badge tag-badge-privileged tag-apply-btn" style="text-align:left; justify-content: flex-start" onclick="applyQuickTag('Privileged'); document.getElementById('anno-tag-dropdown').style.display='none'">Privileged</span>
                             <span class="tag-badge tag-badge-hot tag-apply-btn" style="text-align:left; justify-content: flex-start" onclick="applyQuickTag('Hot'); document.getElementById('anno-tag-dropdown').style.display='none'">Hot</span>
                             <span class="tag-badge tag-badge-needs-review tag-apply-btn" style="text-align:left; justify-content: flex-start" onclick="applyQuickTag('Needs Review'); document.getElementById('anno-tag-dropdown').style.display='none'">Needs Review</span>
+                            <span class="tag-badge tag-badge-relevant tag-apply-btn" style="text-align:left; justify-content: flex-start" onclick="applyQuickTag('Relevant'); document.getElementById('anno-tag-dropdown').style.display='none'">Relevant</span>
                         </div>
                         <div style="font-weight: 600; font-size: 11px; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">Custom Tag</div>
                         <div style="display: flex; gap: 4px;">
@@ -286,6 +303,19 @@
 </c:choose>
 
 <script>
+$(document).ready(function() {
+    // Populate documents array from DOM to avoid JSP escaping issues
+    documents = [];
+    $('.html-preview').each(function() {
+        documents.push({
+            documentPath: $(this).attr('data'),
+            documentName: $(this).attr('fileName'),
+            documentId: $(this).attr('id').replace('preview-', ''),
+            uniqueId: $(this).attr('uid')
+        });
+    });
+});
+
 function showPreviewPanel(docId, docName, idx, total) {
     var panel = document.getElementById('preview-panel');
     panel.style.display = 'flex';

@@ -80,7 +80,7 @@ public class CaseFileDownloadController extends SecureController {
                 toDownload = caseFileService.getNativeFile(selectedCase.getSourceDataLocation(), docPath);
                 uniqueIdAsName = true;
             } else if ("exportImage".equals(action)) {
-                toDownload = caseFileService.getImageFile(selectedCase.getName(), docName, uniqueId);
+                toDownload = caseFileService.getImageFile(selectedCase.getFilesLocation(), docName, uniqueId);
             } else if ("exportHtml".equals(action)) {
                     String projectPath = selectedCase.getFilesLocation();
                     toDownload = caseFileService.getHtmlFile(projectPath, docName, uniqueId);
@@ -102,8 +102,23 @@ public class CaseFileDownloadController extends SecureController {
                             
                 List<SolrDocument> docs = getDocumentPaths(query, 0, rows);
                 
-                toDownload = caseFileService.getNativeFiles(selectedCase.getName(), docs);
+                toDownload = caseFileService.getNativeFiles(selectedCase.getFilesLocation(), selectedCase.getSourceDataLocation(), docs);
                 
+            } else if ("exportNativeSelected".equals(action)) {
+                String docPathsStr = (String) valueStack.get("docPaths");
+                String uidsStr = (String) valueStack.get("uniqueIds");
+                if (docPathsStr != null && uidsStr != null && !docPathsStr.trim().isEmpty() && !uidsStr.trim().isEmpty()) {
+                    String[] paths = docPathsStr.split("\\|\\|\\|");
+                    String[] uids = uidsStr.split("\\|\\|\\|");
+                    List<SolrDocument> docs = new ArrayList<SolrDocument>();
+                    for (int i = 0; i < Math.min(paths.length, uids.length); i++) {
+                        SolrDocument doc = new SolrDocument();
+                        doc.setDocumentPath(paths[i]);
+                        doc.setUniqueId(uids[i]);
+                        docs.add(doc);
+                    }
+                    toDownload = caseFileService.getNativeFiles(selectedCase.getFilesLocation(), selectedCase.getSourceDataLocation(), docs);
+                }
             } else if ("exportNativeAllFromSource".equals(action)) {
                 String query = solrSession.buildSearchQuery();
                 int rows = solrSession.getTotalDocuments();
@@ -122,7 +137,7 @@ public class CaseFileDownloadController extends SecureController {
                 int rows = solrSession.getTotalDocuments();
                 
                 List<SolrDocument> docs = getDocumentPaths(query, 0, rows);
-                toDownload = caseFileService.getImageFiles(selectedCase.getName(), docs);
+                toDownload = caseFileService.getImageFiles(selectedCase.getFilesLocation(), docs);
             }
         } catch (Exception e) {
             log.error("Problem sending cotent", e);
@@ -170,11 +185,28 @@ public class CaseFileDownloadController extends SecureController {
     
                 in.close();
                 outStream.close();
+                return null;
             } catch (Exception e) {
                 log.error("Problem sending cotent", e);
+                if (htmlMode || isPreviewPDF || isPreviewImage) {
+                    try {
+                        response.setContentType("text/html");
+                        response.getWriter().write("<html><body style='padding: 20px; font-family: sans-serif;'><h3>Preview Error</h3><p>Could not read the document content.</p></body></html>");
+                        response.getWriter().close();
+                        return null;
+                    } catch (Exception ex) {}
+                }
                 valueStack.put("error", true);
             }
         } else {
+            if (htmlMode || isPreviewPDF || isPreviewImage) {
+                try {
+                    response.setContentType("text/html");
+                    response.getWriter().write("<html><body style='padding: 20px; font-family: sans-serif;'><h3>Preview Not Available</h3><p>The native file was not found on the server.</p></body></html>");
+                    response.getWriter().close();
+                    return null;
+                } catch (Exception ex) {}
+            }
             valueStack.put("error", true);
         }
         

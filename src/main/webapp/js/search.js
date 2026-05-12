@@ -334,6 +334,28 @@ function changePage(page, fromNavigation) {
     });
 }
 
+function changeRows(rows) {
+    $.ajax({
+        type: 'POST',
+        url: 'dosearch.html',
+        data: {action: 'changerows', rows: rows},
+        success: function (data) {
+            lastDocId = null;
+
+            $("#result-ajax").html(data);
+
+            var solrId = $("#solrid").val();
+            if (solrId != null) {
+                initPage(solrId);
+            }
+            if (typeof highlightSearchResults === 'function') highlightSearchResults();
+        },
+        error: function () {
+            alert("Technical error, try that again in a few moments!");
+        }
+    });
+}
+
 function removeSearch(id) {
     $.ajax({
         type: 'POST',
@@ -639,6 +661,12 @@ $(document).ready(function () {
         }
     });
 
+    // Handle Select All checkbox
+    $(document).on('change', '.results-check-all', function() {
+        var isChecked = $(this).is(':checked');
+        $('.result-check').prop('checked', isChecked);
+    });
+
     $('#search-query').keypress(function (e) {
         if (e.keyCode == 13) {
             search();
@@ -739,6 +767,10 @@ $(document).ready(function () {
                 url: 'filedownload.html',
                 data: {action: 'exportHtml', docPath: docId, uniqueId: uId, docName: docName},
                 success: function (data) {
+                    // Prevent the FreeEed sidebar/layout from rendering inside the iframe if the backend returned a view instead of the raw file
+                    if (typeof data === 'string' && (data.indexOf('class="left"') !== -1 || data.indexOf('class="search-layout"') !== -1)) {
+                        data = "<html><body style='padding: 20px; font-family: sans-serif; color: #333;'><h3>Preview Not Available</h3><p>The document's native view could not be generated or found on the server.</p></body></html>";
+                    }
                     loadIframeContent(data);
                 },
                 error: function () {
@@ -750,3 +782,56 @@ $(document).ready(function () {
 
 
 });
+
+// Export selected documents as Native files
+function exportSelectedNatives() {
+    var checkedRows = document.querySelectorAll('.results-row input.result-check:checked');
+    if (checkedRows.length === 0) {
+        alert("Please select at least one document to export.");
+        return;
+    }
+    
+    var docPaths = [];
+    var uids = [];
+    
+    for (var i = 0; i < checkedRows.length; i++) {
+        var row = checkedRows[i].closest('.results-row');
+        var docId = row.id.replace('row-', '');
+        var previewLink = document.getElementById('preview-' + docId);
+        if (previewLink) {
+            docPaths.push(previewLink.getAttribute('data'));
+            uids.push(previewLink.getAttribute('uid'));
+        }
+    }
+    
+    if (docPaths.length === 0) {
+        alert("Could not find file data for selected documents.");
+        return;
+    }
+
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'filedownload.html';
+    
+    var actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'action';
+    actionInput.value = 'exportNativeSelected';
+    form.appendChild(actionInput);
+    
+    var inputPaths = document.createElement('input');
+    inputPaths.type = 'hidden';
+    inputPaths.name = 'docPaths';
+    inputPaths.value = docPaths.join('|||');
+    form.appendChild(inputPaths);
+    
+    var inputUids = document.createElement('input');
+    inputUids.type = 'hidden';
+    inputUids.name = 'uniqueIds';
+    inputUids.value = uids.join('|||');
+    form.appendChild(inputUids);
+    
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
