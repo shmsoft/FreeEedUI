@@ -30,117 +30,8 @@
     </form>
 </div>
 
-<!-- ═══ MAIN 3-PANEL SEARCH LAYOUT ═══ -->
+<!-- ═══ MAIN 2-PANEL SEARCH LAYOUT ═══ -->
 <div class="search-layout">
-
-    <!-- ─── LEFT: FILTER SIDEBAR ─── -->
-    <div class="filter-sidebar">
-        <div class="filter-sidebar-header">
-            <h3 class="filter-sidebar-title">Filters</h3>
-            <a href="javascript:;" class="filter-reset-link" onclick="removeAllSearch()">Reset</a>
-        </div>
-
-        <!-- File Type Filter -->
-        <div class="filter-group">
-            <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-                <i class="bi-file-earmark filter-group-icon"></i>
-                <span class="filter-group-title">File Type</span>
-                <i class="bi-chevron-up filter-chevron"></i>
-            </div>
-            <div class="filter-group-body" id="filetype-filter-body">
-                <label class="filter-checkbox-row">
-                    <input type="checkbox" class="filter-cb" data-filter="filetype" value="email" checked />
-                    <span class="filter-cb-label">Email</span>
-                    <span class="filter-cb-count" id="fc-email">0</span>
-                </label>
-                <label class="filter-checkbox-row">
-                    <input type="checkbox" class="filter-cb" data-filter="filetype" value="pdf" checked />
-                    <span class="filter-cb-label">PDF</span>
-                    <span class="filter-cb-count" id="fc-pdf">0</span>
-                </label>
-                <label class="filter-checkbox-row">
-                    <input type="checkbox" class="filter-cb" data-filter="filetype" value="text" checked />
-                    <span class="filter-cb-label">Text</span>
-                    <span class="filter-cb-count" id="fc-text">0</span>
-                </label>
-                <label class="filter-checkbox-row">
-                    <input type="checkbox" class="filter-cb" data-filter="filetype" value="excel" checked />
-                    <span class="filter-cb-label">Excel</span>
-                    <span class="filter-cb-count" id="fc-excel">0</span>
-                </label>
-                <label class="filter-checkbox-row">
-                    <input type="checkbox" class="filter-cb" data-filter="filetype" value="image" checked />
-                    <span class="filter-cb-label">Image</span>
-                    <span class="filter-cb-count" id="fc-image">0</span>
-                </label>
-                <label class="filter-checkbox-row">
-                    <input type="checkbox" class="filter-cb" data-filter="filetype" value="other" checked />
-                    <span class="filter-cb-label">Other</span>
-                    <span class="filter-cb-count" id="fc-other">0</span>
-                </label>
-            </div>
-        </div>
-
-        <!-- Tags Filter -->
-        <div class="filter-group">
-            <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-                <i class="bi-tags filter-group-icon"></i>
-                <span class="filter-group-title">Tags</span>
-                <i class="bi-chevron-up filter-chevron"></i>
-            </div>
-            <div class="filter-group-body">
-                <div class="case-tags-filter-list">
-                    <!-- Tags populated dynamically -->
-                </div>
-                <a href="javascript:;" class="filter-show-more">Show more</a>
-            </div>
-        </div>
-
-        <!-- Custodian Filter -->
-        <div class="filter-group">
-            <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-                <i class="bi-people filter-group-icon"></i>
-                <span class="filter-group-title">Custodian</span>
-                <i class="bi-chevron-up filter-chevron"></i>
-            </div>
-            <div class="filter-group-body" id="custodian-filter-body">
-                <!-- Populated dynamically from search results -->
-            </div>
-        </div>
-
-        <!-- Date Range Filter -->
-        <div class="filter-group">
-            <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-                <i class="bi-calendar3 filter-group-icon"></i>
-                <span class="filter-group-title">Date Range</span>
-                <i class="bi-chevron-up filter-chevron"></i>
-            </div>
-            <div class="filter-group-body">
-                <input type="date" id="filter-date-start" class="filter-date-input" placeholder="Start date" style="margin-bottom:8px;width:100%;padding:4px;border:1px solid #cbd5e1;border-radius:4px" />
-                <input type="date" id="filter-date-end" class="filter-date-input" placeholder="End date" style="width:100%;padding:4px;border:1px solid #cbd5e1;border-radius:4px" />
-            </div>
-        </div>
-
-        <!-- Saved Searches -->
-        <div class="filter-group">
-            <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-                <i class="bi-bookmark filter-group-icon"></i>
-                <span class="filter-group-title">Saved Searches</span>
-                <i class="bi-chevron-up filter-chevron"></i>
-            </div>
-            <div class="filter-group-body">
-                <a href="javascript:;" class="saved-search-link"><i class="bi-clock-history"></i> My Recent Searches</a>
-                <a href="javascript:;" class="saved-search-link"><i class="bi-envelope-exclamation"></i> Important Emails</a>
-                <a href="javascript:;" class="saved-search-link"><i class="bi-file-earmark-text"></i> Contracts Review</a>
-                <a href="javascript:;" class="saved-search-link"><i class="bi-shield-check"></i> Privilege Review</a>
-            </div>
-        </div>
-
-        <div class="filter-sidebar-footer">
-            <span class="filter-version-label">v10.8.0</span>
-            <a href="javascript:;" class="filter-collapse-btn" title="Collapse sidebar"><i class="bi-chevron-bar-left"></i></a>
-        </div>
-    </div>
 
     <!-- ─── CENTER: SEARCH + RESULTS ─── -->
     <div class="search-center">
@@ -186,21 +77,6 @@
             </div>
             <button class="preview-close-btn" onclick="closePreviewPanel()"><i class="bi-x-lg"></i></button>
         </div>
-        <!-- Viewer toolbar -->
-        <div class="preview-viewer-toolbar">
-            <button class="pvt-btn" title="Zoom In" onclick="previewZoomIn()"><i class="bi-zoom-in"></i></button>
-            <button class="pvt-btn" title="Zoom Out" onclick="previewZoomOut()"><i class="bi-zoom-out"></i></button>
-            <select class="pvt-zoom-select" onchange="previewZoomSet(this.value)"><option>100%</option><option>75%</option><option>125%</option><option>150%</option><option>200%</option></select>
-            <div class="pvt-sep"></div>
-            <button class="pvt-btn" title="Rotate Left" onclick="previewRotateLeft()"><i class="bi-arrow-counterclockwise"></i></button>
-            <button class="pvt-btn" title="Rotate Right" onclick="previewRotateRight()"><i class="bi-arrow-clockwise"></i></button>
-            <div class="pvt-sep"></div>
-            <button class="pvt-btn" title="Fit Width" onclick="previewZoomSet(100)"><i class="bi-arrows-expand"></i></button>
-            <button class="pvt-btn" title="Full Screen" onclick="previewFullscreen()"><i class="bi-fullscreen"></i></button>
-            <div class="pvt-sep"></div>
-            <button class="pvt-btn" title="Download" onclick="previewDownload()"><i class="bi-download"></i></button>
-            <button class="pvt-btn" title="Print" onclick="previewPrint()"><i class="bi-printer"></i></button>
-        </div>
         <!-- Tabs -->
         <div class="preview-tabs">
             <button class="preview-tab preview-tab-active" onclick="switchPreviewTab(this,'doc')">Document</button>
@@ -209,44 +85,9 @@
             <button class="preview-tab" id="preview-tags-tab" onclick="switchPreviewTab(this,'tags')">Tags (<span id="preview-tags-count">0</span>)</button>
             <button class="preview-tab" id="preview-notes-tab" onclick="switchPreviewTab(this,'notes')">Notes (<span id="preview-notes-count">0</span>)</button>
         </div>
-        <!-- Two-column body: document + metadata -->
-        <div class="preview-split">
-            <div class="preview-doc-area" id="preview-panel-body">
-                <!-- Document content loaded dynamically -->
-            </div>
-            <div class="preview-meta-area" id="preview-meta-area">
-                <div class="preview-meta-section">
-                    <h4 class="preview-meta-title">EMAIL DETAILS</h4>
-                    <div id="pm-email-details">
-                        <div class="preview-meta-row"><span class="preview-meta-key">From</span><span class="preview-meta-val" id="pm-from">-</span></div>
-                        <div class="preview-meta-row"><span class="preview-meta-key">To</span><span class="preview-meta-val" id="pm-to">-</span></div>
-                        <div class="preview-meta-row"><span class="preview-meta-key">Cc</span><span class="preview-meta-val" id="pm-cc">-</span></div>
-                        <div class="preview-meta-row"><span class="preview-meta-key">Bcc</span><span class="preview-meta-val" id="pm-bcc">-</span></div>
-                        <div class="preview-meta-row"><span class="preview-meta-key">Date</span><span class="preview-meta-val" id="pm-date">-</span></div>
-                        <div class="preview-meta-row"><span class="preview-meta-key">Subject</span><span class="preview-meta-val" id="pm-subject">-</span></div>
-                    </div>
-                </div>
-                <div class="preview-meta-section">
-                    <h4 class="preview-meta-title">FILE DETAILS</h4>
-                    <div class="preview-meta-row"><span class="preview-meta-key">File Type</span><span class="preview-meta-val" id="pm-filetype">-</span></div>
-                    <div class="preview-meta-row"><span class="preview-meta-key">File Size</span><span class="preview-meta-val" id="pm-filesize">-</span></div>
-                    <div class="preview-meta-row"><span class="preview-meta-key">Created</span><span class="preview-meta-val" id="pm-created">-</span></div>
-                    <div class="preview-meta-row"><span class="preview-meta-key">Modified</span><span class="preview-meta-val" id="pm-modified">-</span></div>
-                    <div class="preview-meta-row"><span class="preview-meta-key">MD5 Hash</span><span class="preview-meta-val" id="pm-hash">-</span></div>
-                </div>
-                <div class="preview-meta-section">
-                    <h4 class="preview-meta-title">CUSTODIAN</h4>
-                    <div class="preview-meta-row"><span class="preview-meta-val" id="pm-custodian">-</span></div>
-                </div>
-                <div class="preview-meta-section">
-                    <h4 class="preview-meta-title">COLLECTION</h4>
-                    <div class="preview-meta-row"><span class="preview-meta-val" id="pm-collection">-</span></div>
-                </div>
-                <div class="preview-meta-section">
-                    <h4 class="preview-meta-title">PATH</h4>
-                    <div class="preview-meta-row"><span class="preview-meta-val pm-path" id="pm-path">-</span></div>
-                </div>
-            </div>
+        <!-- Document preview body -->
+        <div class="preview-panel-body" id="preview-panel-body">
+            <!-- Document content loaded dynamically -->
         </div>
     </div>
 </div>
@@ -266,19 +107,6 @@ $(document).ready(function() {
         }
     }, 100);
 });
-
-/* ───── Filter sidebar collapse/expand ───── */
-function toggleFilterGroup(el) {
-    var body = el.nextElementSibling;
-    var chevron = el.querySelector('.filter-chevron');
-    if (body.style.display === 'none') {
-        body.style.display = 'block';
-        chevron.className = 'bi-chevron-up filter-chevron';
-    } else {
-        body.style.display = 'none';
-        chevron.className = 'bi-chevron-down filter-chevron';
-    }
-}
 
 /* ───── Highlight search keywords in results grid ───── */
 function highlightSearchResults() {
@@ -352,87 +180,6 @@ function highlightSearchResults() {
     }
 }
 
-/* ───── Update filter counts from actual results ───── */
-function updateFilterCounts() {
-    var rows = document.querySelectorAll('.results-row');
-    // File type counts
-    var typeMap = { email:['eml','msg'], pdf:['pdf'], text:['txt'], excel:['xls','xlsx','csv'], image:['jpg','jpeg','png','gif','tiff','tif','bmp'] };
-    var typeCounts = { email:0, pdf:0, text:0, excel:0, image:0, other:0 };
-    // Custodian counts
-    var custCounts = {};
-
-    for (var r = 0; r < rows.length; r++) {
-        // File type
-        var badge = rows[r].querySelector('.file-type-badge');
-        if (badge) {
-            var ext = badge.textContent.trim().toLowerCase();
-            var matched = false;
-            for (var t in typeMap) {
-                if (typeMap[t].indexOf(ext) >= 0) { typeCounts[t]++; matched = true; break; }
-            }
-            if (!matched) typeCounts.other++;
-        }
-        // Custodian
-        var custCell = rows[r].querySelector('.results-cell-custodian');
-        if (custCell) {
-            var cust = custCell.textContent.trim();
-            if (cust && cust.length > 0) {
-                custCounts[cust] = (custCounts[cust] || 0) + 1;
-            }
-        }
-    }
-
-    // Update file type counts
-    for (var ft in typeCounts) {
-        var el = document.getElementById('fc-' + ft);
-        if (el) el.textContent = typeCounts[ft];
-    }
-    // Hide file type rows with 0 count (optional: show all but grey out)
-    var ftRows = document.querySelectorAll('#filetype-filter-body .filter-checkbox-row');
-    for (var i = 0; i < ftRows.length; i++) {
-        var cb = ftRows[i].querySelector('.filter-cb');
-        if (cb) {
-            var count = typeCounts[cb.value] || 0;
-            ftRows[i].style.display = count > 0 ? '' : 'none';
-        }
-    }
-
-    // Build custodian checkboxes dynamically
-    var custBody = document.getElementById('custodian-filter-body');
-    if (custBody) {
-        custBody.innerHTML = '';
-        var sorted = Object.keys(custCounts).sort(function(a,b){ return custCounts[b]-custCounts[a]; });
-        for (var s = 0; s < sorted.length; s++) {
-            var name = sorted[s];
-            var label = document.createElement('label');
-            label.className = 'filter-checkbox-row';
-            label.innerHTML = '<input type="checkbox" class="filter-cb" data-filter="custodian" value="' + name.toLowerCase().replace(/"/g,'') + '" checked />' +
-                '<span class="filter-cb-label">' + name + '</span>' +
-                '<span class="filter-cb-count">' + custCounts[name] + '</span>';
-            custBody.appendChild(label);
-        }
-        // Re-attach change listeners
-        $(custBody).find('.filter-cb').on('change', applyAllFilters);
-    }
-
-    // Update tag counts in sidebar
-    var tagCounts = {};
-    var tagBadges = document.querySelectorAll('.results-cell-tags .tag-badge');
-    for (var tb = 0; tb < tagBadges.length; tb++) {
-        var titleAttr = tagBadges[tb].getAttribute('title') || '';
-        var tv = titleAttr.replace('Filter by ', '').trim();
-        if (tv) tagCounts[tv] = (tagCounts[tv] || 0) + 1;
-    }
-    var tagRows = document.querySelectorAll('.case-tags-filter-list .filter-tag-row');
-    for (var tr = 0; tr < tagRows.length; tr++) {
-        var tagLabel = tagRows[tr].querySelector('.filter-cb-label');
-        var tagCount = tagRows[tr].querySelector('.filter-cb-count');
-        if (tagLabel && tagCount) {
-            tagCount.textContent = tagCounts[tagLabel.textContent.trim()] || 0;
-        }
-    }
-}
-
 /* ───── Search / Tags tabs ───── */
 function switchSearchTab(tab) {
     document.getElementById('tab-search').classList.remove('search-tab-active');
@@ -446,11 +193,7 @@ function closePreviewPanel() {
     document.getElementById('preview-panel').style.display = 'none';
 }
 
-/* ───── Preview zoom state ───── */
-var _previewZoom = 100;
-var _previewRotation = 0;
-
-/* ───── Preview Tab switching (fully functional) ───── */
+/* ───── Preview Tab switching ───── */
 function switchPreviewTab(el, tabId) {
     // Highlight active tab
     var tabs = el.parentNode.querySelectorAll('.preview-tab');
@@ -458,7 +201,6 @@ function switchPreviewTab(el, tabId) {
     el.classList.add('preview-tab-active');
 
     var docArea = document.getElementById('preview-panel-body');
-    var metaArea = document.getElementById('preview-meta-area');
     if (!docArea) return;
 
     if (tabId === 'doc') {
@@ -467,12 +209,10 @@ function switchPreviewTab(el, tabId) {
             docArea.innerHTML = '';
             docArea.appendChild(window._savedDocContent);
         }
-        metaArea.style.display = '';
     }
     else if (tabId === 'text') {
         // Save current doc content
         _saveDocContent(docArea);
-        metaArea.style.display = 'none';
         
         var textContent = _getDocText();
         var escapedText = '';
@@ -513,7 +253,6 @@ function switchPreviewTab(el, tabId) {
     }
     else if (tabId === 'meta') {
         _saveDocContent(docArea);
-        metaArea.style.display = 'none';
         // Build metadata table from hidden detail panel
         var meta = _getAllMeta();
         var html = '<div class="preview-tab-content"><h4 class="ptc-title">Document Metadata</h4><table class="ptc-meta-table">';
@@ -526,7 +265,6 @@ function switchPreviewTab(el, tabId) {
     }
     else if (tabId === 'tags') {
         _saveDocContent(docArea);
-        metaArea.style.display = 'none';
         // Build tag management UI
         var docId = lastDocId;
         var html = '<div class="preview-tab-content"><h4 class="ptc-title">Document Tags</h4>';
@@ -559,7 +297,6 @@ function switchPreviewTab(el, tabId) {
     }
     else if (tabId === 'notes') {
         _saveDocContent(docArea);
-        metaArea.style.display = 'none';
         var html = '<div class="preview-tab-content"><h4 class="ptc-title">Notes</h4>';
         html += '<div class="ptc-notes-list" id="ptc-notes-list">';
         var notes = window._docNotes && window._docNotes[lastDocId] ? window._docNotes[lastDocId] : [];
@@ -652,222 +389,13 @@ function addNoteFromPreview() {
     if (notesTab && notesTab.classList.contains('preview-tab-active')) switchPreviewTab(notesTab, 'notes');
 }
 
-/* ───── Viewer Toolbar: Zoom ───── */
-function previewZoomIn() {
-    _previewZoom = Math.min(_previewZoom + 25, 300);
-    _applyPreviewTransform();
-    _updateZoomSelect();
-}
-function previewZoomOut() {
-    _previewZoom = Math.max(_previewZoom - 25, 25);
-    _applyPreviewTransform();
-    _updateZoomSelect();
-}
-function previewZoomSet(val) {
-    _previewZoom = parseInt(val) || 100;
-    _applyPreviewTransform();
-}
-function _updateZoomSelect() {
-    var sel = document.querySelector('.pvt-zoom-select');
-    if (sel) sel.value = _previewZoom + '%';
-}
-
-/* ───── Viewer Toolbar: Rotate ───── */
-function previewRotateLeft() {
-    _previewRotation = (_previewRotation - 90) % 360;
-    _applyPreviewTransform();
-}
-function previewRotateRight() {
-    _previewRotation = (_previewRotation + 90) % 360;
-    _applyPreviewTransform();
-}
-
-function _applyPreviewTransform() {
-    var docArea = document.getElementById('preview-panel-body');
-    if (!docArea) return;
-    var el = docArea.querySelector('iframe') || docArea.querySelector('img') || docArea.querySelector('pre') || docArea.querySelector('canvas');
-    if (!el) return;
-    el.style.transform = 'scale(' + (_previewZoom / 100) + ') rotate(' + _previewRotation + 'deg)';
-    el.style.transformOrigin = 'top left';
-}
-
-/* ───── Viewer Toolbar: Fullscreen ───── */
-function previewFullscreen() {
-    var docArea = document.getElementById('preview-panel-body');
-    if (!docArea) return;
-    if (docArea.requestFullscreen) docArea.requestFullscreen();
-    else if (docArea.webkitRequestFullscreen) docArea.webkitRequestFullscreen();
-}
-
-/* ───── Viewer Toolbar: Download ───── */
-function previewDownload() {
-    if (!lastDocId) return;
-    var docBox = document.getElementById('doc-' + lastDocId);
-    if (!docBox) return;
-    var previewLink = docBox.querySelector('.html-preview');
-    if (previewLink) {
-        var docPath = previewLink.getAttribute('data');
-        var uid = previewLink.getAttribute('uid');
-        window.open('filedownload.html?action=exportNative&docPath=' + docPath + '&uniqueId=' + uid, '_blank');
-    }
-}
-
-/* ───── Viewer Toolbar: Print ───── */
-function previewPrint() {
-    var docArea = document.getElementById('preview-panel-body');
-    if (!docArea) return;
-    var iframe = docArea.querySelector('iframe');
-    if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.print();
-    } else {
-        window.print();
-    }
-}
-
-/* ───── Apply All Client-Side Filters (File Type, Custodian, Date) ───── */
-function applyAllFilters() {
-    var rows = document.querySelectorAll('.results-row');
-    if (!rows || rows.length === 0) return;
-
-    // File Type Filter State
-    var ftChecked = document.querySelectorAll('.filter-cb[data-filter="filetype"]:checked');
-    var ftAll = document.querySelectorAll('.filter-cb[data-filter="filetype"]');
-    var types = [];
-    for (var i = 0; i < ftChecked.length; i++) types.push(ftChecked[i].value);
-    var filterFileType = (types.length > 0 && types.length < ftAll.length);
-    var typeMap = { 'email': ['eml','msg'], 'pdf': ['pdf'], 'text': ['txt'], 'excel': ['xls','xlsx','csv'], 'image': ['jpg','jpeg','png','gif','tiff','tif','bmp'] };
-    var allowedExts = [];
-    if (filterFileType) {
-        for (var t = 0; t < types.length; t++) {
-            if (typeMap[types[t]]) allowedExts = allowedExts.concat(typeMap[types[t]]);
-        }
-    }
-
-    // Custodian Filter State
-    var custChecked = document.querySelectorAll('.filter-cb[data-filter="custodian"]:checked');
-    var custAll = document.querySelectorAll('.filter-cb[data-filter="custodian"]');
-    var names = [];
-    for (var i = 0; i < custChecked.length; i++) names.push(custChecked[i].value.toLowerCase());
-    var filterCustodian = (names.length > 0 && names.length < custAll.length);
-
-    // Date Range Filter State
-    var startDateInputs = document.querySelectorAll('.filter-date-input');
-    var startDate = null;
-    var endDate = null;
-    if (startDateInputs.length >= 2) {
-        if (startDateInputs[0].value) startDate = new Date(startDateInputs[0].value);
-        if (startDateInputs[1].value) {
-            endDate = new Date(startDateInputs[1].value);
-            endDate.setHours(23, 59, 59, 999);
-        }
-    }
-    var filterDate = (startDate !== null || endDate !== null);
-
-    // Apply to rows
-    for (var r = 0; r < rows.length; r++) {
-        var show = true;
-
-        if (filterFileType && show) {
-            var badge = rows[r].querySelector('.file-type-badge');
-            if (badge) {
-                var ext = badge.textContent.trim().toLowerCase();
-                var matched = allowedExts.indexOf(ext) >= 0;
-                if (!matched && types.indexOf('other') >= 0) {
-                    // Check if it's considered 'other'
-                    var isKnown = false;
-                    for (var k in typeMap) { if (typeMap[k].indexOf(ext) >= 0) isKnown = true; }
-                    if (!isKnown) matched = true;
-                }
-                if (!matched) show = false;
-            }
-        }
-
-        if (filterCustodian && show) {
-            var custCell = rows[r].querySelector('.results-cell-custodian');
-            if (custCell) {
-                var custName = custCell.textContent.trim().toLowerCase();
-                var cMatch = false;
-                for (var n = 0; n < names.length; n++) {
-                    if (custName.indexOf(names[n]) >= 0) { cMatch = true; break; }
-                }
-                if (!cMatch) show = false;
-            }
-        }
-
-        if (filterDate && show) {
-            var dateCell = rows[r].querySelector('.results-cell-date');
-            if (dateCell) {
-                var rowDateStr = dateCell.textContent.trim();
-                if (rowDateStr && rowDateStr !== '-') {
-                    var rowDate = new Date(rowDateStr);
-                    if (!isNaN(rowDate.getTime())) {
-                        if (startDate && rowDate < startDate) show = false;
-                        if (endDate && rowDate > endDate) show = false;
-                    }
-                }
-            }
-        }
-
-        rows[r].style.display = show ? '' : 'none';
-    }
-}
-
-/* ───── Annotation toolbar: Save Note ───── */
-function saveAnnotationNote() {
-    var input = document.querySelector('.anno-note-input');
-    if (!input || !input.value.trim() || !lastDocId) { alert('Please select a document and enter a note.'); return; }
-    if (!window._docNotes) window._docNotes = {};
-    if (!window._docNotes[lastDocId]) window._docNotes[lastDocId] = [];
-    window._docNotes[lastDocId].push({ text: input.value.trim(), time: new Date().toLocaleString() });
-    input.value = '';
-    // Visual feedback
-    var btn = document.querySelector('.anno-save-note-btn');
-    if (btn) { btn.textContent = 'Saved!'; setTimeout(function(){ btn.textContent = 'Save Note'; }, 1500); }
-    
-    // Update count
-    var notesCountEl = document.getElementById('preview-notes-count');
-    if (notesCountEl) notesCountEl.textContent = window._docNotes[lastDocId].length;
-
-    // Refresh notes tab
-    var notesTab = document.getElementById('preview-notes-tab');
-    if (notesTab && notesTab.classList.contains('preview-tab-active')) switchPreviewTab(notesTab, 'notes');
-}
-
-/* ───── Reset preview zoom/rotation on new doc ───── */
+/* ───── Reset preview on new doc ───── */
 function resetPreviewTransform() {
-    _previewZoom = 100;
-    _previewRotation = 0;
-    _updateZoomSelect();
     window._savedDocContent = null;
 }
 
 /* ───── Populate tag filters from allTags ───── */
 $(document).ready(function() {
-    var tagColors = {
-        'Responsive': '#10b981',
-        'Privileged': '#f59e0b',
-        'Hot': '#ef4444',
-        'Confidential': '#8b5cf6',
-        'Needs Review': '#06b6d4'
-    };
-    var defaultColor = '#6b7280';
-    var container = $('.case-tags-filter-list');
-    for (var t in allTags) {
-        var color = tagColors[t] || defaultColor;
-        container.append(
-            '<div class="filter-tag-row" onclick="addTagToSearch(\'' + t.replace(/'/g, "\\'") + '\')">' +
-            '<span class="filter-tag-dot" style="background:' + color + '"></span>' +
-            '<span class="filter-cb-label">' + t + '</span>' +
-            '<span class="filter-cb-count"></span>' +
-            '</div>'
-        );
-    }
-
-    // Attach filter change listeners
-    $(document).on('change', '.filter-cb[data-filter="filetype"]', applyAllFilters);
-    $(document).on('change', '.filter-cb[data-filter="custodian"]', applyAllFilters);
-    $(document).on('change', '.filter-date-input', applyAllFilters);
-
     // Close dropdowns when clicking outside
     $(document).on('click', function(e) {
         if (!$(e.target).closest('.toolbar-dropdown').length) {

@@ -66,6 +66,10 @@
           <td>Source Location<span class="required">*</span>: </td>
           <td><input class="form-control" name="sourceDataLocation" value="${usercase.sourceDataLocation}"/></td>
         </tr>
+        <tr>
+          <td>Solr Core: </td>
+          <td><input class="form-control" name="solrsource" value="${usercase.solrSourceCore}" placeholder="e.g. shmcloud_1"/></td>
+        </tr>
           <tr>
             <td colspan="2">
               <span class="explanation">(Fields marked with <span class="required">*</span> are mandatory)</span>

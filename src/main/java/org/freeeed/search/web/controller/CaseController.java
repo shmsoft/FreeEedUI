@@ -150,7 +150,14 @@ public class CaseController extends BaseController {
             } else if (isCLI) {
                 id = projectId;
             }
-            Case c = new Case();
+            // When editing an existing case, load it first to preserve fields not in the form
+            Case c;
+            if (id != null) {
+                Case existing = caseDao.findCase(id);
+                c = (existing != null) ? existing : new Case();
+            } else {
+                c = new Case();
+            }
             c.setId(id);
             c.setProjectId(projectId);
             String name = (String) valueStack.get("name");
@@ -165,6 +172,10 @@ public class CaseController extends BaseController {
             }
             c.setName(name);
             c.setDescription(description);
+            String solrsourceEdit = (String) valueStack.get("solrsource");
+            if (solrsourceEdit != null && !solrsourceEdit.trim().isEmpty()) {
+                c.setSolrSourceCore(solrsourceEdit.trim());
+            }
 
             valueStack.put("errors", errors);
             valueStack.put("usercase", c);

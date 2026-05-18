@@ -230,7 +230,7 @@ function search() {
 
     var queryStr = $("#search-query").val();
     if (!queryStr || queryStr.trim() === '') {
-        queryStr = '*';
+        queryStr = '*:*';
     }
 
     $.ajax({
@@ -492,6 +492,19 @@ function getPreviewTarget() {
     return document.querySelector('#html_preview_modal_content');
 }
 
+function _showPreviewFallback(target) {
+    var textContent = (typeof _getDocText === 'function') ? _getDocText() : '';
+    if (textContent && textContent.trim().length > 0) {
+        target.innerHTML = '<div style="padding:16px;font-size:12px;line-height:1.7;color:#334155;white-space:pre-wrap;word-wrap:break-word;font-family:ui-monospace,monospace;background:#f8fafc;height:100%;overflow:auto;box-sizing:border-box;">' +
+            textContent.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+    } else {
+        target.innerHTML = '<div style="padding:32px;text-align:center;color:#94a3b8;">' +
+            '<div style="font-size:36px;margin-bottom:12px;">&#128196;</div>' +
+            '<p style="font-weight:600;color:#64748b;margin:0 0 8px">Preview not available</p>' +
+            '<p style="font-size:12px;margin:0">Use the <strong>Text/OCR</strong> or <strong>Metadata</strong> tabs to review this document.</p></div>';
+    }
+}
+
 function showPreviewPanelIfNeeded() {
     var panel = document.getElementById('preview-panel');
     if (panel) panel.style.display = 'flex';
@@ -499,6 +512,12 @@ function showPreviewPanelIfNeeded() {
 
 function loadIframeContent(htmlContent) {
     var target = getPreviewTarget();
+    // Detect full-page layout responses (error pages from server)
+    if (htmlContent.indexOf('class="wrapper"') >= 0 || htmlContent.indexOf('class="left"') >= 0) {
+        _showPreviewFallback(target);
+        showPreviewPanelIfNeeded();
+        return;
+    }
     target.innerHTML = '';
     var iframe = document.createElement('iframe');
     iframe.style.width = '100%';
@@ -522,6 +541,14 @@ function loadPdfInIframe(pdfUrl) {
     iframe.style.border = 'none';
     iframe.style.minHeight = '400px';
     iframe.src = pdfUrl;
+    iframe.onload = function() {
+        try {
+            var body = iframe.contentDocument && iframe.contentDocument.body;
+            if (body && (body.querySelector('.left') || body.querySelector('.menulink'))) {
+                _showPreviewFallback(target);
+            }
+        } catch(e) { /* cross-origin */ }
+    };
     target.appendChild(iframe);
     showPreviewPanelIfNeeded();
 }
@@ -739,10 +766,31 @@ $(document).ready(function () {
                 url: 'filedownload.html',
                 data: {action: 'exportHtml', docPath: docId, uniqueId: uId, docName: docName},
                 success: function (data) {
-                    loadIframeContent(data);
+                    // Detect if the server returned a full layout page (error case) instead of document HTML
+                    var isFullPage = data.indexOf('class="wrapper"') >= 0 || data.indexOf('class="left"') >= 0 || data.indexOf('class="menulink"') >= 0;
+                    if (isFullPage) {
+                        // Server returned the full app page (file not found / misconfigured)
+                        // Show extracted text content from the already-loaded Solr data instead
+                        var textContent = (typeof _getDocText === 'function') ? _getDocText() : '';
+                        var t = getPreviewTarget();
+                        if (textContent && textContent.trim().length > 0) {
+                            t.innerHTML = '<div style="padding:16px;font-size:12px;line-height:1.7;color:#334155;white-space:pre-wrap;word-wrap:break-word;font-family:ui-monospace,monospace;background:#f8fafc;height:100%;overflow:auto;box-sizing:border-box;">' +
+                                textContent.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+                        } else {
+                            t.innerHTML = '<div style="padding:32px;text-align:center;color:#94a3b8;">' +
+                                '<div style="font-size:36px;margin-bottom:12px;">&#128196;</div>' +
+                                '<p style="font-weight:600;color:#64748b;margin:0 0 8px">Preview not available</p>' +
+                                '<p style="font-size:12px;margin:0">Use the <strong>Text/OCR</strong> or <strong>Metadata</strong> tabs to review this document.</p></div>';
+                        }
+                        showPreviewPanelIfNeeded();
+                    } else {
+                        loadIframeContent(data);
+                    }
                 },
                 error: function () {
-                    alert("Technical error, try that again in a few moments!");
+                    var t = getPreviewTarget();
+                    t.innerHTML = '<div style="padding:32px;text-align:center;color:#ef4444;font-size:13px;">Failed to load document preview.</div>';
+                    showPreviewPanelIfNeeded();
                 }
             });
         }

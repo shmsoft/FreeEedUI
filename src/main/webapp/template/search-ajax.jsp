@@ -242,39 +242,6 @@
     </c:forEach>
     </div>
 
-    <!-- ─── BOTTOM ANNOTATION TOOLBAR ─── -->
-    <div class="annotation-toolbar">
-        <div class="annotation-toolbar-left">
-            <button type="button" class="anno-btn anno-highlight"><span class="anno-dot" style="background:#10b981;"></span> Highlight <i class="bi-chevron-down"></i></button>
-            <button type="button" class="anno-btn anno-redact"><span class="anno-dot" style="background:#ef4444;"></span> Redact <i class="bi-chevron-down"></i></button>
-            <button type="button" class="anno-btn anno-comment"><i class="bi-chat-dots"></i> Comment <i class="bi-chevron-down"></i></button>
-            <div class="anno-tags-quick">
-                <div class="toolbar-dropdown">
-                    <button type="button" class="anno-add-tag-btn" onclick="var menu = document.getElementById('anno-tag-dropdown'); menu.style.display = menu.style.display === 'none' ? 'block' : 'none';"><i class="bi-tags"></i> Add Tag <i class="bi-chevron-down" style="font-size:10px;margin-left:4px"></i></button>
-                    <div class="toolbar-dropdown-menu" id="anno-tag-dropdown" style="display:none; padding: 10px; width: 220px; bottom: 100%; top: auto; margin-bottom: 4px;">
-                        <div style="font-weight: 600; font-size: 11px; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">Predefined Tags</div>
-                        <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
-                            <span class="tag-badge tag-badge-responsive tag-apply-btn" style="text-align:left; justify-content: flex-start" onclick="applyQuickTag('Responsive'); document.getElementById('anno-tag-dropdown').style.display='none'">Responsive</span>
-                            <span class="tag-badge tag-badge-privileged tag-apply-btn" style="text-align:left; justify-content: flex-start" onclick="applyQuickTag('Privileged'); document.getElementById('anno-tag-dropdown').style.display='none'">Privileged</span>
-                            <span class="tag-badge tag-badge-hot tag-apply-btn" style="text-align:left; justify-content: flex-start" onclick="applyQuickTag('Hot'); document.getElementById('anno-tag-dropdown').style.display='none'">Hot</span>
-                            <span class="tag-badge tag-badge-needs-review tag-apply-btn" style="text-align:left; justify-content: flex-start" onclick="applyQuickTag('Needs Review'); document.getElementById('anno-tag-dropdown').style.display='none'">Needs Review</span>
-                        </div>
-                        <div style="font-weight: 600; font-size: 11px; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">Custom Tag</div>
-                        <div style="display: flex; gap: 4px;">
-                            <input type="text" class="custom-tag-input" id="anno-custom-tag-input" placeholder="New tag..." style="flex:1" onkeypress="if(event.keyCode==13){applyQuickTag(this.value);this.value='';document.getElementById('anno-tag-dropdown').style.display='none';}" />
-                            <button type="button" class="tag-action-btn custom-tag-apply" style="padding: 4px 8px" onclick="applyQuickTag(document.getElementById('anno-custom-tag-input').value);document.getElementById('anno-custom-tag-input').value='';document.getElementById('anno-tag-dropdown').style.display='none';">Add</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="annotation-notes-bar">
-        <i class="bi-chat-left-text anno-note-icon"></i>
-        <input type="text" class="anno-note-input" placeholder="Add a note..." onkeypress="if(event.keyCode==13){saveAnnotationNote();}" />
-        <button type="button" class="anno-save-note-btn" onclick="saveAnnotationNote()">Save Note</button>
-    </div>
-
   </c:when>
   <c:otherwise>
     <div class="no-result-modern">

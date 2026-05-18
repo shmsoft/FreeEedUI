@@ -2,6 +2,12 @@
    MODERN SEARCH PAGE — 3-PANEL LAYOUT
 ═══════════════════════════════════════════════════════════ */
 
+/* ── Override .content padding on search page so layout fills full area ── */
+body:has(.search-layout) .content {
+    padding: 0;
+    overflow: hidden;
+}
+
 /* ── Topbar additions ── */
 .topbar-center{display:flex;align-items:center;gap:14px;flex:1;margin:0 16px}
 .topbar-case-form{display:flex;align-items:center;gap:8px;margin:0;flex-shrink:0}
@@ -22,8 +28,8 @@
 /* ── 3-Panel Layout ── */
 .search-layout{display:flex;height:calc(100vh - var(--topbar-h) - 32px);gap:0;overflow:hidden}
 
-/* ── Filter Sidebar ── */
-.filter-sidebar{width:240px;flex-shrink:0;background:#fff;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;overflow-y:auto}
+/* ── Filter Sidebar (hidden - removed) ── */
+.filter-sidebar{display:none}
 .filter-sidebar-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 10px;border-bottom:1px solid #f0f0f0}
 .filter-sidebar-title{margin:0;font-size:14px;font-weight:700;color:#1e293b}
 .filter-reset-link{font-size:12px;color:#3b82f6;text-decoration:none;font-weight:500}
@@ -188,11 +194,11 @@
 
 .preview-panel-body{flex:1;overflow-y:auto;padding:0;display:flex;flex-direction:column}
 
-/* ── Preview Split: document + metadata ── */
+/* ── Preview Split: removed, using single column ── */
 .preview-split{flex:1;display:flex;overflow:hidden}
 .preview-doc-area{flex:1;overflow-y:auto;padding:10px;min-width:0;background:#f9fafb}
 .preview-doc-area iframe{border-radius:6px;background:#fff;border:1px solid #e5e7eb}
-.preview-meta-area{width:200px;flex-shrink:0;overflow-y:auto;padding:0;border-left:1px solid #e5e7eb;background:#fff}
+.preview-meta-area{display:none}
 
 /* ── Preview Tabs ── */
 .preview-tabs{display:flex;border-bottom:1px solid #e5e7eb;background:#fff;flex-shrink:0;padding:0 14px}
