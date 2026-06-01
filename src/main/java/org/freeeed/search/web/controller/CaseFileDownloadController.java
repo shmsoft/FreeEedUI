@@ -78,6 +78,25 @@ public class CaseFileDownloadController extends SecureController {
         try {
             if ("exportNative".equals(action)) {
                 toDownload = caseFileService.getNativeFile(selectedCase.getSourceDataLocation(), docPath);
+                if (toDownload == null) {
+                    String filesLoc = selectedCase.getFilesLocation();
+                    if (filesLoc != null && !filesLoc.isEmpty()) {
+                        String fileName = docPath.contains(File.separator) ? docPath.substring(docPath.lastIndexOf(File.separator) + 1) : docPath;
+                        fileName = uniqueId + "_" + fileName;
+                        File dir = new File(filesLoc, "native");
+                        if (dir.exists() && dir.listFiles() != null) {
+                            for (File file : dir.listFiles()) {
+                                if (file.getName().equals(fileName)) {
+                                    toDownload = file;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (toDownload == null) {
+                    toDownload = caseFileService.getNativeFile(selectedCase.getName(), docPath, uniqueId);
+                }
                 uniqueIdAsName = true;
             } else if ("exportImage".equals(action)) {
                 toDownload = caseFileService.getImageFile(selectedCase.getName(), docName, uniqueId);
