@@ -120,22 +120,36 @@ public class CaseFileService {
         }
         return file.exists() ? file : null;
     }
-    public File getNativeFile(String caseName, String documentOriginalPath, String uniqueId) {
-        String fileName = documentOriginalPath.contains(File.separator) ?
-                documentOriginalPath.substring(documentOriginalPath.lastIndexOf(File.separator) + 1) : documentOriginalPath;
-        
-        fileName = uniqueId + "_" + fileName;        
-                
-        File dir = new File(FILES_DIR + File.separator + caseName + File.separator + "native");
+    public File getNativeFile(String projectOutputPath, String documentOriginalPath, String uniqueId) {
+        return getNativeFile(projectOutputPath, null, documentOriginalPath, uniqueId);
+    }
+    
+    public File getNativeFile(String projectOutputPath, String sourceDataLocation, String documentOriginalPath, String uniqueId) {
+        log.info("getNativeFile called: projectOutputPath=" + projectOutputPath + ", uniqueId=" + uniqueId);
+        if (uniqueId == null || uniqueId.isEmpty()) return null;
+        File dir = new File(projectOutputPath + File.separator + "native");
+        String prefix = uniqueId + "_";
         if (dir.exists()) {
             File[] files = dir.listFiles();
-            for (File file : files) {
-                if (file.getName().equals(fileName)) {
-                    return file;
+            if (files != null) {
+                for (File file : files) {
+                    if (file.getName().startsWith(prefix)) {
+                        return file;
+                    }
                 }
             }
+        } else {
+            // Try extracting from native1.zip
+            File extracted = extractFromZip(projectOutputPath + File.separator + "native1.zip", "native/" + prefix, "");
+            if (extracted != null) {
+                log.info("Extracted file: " + extracted.getAbsolutePath());
+                return extracted;
+            }
         }
-        return null;
+        
+        // Fallback to sourceDataLocation
+        log.info("Falling back to sourceDataLocation for: " + documentOriginalPath);
+        return getNativeFile(sourceDataLocation, documentOriginalPath);
     }
     
     public File getNativeFileFromSource(String location, String source, String documentOriginalPath) throws IOException {
@@ -268,22 +282,54 @@ public class CaseFileService {
         return file;
     }
     
-    public File getImageFile(String caseName, String documentOriginalPath, String uniqueId) {
-        String fileName = documentOriginalPath.contains(File.separator) ?
-                documentOriginalPath.substring(documentOriginalPath.lastIndexOf(File.separator) + 1) : documentOriginalPath;
-        
-        fileName = uniqueId + "_" + fileName;        
-                
-        File dir = new File(FILES_DIR + File.separator + caseName + File.separator + "pdf");
+    public File getImageFile(String projectOutputPath, String documentOriginalPath, String uniqueId) {
+        if (uniqueId == null || uniqueId.isEmpty()) return null;
+        File dir = new File(projectOutputPath + File.separator + "pdf");
+        String prefix = uniqueId + "_";
         if (dir.exists()) {
             File[] files = dir.listFiles();
-            for (File file : files) {
-                if (file.getName().endsWith(fileName + ".pdf")) {
-                    return file;
+            if (files != null) {
+                for (File file : files) {
+                    if (file.getName().startsWith(prefix) && file.getName().endsWith(".pdf")) {
+                        return file;
+                    }
                 }
             }
+        } else {
+             // PDFs are usually in native1.zip inside native/ folder, ending with .pdf
+             return extractFromZip(projectOutputPath + File.separator + "native1.zip", "native/" + prefix, ".pdf");
         }
-        
+        return null;
+    }
+
+    private File extractFromZip(String zipFilePath, String prefix, String suffix) {
+        log.info("extractFromZip called: zipFilePath=" + zipFilePath + ", prefix=" + prefix);
+        File zipFile = new File(zipFilePath);
+        if (!zipFile.exists()) {
+            log.info("Zip file does not exist: " + zipFilePath);
+            return null;
+        }
+        try (java.util.zip.ZipFile zf = new java.util.zip.ZipFile(zipFile)) {
+            java.util.Enumeration<? extends java.util.zip.ZipEntry> entries = zf.entries();
+            while (entries.hasMoreElements()) {
+                java.util.zip.ZipEntry entry = entries.nextElement();
+                if (entry.getName().startsWith(prefix) && entry.getName().endsWith(suffix)) {
+                    File tmpFile = new File(FILES_TMP_DIR, entry.getName().replace("/", "_"));
+                    log.info("Found match in zip! Extracting to: " + tmpFile.getAbsolutePath());
+                    if (!tmpFile.exists()) {
+                        tmpFile.getParentFile().mkdirs();
+                        try (java.io.InputStream is = zf.getInputStream(entry);
+                             java.io.FileOutputStream fos = new java.io.FileOutputStream(tmpFile)) {
+                            org.apache.commons.io.IOUtils.copy(is, fos);
+                        }
+                    }
+                    return tmpFile;
+                }
+            }
+            log.info("No match found in zip for prefix=" + prefix);
+        } catch (Exception e) {
+            log.error("Error extracting from zip: " + zipFilePath, e);
+        }
         return null;
     }
     
@@ -311,10 +357,10 @@ public class CaseFileService {
         return res;
     }
     
-    public File getNativeFiles(String caseName, List<SolrDocument> docs) {
+    public File getNativeFiles(String projectOutputPath, String sourceDataLocation, List<SolrDocument> docs) {
         List<File> imageFiles = new ArrayList<>();
         for (SolrDocument doc : docs) {
-            File file = getNativeFile(caseName, doc.getDocumentPath(), doc.getUniqueId());
+            File file = getNativeFile(projectOutputPath, sourceDataLocation, doc.getDocumentPath(), doc.getUniqueId());
             if (file != null) {
                 imageFiles.add(file);
             }

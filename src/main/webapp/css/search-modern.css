@@ -175,7 +175,7 @@ body:has(.search-layout) .content {
 .page-num-input:focus{border-color:#3b82f6}
 
 /* ── Preview Panel ── */
-.preview-panel{width:420px;flex-shrink:0;background:#fff;border-left:1px solid #e5e7eb;display:flex;flex-direction:column;overflow:hidden}
+.preview-panel{width:45%;min-width:420px;max-width:900px;flex-shrink:0;background:#fff;border-left:1px solid #e5e7eb;display:flex;flex-direction:column;overflow:hidden}
 .preview-panel-header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e5e7eb;flex-shrink:0;background:#fff}
 .preview-doc-title{font-size:13px;font-weight:600;color:#1e293b;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .preview-nav{display:flex;align-items:center;gap:8px;flex-shrink:0}

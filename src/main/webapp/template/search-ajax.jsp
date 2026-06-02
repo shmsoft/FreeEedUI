@@ -187,6 +187,8 @@
             </div> 
 
             <div class="operations-box">
+                <!-- Hidden trigger clicked by showPreviewPanel() to load the document into the preview panel -->
+                <a id="preview-${doc.documentId}" class="html-preview" style="display:none" fileName="${fn:escapeXml(doc.documentName)}" data="${fn:escapeXml(doc.documentPath)}" uid="${doc.uniqueId}">Preview</a>
                 <div class="operation-link">
                     <a href="javascript:;" class="operation-link-text action-button" onclick="showMetadataModal('${doc.documentId}')">Metadata</a>
                 </div>
