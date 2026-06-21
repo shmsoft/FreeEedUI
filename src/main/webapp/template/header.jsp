@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page import="org.freeeed.search.web.Version"%>
 <button class="menu_button" aria-label="Toggle menu"><i class="bi-list"></i></button>
 <a href="login.html" class="brand-link">
     <img src="./images/FreeEedLogowhite.png" class="brand-logo" width="128" />
@@ -38,4 +39,4 @@
         </div>
     </c:if>
 </div>
-<span class="topbar-version">v10.8</span>
+<span class="topbar-version" title="<%= Version.getBuildDetail() %>"><%= Version.getDisplayVersion() %></span>
