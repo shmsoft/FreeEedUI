@@ -5,3 +5,6 @@ out/
 /.vs/FreeEedUI/FileContentIndex
 .vscode/
 *.dat
+
+# Private GM/operations record — must never land in this public repo
+OPERATIONS.md
