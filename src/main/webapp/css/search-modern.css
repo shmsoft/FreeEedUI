@@ -112,6 +112,9 @@ body:has(.search-layout) .content {
 .results-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto}
 .results-table thead th{position:sticky;top:0;z-index:2;background:#f8fafc;color:#64748b;padding:8px 12px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #e5e7eb;white-space:nowrap}
 .results-th-check{width:36px}
+.results-th-sort{cursor:pointer;user-select:none}
+.results-th-sort:hover{color:#2563eb}
+.results-th-sort i{font-size:10px;vertical-align:middle}
 .results-th-actions{width:36px}
 .results-row{border-bottom:1px solid #f1f5f9;transition:background .12s;cursor:pointer}
 .results-row:hover{background:#f1f5f9}

@@ -25,6 +25,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,12 +73,19 @@ public class SolrSearchService {
      * @return
      */
     public SolrResult search(String query, int from, int rows) {
-        return search(query, from, rows, "gl-search-field", false, null); 
-    }        
-    
+        return search(query, from, rows, "gl-search-field", false, null, null);
+    }
+
+    /**
+     * Search with an explicit Solr sort clause (e.g. "id asc"), issue #74.
+     */
+    public SolrResult search(String query, int from, int rows, String sort) {
+        return search(query, from, rows, "gl-search-field", false, null, sort);
+    }
+
     /**
      * Search in Solr for the given query.
-     * 
+     *
      * @param query
      * @param from
      * @param rows
@@ -85,19 +93,29 @@ public class SolrSearchService {
      * @param highlight
      * @return
      */
-    public SolrResult search(String query, int from, int rows, 
+    public SolrResult search(String query, int from, int rows,
             String defaultField, boolean highlight, String fields) {
+        return search(query, from, rows, defaultField, highlight, fields, null);
+    }
+
+    /**
+     * Search in Solr for the given query, with an optional sort clause.
+     *
+     * @param sort a Solr sort clause such as "id asc" (null/empty = Solr default)
+     */
+    public SolrResult search(String query, int from, int rows,
+            String defaultField, boolean highlight, String fields, String sort) {
         log.debug("Searching: " + query);
-        
-        String searchResult = searchSolr(query, from, rows, defaultField, highlight, fields);
-        
+
+        String searchResult = searchSolr(query, from, rows, defaultField, highlight, fields, sort);
+
         if (searchResult != null) {
             Document doc = createDOM(searchResult);
             if (doc != null) {
                 return buildResult(doc);
             }
         }
-        
+
         return null;
     }
     
@@ -106,15 +124,15 @@ public class SolrSearchService {
         
         log.debug("Getting keywords for: " + query);
         
-        String searchResult = searchSolr(query, from, rows, defaultField, highlight, null);
-        
+        String searchResult = searchSolr(query, from, rows, defaultField, highlight, null, null);
+
         if (searchResult != null) {
             Document doc = createDOM(searchResult);
             if (doc != null) {
                 return getHighlight(doc);
             }
         }
-        
+
         return result;
     }
     
@@ -166,7 +184,8 @@ public class SolrSearchService {
         
         NodeList documentsList = responseEl.getElementsByTagName("doc");
         
-        Map<String, SolrDocument> solrDocuments = new HashMap<String, SolrDocument>();
+        // LinkedHashMap preserves Solr's result order (issue #74).
+        Map<String, SolrDocument> solrDocuments = new LinkedHashMap<String, SolrDocument>();
         for (int i = 0; i < documentsList.getLength(); i++) {
             Element documentEl = (Element) documentsList.item(i);
             
@@ -228,10 +247,10 @@ public class SolrSearchService {
      * @param rows
      * @return
      */
-    private String searchSolr(String query, int from, int rows, 
-            String defaultField, boolean highlight, String fields) {
-        
-        HttpServletRequest curRequest = 
+    private String searchSolr(String query, int from, int rows,
+            String defaultField, boolean highlight, String fields, String sort) {
+
+        HttpServletRequest curRequest =
             ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
                                                                 .getRequest();
         HttpSession session = curRequest.getSession();
@@ -256,7 +275,10 @@ public class SolrSearchService {
             if (fields != null) {
                 urlStr += "&fl=" + fields;
             }
-            
+            if (sort != null && sort.trim().length() > 0) {
+                urlStr += "&sort=" + URLEncoder.encode(sort.trim(), "UTF-8");
+            }
+
             URL url = new URL(urlStr);
             
             log.debug("Will execute: " + url.toString());

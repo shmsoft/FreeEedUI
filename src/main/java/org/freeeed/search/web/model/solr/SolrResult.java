@@ -16,7 +16,7 @@
 */
 package org.freeeed.search.web.model.solr;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -51,7 +51,9 @@ public class SolrResult implements Cloneable {
     public SolrResult clone() {
         try {
             SolrResult cloned = (SolrResult) super.clone();
-            Map<String, SolrDocument> clonedDocuments = new HashMap<String, SolrDocument>();
+            // LinkedHashMap keeps Solr's returned order (issue #74) instead of
+            // scrambling documents into hash order.
+            Map<String, SolrDocument> clonedDocuments = new LinkedHashMap<String, SolrDocument>();
             
             for (SolrDocument doc : documents.values()) {
                 SolrDocument clonedDoc = doc.clone();
