@@ -3,8 +3,12 @@
 
 <script>
     var currentPage = ${currentPage};
+    var totalPage = ${totalPage};
     var showPrev = ${showPrev};
     var showNext = ${showNext};
+    var currentSortField = '${sortField}';
+    var currentSortDir = '${sortDir}';
+    var pageSize = ${pageSize};
     var documents = [];
     <c:forEach var="doc" items="${result.documents}">
     documents.push({
@@ -94,7 +98,12 @@
             <thead>
                 <tr>
                     <th class="results-th-check"><input type="checkbox" class="results-check-all" title="Select all" /></th>
-                    <th>ID</th>
+                    <th class="results-th-sort" onclick="sortBy('id')" title="Sort by ID">ID <c:if test="${sortField eq 'id'}"><i class="bi-caret-${sortDir eq 'asc' ? 'up' : 'down'}-fill"></i></c:if></th>
+                    <%-- Only 'id' (string, single-valued) is sortable in the current Solr
+                         schema. File Name (subject), Custodian, Date are multiValued/text
+                         or not indexed for sort, so sorting on them would error. They stay
+                         plain until sortable index fields are added + reindexed (issue #74
+                         follow-up on the FreeEed processing side). --%>
                     <th>File Name</th>
                     <th>Type</th>
                     <th>Custodian</th>
@@ -143,13 +152,14 @@
     <div class="results-pagination">
         <div class="results-pagination-left">
             <span class="results-page-info">Show</span>
-            <select class="results-page-size">
-                <option>25</option>
-                <option>50</option>
-                <option>100</option>
+            <select class="results-page-size" id="results-page-size" onchange="changePageSize(this.value)">
+                <option value="10" ${pageSize == 10 ? 'selected' : ''}>10</option>
+                <option value="25" ${pageSize == 25 ? 'selected' : ''}>25</option>
+                <option value="50" ${pageSize == 50 ? 'selected' : ''}>50</option>
+                <option value="100" ${pageSize == 100 ? 'selected' : ''}>100</option>
             </select>
             <span class="results-page-info">per page</span>
-            <span class="results-page-range">1-${fn:length(result.documents)} of ${result.totalSize}</span>
+            <span class="results-page-range">${resultFrom + 1}-${resultFrom + fn:length(result.documents)} of ${result.totalSize}</span>
         </div>
         <div class="results-pagination-right">
             <button type="button" class="page-btn" <c:if test="${!showPrev}">disabled</c:if> onclick="changePage(1)" title="First page"><i class="bi-chevron-bar-left"></i></button>
@@ -158,7 +168,7 @@
             <input class="page-num-input" type="text" value="${currentPage}" onkeypress="if(event.keyCode==13){changePage(parseInt(this.value));}" />
             <span class="page-label"></span>
             <button type="button" class="page-btn" <c:if test="${!showNext}">disabled</c:if> onclick="changePage(${currentPage + 1})" title="Next"><i class="bi-chevron-right"></i></button>
-            <button type="button" class="page-btn" <c:if test="${!showNext}">disabled</c:if> title="Last page"><i class="bi-chevron-bar-right"></i></button>
+            <button type="button" class="page-btn" <c:if test="${!showNext}">disabled</c:if> onclick="changePage(totalPage)" title="Last page"><i class="bi-chevron-bar-right"></i></button>
         </div>
     </div>
     </c:if>

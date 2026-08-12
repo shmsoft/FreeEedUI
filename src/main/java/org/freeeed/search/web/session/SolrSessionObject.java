@@ -37,7 +37,40 @@ public class SolrSessionObject {
     private int totalDocuments;
     private List<QuerySearch> queries = new ArrayList<QuerySearch>();
     private Case selectedCase;
-    
+
+    // Results-list sort + page size (issue #74). Held in the session so they
+    // persist across paging/tag/remove requests, which all re-run the query.
+    // Defaults: natural-ish stable order by id ascending, sane page size.
+    private String sortField = "id";
+    private String sortDir = "asc";
+    private int pageSize; // 0 = use the configured/default page size
+
+    public String getSortField() {
+        return sortField;
+    }
+
+    public void setSortField(String sortField) {
+        if (sortField != null && sortField.trim().length() > 0) {
+            this.sortField = sortField.trim();
+        }
+    }
+
+    public String getSortDir() {
+        return "desc".equalsIgnoreCase(sortDir) ? "desc" : "asc";
+    }
+
+    public void setSortDir(String sortDir) {
+        this.sortDir = "desc".equalsIgnoreCase(sortDir) ? "desc" : "asc";
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
     public int getCurrentPage() {
         return currentPage;
     }

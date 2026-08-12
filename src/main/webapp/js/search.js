@@ -334,6 +334,52 @@ function changePage(page, fromNavigation) {
     });
 }
 
+// Re-sort the results list by a column (issue #74). Toggles asc/desc when the
+// same column is clicked again; the sort is held server-side in the session.
+function sortBy(field) {
+    var dir = (typeof currentSortField !== 'undefined'
+               && currentSortField === field
+               && currentSortDir === 'asc') ? 'desc' : 'asc';
+    $.ajax({
+        type: 'POST',
+        url: 'dosearch.html',
+        data: {action: 'sort', sort: field, dir: dir},
+        success: function (data) {
+            lastDocId = null;
+            $("#result-ajax").html(data);
+            var solrId = $("#solrid").val();
+            if (solrId != null) {
+                initPage(solrId);
+            }
+            if (typeof highlightSearchResults === 'function') highlightSearchResults();
+        },
+        error: function () {
+            alert("Technical error, try that again in a few moments!");
+        }
+    });
+}
+
+// Change how many documents show per page (issue #74). Returns to page 1.
+function changePageSize(size) {
+    $.ajax({
+        type: 'POST',
+        url: 'dosearch.html',
+        data: {action: 'pagesize', pageSize: size},
+        success: function (data) {
+            lastDocId = null;
+            $("#result-ajax").html(data);
+            var solrId = $("#solrid").val();
+            if (solrId != null) {
+                initPage(solrId);
+            }
+            if (typeof highlightSearchResults === 'function') highlightSearchResults();
+        },
+        error: function () {
+            alert("Technical error, try that again in a few moments!");
+        }
+    });
+}
+
 function removeSearch(id) {
     $.ajax({
         type: 'POST',

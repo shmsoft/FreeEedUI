@@ -69,9 +69,20 @@ public class SearchController extends SecureController {
         }
         
         int page = 1;
-        int rows = configuration.getNumberOfRows();
+
+        // Effective page size (issue #74): session override wins, else the
+        // configured value; guarded against a stale "fetch-all" setting
+        // (e.g. 99999 in an old install's a.dat) that broke pagination.
+        int pageSize = solrSession.getPageSize();
+        if (pageSize <= 0) {
+            pageSize = configuration.getNumberOfRows();
+        }
+        if (pageSize <= 0 || pageSize > 500) {
+            pageSize = 25;
+        }
+        int rows = pageSize;
         int from = 0;
-        
+
         if ("search".equals(action)) {
             //setup the query
             String search = (String) valueStack.get("query");
@@ -79,15 +90,15 @@ public class SearchController extends SecureController {
                 KeywordQuerySearch qs = new KeywordQuerySearch(search, solrSearchService, from, rows);
                 solrSession.addQuery(qs);
             }
-            
+
         } else if ("tagsearch".equals(action)) {
-            
+
             String tag = (String) valueStack.get("tag");
             if (tag != null && tag.length() > 0) {
                 TagQuerySearch qs = new TagQuerySearch(tag);
                 solrSession.addQuery(qs);
             }
-            
+
         } else if ("remove".equals(action)) {
             String idStr = (String) valueStack.get("id");
             try {
@@ -95,9 +106,25 @@ public class SearchController extends SecureController {
                 solrSession.removeById(id);
             } catch (Exception e) {
             }
-            
+
         } else if ("removeall".equals(action)) {
             solrSession.removeAll();
+        } else if ("sort".equals(action)) {
+            // Change the results-list sort; return to page 1 (issue #74).
+            solrSession.setSortField((String) valueStack.get("sort"));
+            solrSession.setSortDir((String) valueStack.get("dir"));
+        } else if ("pagesize".equals(action)) {
+            // Change the page size; return to page 1 (issue #74).
+            String sizeStr = (String) valueStack.get("pageSize");
+            try {
+                int size = Integer.parseInt(sizeStr);
+                if (size > 0 && size <= 500) {
+                    solrSession.setPageSize(size);
+                    pageSize = size;
+                    rows = size;
+                }
+            } catch (Exception e) {
+            }
         } else if ("changepage".equals(action)) {
             String pageStr = (String) valueStack.get("page");
             if (pageStr != null) {
@@ -106,16 +133,19 @@ public class SearchController extends SecureController {
                     if (page < 1) {
                         page = 1;
                     }
-                    
+
                     if (solrSession != null) {
                         if (page > solrSession.getTotalPage()) {
                             page = solrSession.getTotalPage();
                         }
                     }
+                    if (page < 1) {
+                        page = 1;
+                    }
                 } catch (Exception e) {
                 }
-                
-                from = (page - 1) * configuration.getNumberOfRows();
+
+                from = (page - 1) * rows;
             }
         }
         
@@ -137,42 +167,49 @@ public class SearchController extends SecureController {
         if (searches.size() > 0) {
         
             String search = solrSession.buildSearchQuery();
-            
-            SolrResult result = solrSearchService.search(search, from, rows);
+
+            String sortClause = solrSession.getSortField() + " " + solrSession.getSortDir();
+            SolrResult result = solrSearchService.search(search, from, rows, sortClause);
             //if solr returns correct result
             if (result != null) {
                 //prepare the view data
                 SearchResult resultView = searchViewPreparer.prepareView(result);
                 resultHighlight.highlight(resultView, yourSearches);
-                
+
                 valueStack.put("result", resultView);
                 valueStack.put("searched", yourSearches);
-    
+
                 solrSession.setCurrentPage(page);
-                
-                int total = result.getTotalSize() / configuration.getNumberOfRows();
-                if (result.getTotalSize() % configuration.getNumberOfRows() > 0) {
+
+                int total = result.getTotalSize() / rows;
+                if (result.getTotalSize() % rows > 0) {
                     total ++;
                 }
-                
+
                 solrSession.setTotalPage(total);
                 solrSession.setTotalDocuments(result.getTotalSize());
-                                
+
 
             }
         }
+        // Expose the offset + effective page size for the results counter (issue #74).
+        valueStack.put("resultFrom", from);
+        valueStack.put("pageSize", pageSize);
         setupPagination();
         return new ModelAndView(WebConstants.SEARCH_AJAX_PAGE);
     }
-    
+
     private void setupPagination() {
-        SolrSessionObject session = (SolrSessionObject) 
+        SolrSessionObject session = (SolrSessionObject)
             this.request.getSession(true).getAttribute("solrSession");
-        
+
         valueStack.put("showPagination", session.getTotalPage() > 1);
         valueStack.put("currentPage",  session.getCurrentPage());
+        valueStack.put("totalPage", session.getTotalPage());
         valueStack.put("showPrev", session.getCurrentPage() > 1);
         valueStack.put("showNext", session.getCurrentPage() < session.getTotalPage());
+        valueStack.put("sortField", session.getSortField());
+        valueStack.put("sortDir", session.getSortDir());
         valueStack.put("searchPerformed", true);
     }
     
