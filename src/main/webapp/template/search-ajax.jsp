@@ -99,10 +99,15 @@
                 <tr>
                     <th class="results-th-check"><input type="checkbox" class="results-check-all" title="Select all" /></th>
                     <th class="results-th-sort" onclick="sortBy('id')" title="Sort by ID">ID <c:if test="${sortField eq 'id'}"><i class="bi-caret-${sortDir eq 'asc' ? 'up' : 'down'}-fill"></i></c:if></th>
-                    <th class="results-th-sort" onclick="sortBy('subject')" title="Sort by File Name">File Name <c:if test="${sortField eq 'subject'}"><i class="bi-caret-${sortDir eq 'asc' ? 'up' : 'down'}-fill"></i></c:if></th>
+                    <%-- Only 'id' (string, single-valued) is sortable in the current Solr
+                         schema. File Name (subject), Custodian, Date are multiValued/text
+                         or not indexed for sort, so sorting on them would error. They stay
+                         plain until sortable index fields are added + reindexed (issue #74
+                         follow-up on the FreeEed processing side). --%>
+                    <th>File Name</th>
                     <th>Type</th>
-                    <th class="results-th-sort" onclick="sortBy('from')" title="Sort by Custodian">Custodian <c:if test="${sortField eq 'from'}"><i class="bi-caret-${sortDir eq 'asc' ? 'up' : 'down'}-fill"></i></c:if></th>
-                    <th class="results-th-sort" onclick="sortBy('date')" title="Sort by Date">Date <c:if test="${sortField eq 'date'}"><i class="bi-caret-${sortDir eq 'asc' ? 'up' : 'down'}-fill"></i></c:if></th>
+                    <th>Custodian</th>
+                    <th>Date</th>
                     <th>Tags</th>
                     <th class="results-th-actions"></th>
                 </tr>
