@@ -267,6 +267,12 @@ public class SolrSearchService {
         }
         
         try {
+            // Solr's match-all is "*:*"; a bare "*" (or an empty query) is
+            // rejected with HTTP 500. Normalize it here so every caller
+            // (search, keyword-highlight, tag service) is safe.
+            if (query == null || query.trim().isEmpty() || query.trim().equals("*")) {
+                query = "*:*";
+            }
             String encodedQuery = URLEncoder.encode(query, "UTF-8");
             String urlStr = configuration.getSolrEndpoint() + 
                                 "/solr/" + solrCore + 

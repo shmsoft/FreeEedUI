@@ -111,7 +111,7 @@ public class SolrTagService {
     }
 
     public Result removeTagFromAll(SolrSessionObject solrSession, String tag) {
-        String query = "*";
+        String query = "*:*"; // Solr match-all; bare "*" is rejected (HTTP 500)
         int rows = solrSession.getTotalDocuments();
         return process(query, tag, 0, rows, true);
     }
