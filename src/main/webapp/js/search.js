@@ -445,14 +445,22 @@ function initTags() {
     $("#tag-page-text").autocomplete({source: "tagauto.html"});
 }
 
+function tagSelectedBox() {
+    $("#tag-selected").slideToggle(200);
+    $("#tag-all").hide();
+    $("#tag-page").hide();
+}
+
 function tagAllBox() {
     $("#tag-all").slideToggle(200);
     $("#tag-page").hide();
+    $("#tag-selected").hide();
 }
 
 function tagPageBox() {
     $("#tag-page").slideToggle(200);
     $("#tag-all").hide();
+    $("#tag-selected").hide();
 }
 
 function newAllTagEnter(callFunc, e) {
@@ -470,6 +478,23 @@ function newAllTagEnter(callFunc, e) {
     }
 
     callFunc();
+}
+
+// Tag only the checked documents (issue #78). Reuses applyQuickTag(), which
+// applies a tag to every checked row and updates their badges in place.
+function tagSelected() {
+    var tag = $("#tag-selected-text").val();
+    if (tag == null || tag.trim().length == 0) {
+        return;
+    }
+    var checked = document.querySelectorAll('.results-row input.result-check:checked');
+    if (checked.length === 0) {
+        alert('Please check one or more documents first, then click Apply.');
+        return;
+    }
+    applyQuickTag(tag.trim());
+    $("#tag-selected").hide();
+    $("#tag-selected-text").val('');
 }
 
 function tagAll() {

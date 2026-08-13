@@ -55,8 +55,9 @@
             <div class="toolbar-dropdown">
                 <button type="button" class="toolbar-btn" onclick="var menu = document.getElementById('tag-dropdown'); menu.style.display = menu.style.display === 'none' ? 'block' : 'none';">Tag <i class="bi-chevron-down"></i></button>
                 <div class="toolbar-dropdown-menu" id="tag-dropdown" style="display:none;">
-                    <a href="javascript:;" onclick="document.getElementById('tag-dropdown').style.display='none';tagAllBox()">Tag All Results</a>
+                    <a href="javascript:;" onclick="document.getElementById('tag-dropdown').style.display='none';tagSelectedBox()">Tag Selected</a>
                     <a href="javascript:;" onclick="document.getElementById('tag-dropdown').style.display='none';tagPageBox()">Tag This Page</a>
+                    <a href="javascript:;" onclick="document.getElementById('tag-dropdown').style.display='none';tagAllBox()">Tag All Results</a>
                 </div>
             </div>
             <div class="toolbar-dropdown">
@@ -76,7 +77,22 @@
         </div>
     </div>
 
-    <!-- Tag All / Tag Page forms -->
+    <!-- Tag Selected / Tag Page / Tag All forms -->
+    <div id="tag-selected" class="tag-box-modern">
+        <span class="tag-box-label">Tag Selected:</span>
+        <select class="tag-input-modern form-control" onchange="if(this.value){document.getElementById('tag-selected-text').value=this.value;this.value='';}">
+            <option value="">Select predefined tag...</option>
+            <option>Responsive</option>
+            <option>Privileged</option>
+            <option>Hot</option>
+            <option>Needs Review</option>
+            <option>Confidential</option>
+        </select>
+        <input id="tag-selected-text" class="tag-input-modern form-control" type="text" name="tag" onkeypress="newAllTagEnter(tagSelected, event)" placeholder="Or type a custom tag..."/>
+        <button type="button" class="tag-action-btn" onclick="tagSelected()">Apply</button>
+        <button type="button" class="tag-cancel-btn" onclick="document.getElementById('tag-selected').style.display='none';return false;">Cancel</button>
+    </div>
+
     <div id="tag-all" class="tag-box-modern">
         <span class="tag-box-label">Tag All Results:</span>
         <select class="tag-input-modern form-control" onchange="if(this.value){document.getElementById('tag-all-text').value=this.value;this.value='';}">
