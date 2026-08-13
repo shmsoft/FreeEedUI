@@ -495,12 +495,14 @@ function tagDocuments(textId, boxId, action) {
                 return;
             }
 
-            for (var docId in documentsMap) {
-                displayTag(docId, tag);
-            }
-
             $("#" + boxId).hide();
             $("#" + textId).val('');
+
+            // Refresh the results so the new tags appear in the TAGS column
+            // (Tag All / Tag Page wrote to Solr; re-run the current page's
+            // search to re-render with the tags). Without this the tags are
+            // applied but invisible until the user searches again.
+            changePage((typeof currentPage !== 'undefined' && currentPage > 0) ? currentPage : 1);
         },
         error: function () {
             alert("Technical error, try that again in a few moments!");
