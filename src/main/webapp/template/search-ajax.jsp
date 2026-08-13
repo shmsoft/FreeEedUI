@@ -79,14 +79,30 @@
     <!-- Tag All / Tag Page forms -->
     <div id="tag-all" class="tag-box-modern">
         <span class="tag-box-label">Tag All Results:</span>
-        <input id="tag-all-text" class="tag-input-modern form-control" type="text" name="tag" onkeypress="newAllTagEnter(tagAll, event)" placeholder="Enter tag name..."/>
+        <select class="tag-input-modern form-control" onchange="if(this.value){document.getElementById('tag-all-text').value=this.value;this.value='';}">
+            <option value="">Select predefined tag...</option>
+            <option>Responsive</option>
+            <option>Privileged</option>
+            <option>Hot</option>
+            <option>Needs Review</option>
+            <option>Confidential</option>
+        </select>
+        <input id="tag-all-text" class="tag-input-modern form-control" type="text" name="tag" onkeypress="newAllTagEnter(tagAll, event)" placeholder="Or type a custom tag..."/>
         <button type="button" class="tag-action-btn" onclick="tagAll()">Apply</button>
         <button type="button" class="tag-cancel-btn" onclick="document.getElementById('tag-all').style.display='none';return false;">Cancel</button>
     </div>
-    
+
     <div id="tag-page" class="tag-box-modern">
         <span class="tag-box-label">Tag This Page:</span>
-        <input id="tag-page-text" class="tag-input-modern form-control" type="text" name="tag" onkeypress="newAllTagEnter(tagPage, event)" placeholder="Enter tag name..."/>
+        <select class="tag-input-modern form-control" onchange="if(this.value){document.getElementById('tag-page-text').value=this.value;this.value='';}">
+            <option value="">Select predefined tag...</option>
+            <option>Responsive</option>
+            <option>Privileged</option>
+            <option>Hot</option>
+            <option>Needs Review</option>
+            <option>Confidential</option>
+        </select>
+        <input id="tag-page-text" class="tag-input-modern form-control" type="text" name="tag" onkeypress="newAllTagEnter(tagPage, event)" placeholder="Or type a custom tag..."/>
         <button type="button" class="tag-action-btn" onclick="tagPage()">Apply</button>
         <button type="button" class="tag-cancel-btn" onclick="document.getElementById('tag-page').style.display='none';return false;">Cancel</button>
         </form>
