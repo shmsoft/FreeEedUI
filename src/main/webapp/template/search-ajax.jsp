@@ -52,22 +52,18 @@
     <!-- Results Toolbar -->
     <div class="results-toolbar">
         <div class="results-toolbar-left">
-            <div class="toolbar-dropdown">
-                <button type="button" class="toolbar-btn" onclick="var menu = document.getElementById('tag-dropdown'); menu.style.display = menu.style.display === 'none' ? 'block' : 'none';">Tag <i class="bi-chevron-down"></i></button>
-                <div class="toolbar-dropdown-menu" id="tag-dropdown" style="display:none;">
-                    <a href="javascript:;" onclick="document.getElementById('tag-dropdown').style.display='none';tagSelectedBox()">Tag Selected</a>
-                    <a href="javascript:;" onclick="document.getElementById('tag-dropdown').style.display='none';tagPageBox()">Tag This Page</a>
-                    <a href="javascript:;" onclick="document.getElementById('tag-dropdown').style.display='none';tagAllBox()">Tag All Results</a>
-                </div>
+            <div class="toolbar-group">
+                <span class="toolbar-group-label"><i class="bi-tag"></i> Tag</span>
+                <button type="button" class="toolbar-btn" onclick="tagSelectedBox()" title="Tag the checked documents">Selected</button>
+                <button type="button" class="toolbar-btn" onclick="tagPageBox()" title="Tag every document on this page">Page</button>
+                <button type="button" class="toolbar-btn" onclick="tagAllBox()" title="Tag every document in the results">All</button>
             </div>
-            <div class="toolbar-dropdown">
-                <button type="button" class="toolbar-btn" onclick="var menu = document.getElementById('export-dropdown'); menu.style.display = menu.style.display === 'none' ? 'block' : 'none';">Export <i class="bi-chevron-down"></i></button>
-                <div class="toolbar-dropdown-menu" id="export-dropdown" style="display:none;">
-                    <a href="filedownload.html?action=exportNativeAll">Export as Natives</a>
-                    <a id="export-link" target="_blank" href="filedownload.html?action=exportReport">Export Report</a>
-                </div>
+            <div class="toolbar-group">
+                <span class="toolbar-group-label"><i class="bi-download"></i> Export</span>
+                <button type="button" class="toolbar-btn" onclick="exportSelected()" title="Export the checked documents as native files">Selected</button>
+                <a class="toolbar-btn" href="filedownload.html?action=exportNativeAll" title="Export all results as native files">All (natives)</a>
+                <a class="toolbar-btn" id="export-link" target="_blank" href="filedownload.html?action=exportReport" title="Export an HTML report">Report</a>
             </div>
-            <button type="button" class="toolbar-btn toolbar-more-btn" title="More options"><i class="bi-three-dots"></i></button>
         </div>
         <div class="results-toolbar-right">
             <button type="button" class="results-view-btn results-view-active" title="List view"><i class="bi-list-ul"></i></button>

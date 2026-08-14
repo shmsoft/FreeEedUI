@@ -497,6 +497,52 @@ function tagSelected() {
     $("#tag-selected-text").val('');
 }
 
+// Export only the checked documents as native files (issue #79 / #78 companion).
+// Backend action exportNativeSelected already exists; collect the checked rows'
+// paths + uniqueIds from the page's `documents` array and POST them.
+function exportSelected() {
+    var checked = document.querySelectorAll('.results-row input.result-check:checked');
+    if (checked.length === 0) {
+        alert('Please check one or more documents to export.');
+        return;
+    }
+    var paths = [], uids = [];
+    for (var i = 0; i < checked.length; i++) {
+        var row = checked[i].closest('.results-row');
+        var idCell = row ? row.querySelector('.results-cell-id') : null;
+        var docId = idCell ? idCell.textContent.trim() : null;
+        if (!docId || typeof documents === 'undefined') continue;
+        for (var j = 0; j < documents.length; j++) {
+            if (documents[j].documentId === docId) {
+                paths.push(documents[j].documentPath);
+                uids.push(documents[j].uniqueId);
+                break;
+            }
+        }
+    }
+    if (paths.length === 0) {
+        alert('Could not resolve the selected documents. Try again.');
+        return;
+    }
+    // Trigger the download via a POST form (paths/uids can be long).
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'filedownload.html';
+    function addField(name, value) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+    }
+    addField('action', 'exportNativeSelected');
+    addField('docPaths', paths.join('|||'));
+    addField('uniqueIds', uids.join('|||'));
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
+
 function tagAll() {
     tagDocuments("tag-all-text", "tag-all", "tagall");
 }

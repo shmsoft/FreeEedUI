@@ -96,6 +96,9 @@ body:has(.search-layout) .content {
 .results-toolbar-right{display:flex;align-items:center;gap:2px}
 .toolbar-btn{height:30px;padding:0 10px;border-radius:6px;border:1px solid #d1d5db;background:#fff;color:#475569;font-size:12px;cursor:pointer;font-family:var(--font);transition:all .15s;display:inline-flex;align-items:center;gap:4px;text-decoration:none;white-space:nowrap}
 .toolbar-btn:hover{background:#f1f5f9;color:#1e293b;text-decoration:none;border-color:#94a3b8}
+.toolbar-group{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border:1px solid #e5e7eb;border-radius:8px;background:#f8fafc}
+.toolbar-group-label{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.3px}
+.toolbar-group .toolbar-btn{height:26px;padding:0 8px}
 .toolbar-more-btn{padding:0 6px}
 .results-view-btn{width:28px;height:28px;border:1px solid #e5e7eb;background:#fff;color:#94a3b8;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
 .results-view-btn:hover,.results-view-active{color:#3b82f6;border-color:#3b82f6;background:#eff6ff}
