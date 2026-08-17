@@ -85,6 +85,8 @@ public class SearchController extends SecureController {
 
         if ("search".equals(action)) {
             //setup the query
+            // A fresh keyword search leaves Case View (issue #76).
+            solrSession.setCaseView(false);
             String search = (String) valueStack.get("query");
             if (search != null && search.length() > 0) {
                 KeywordQuerySearch qs = new KeywordQuerySearch(search, solrSearchService, from, rows);
@@ -92,12 +94,27 @@ public class SearchController extends SecureController {
             }
 
         } else if ("tagsearch".equals(action)) {
-
+            solrSession.setCaseView(false);
             String tag = (String) valueStack.get("tag");
             if (tag != null && tag.length() > 0) {
                 TagQuerySearch qs = new TagQuerySearch(tag);
                 solrSession.addQuery(qs);
             }
+
+        } else if ("caseview".equals(action)) {
+            // Enter Case View, centered on the given document (issue #76):
+            // browse the WHOLE case in id-asc order and land on the page that
+            // contains this document, so the reviewer sees the docs before and
+            // after it regardless of the search filter.
+            String anchorId = (String) valueStack.get("id");
+            solrSession.setCaseView(true);
+            solrSession.setCaseViewAnchorId(anchorId);
+            page = anchorPage(anchorId, rows);
+            from = (page - 1) * rows;
+
+        } else if ("searchview".equals(action)) {
+            // Leave Case View, back to the filtered search results (issue #76).
+            solrSession.setCaseView(false);
 
         } else if ("remove".equals(action)) {
             String idStr = (String) valueStack.get("id");
@@ -108,6 +125,7 @@ public class SearchController extends SecureController {
             }
 
         } else if ("removeall".equals(action)) {
+            solrSession.setCaseView(false);
             solrSession.removeAll();
         } else if ("sort".equals(action)) {
             // Change the results-list sort; return to page 1 (issue #74).
@@ -164,11 +182,21 @@ public class SearchController extends SecureController {
             yourSearches.add(so);
         }
         
-        if (searches.size() > 0) {
-        
-            String search = solrSession.buildSearchQuery();
+        boolean caseView = solrSession.isCaseView();
+        if (caseView || searches.size() > 0) {
 
-            String sortClause = solrSession.getSortField() + " " + solrSession.getSortDir();
+            // Case View browses the whole case in natural order, ignoring the
+            // keyword filter (issue #76). Otherwise use the built query + the
+            // session's chosen sort.
+            String search;
+            String sortClause;
+            if (caseView) {
+                search = "*:*";
+                sortClause = "id asc";
+            } else {
+                search = solrSession.buildSearchQuery();
+                sortClause = solrSession.getSortField() + " " + solrSession.getSortDir();
+            }
             SolrResult result = solrSearchService.search(search, from, rows, sortClause);
             //if solr returns correct result
             if (result != null) {
@@ -195,8 +223,30 @@ public class SearchController extends SecureController {
         // Expose the offset + effective page size for the results counter (issue #74).
         valueStack.put("resultFrom", from);
         valueStack.put("pageSize", pageSize);
+        // Case View state for the toggle + anchor-row highlight (issue #76).
+        valueStack.put("caseView", solrSession.isCaseView());
+        valueStack.put("caseViewAnchorId", solrSession.getCaseViewAnchorId());
         setupPagination();
         return new ModelAndView(WebConstants.SEARCH_AJAX_PAGE);
+    }
+
+    /**
+     * Find which page of the full, id-asc-ordered case contains the given
+     * document (issue #76). The document's 1-based rank equals the count of
+     * documents whose id is lexicographically &lt;= the anchor id, which matches
+     * the "id asc" sort used by Case View. Defaults to page 1 on any problem.
+     */
+    private int anchorPage(String anchorId, int rows) {
+        if (anchorId == null || anchorId.trim().length() == 0 || rows <= 0) {
+            return 1;
+        }
+        // Escape the range endpoint so ids with quotes/backslashes are safe.
+        String endpoint = anchorId.replace("\\", "\\\\").replace("\"", "\\\"");
+        int rank = solrSearchService.count("id:[* TO \"" + endpoint + "\"]");
+        if (rank <= 0) {
+            return 1;
+        }
+        return ((rank - 1) / rows) + 1;
     }
 
     private void setupPagination() {

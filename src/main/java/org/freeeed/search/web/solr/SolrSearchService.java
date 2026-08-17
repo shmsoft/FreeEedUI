@@ -119,6 +119,16 @@ public class SolrSearchService {
         return null;
     }
     
+    /**
+     * Count how many documents match the given query (rows=0). Used by Case
+     * View (issue #76) to find a document's rank in the full ordered case so
+     * we can jump to the page that contains it. Returns 0 on any failure.
+     */
+    public int count(String query) {
+        SolrResult result = search(query, 0, 0, "id asc");
+        return result != null ? result.getTotalSize() : 0;
+    }
+
     public Set<String> getKeywords(String query, int from, int rows, String defaultField, boolean highlight) {
         Set<String> result = new HashSet<String>();
         

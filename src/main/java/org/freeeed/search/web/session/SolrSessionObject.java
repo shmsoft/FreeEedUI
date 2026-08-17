@@ -45,6 +45,29 @@ public class SolrSessionObject {
     private String sortDir = "asc";
     private int pageSize; // 0 = use the configured/default page size
 
+    // Case View (issue #76). When on, the results list ignores the keyword
+    // queries and browses the WHOLE case in natural (id asc) order, so a
+    // reviewer can page through the documents immediately before and after a
+    // given hit. caseViewAnchorId is the document the view is centered on.
+    private boolean caseView;
+    private String caseViewAnchorId;
+
+    public boolean isCaseView() {
+        return caseView;
+    }
+
+    public void setCaseView(boolean caseView) {
+        this.caseView = caseView;
+    }
+
+    public String getCaseViewAnchorId() {
+        return caseViewAnchorId;
+    }
+
+    public void setCaseViewAnchorId(String caseViewAnchorId) {
+        this.caseViewAnchorId = caseViewAnchorId;
+    }
+
     public String getSortField() {
         return sortField;
     }
@@ -139,6 +162,8 @@ public class SolrSessionObject {
     public void reset() {
         queries.clear();
         currentPage = 1;
+        caseView = false;
+        caseViewAnchorId = null;
     }
 
     public Case getSelectedCase() {

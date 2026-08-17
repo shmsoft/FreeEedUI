@@ -380,6 +380,62 @@ function changePageSize(size) {
     });
 }
 
+// Enter Case View (issue #76): browse the whole case in natural order,
+// centered on the currently-selected document (or the first result if none is
+// selected), so the reviewer can page to the documents before and after it.
+function enterCaseView() {
+    var anchorId = lastDocId;
+    if (!anchorId && typeof documents !== 'undefined' && documents.length > 0) {
+        anchorId = documents[0].documentId;
+    }
+    $.ajax({
+        type: 'POST',
+        url: 'dosearch.html',
+        data: {action: 'caseview', id: anchorId || ''},
+        success: function (data) {
+            lastDocId = null;
+            $("#result-ajax").html(data);
+            var solrId = $("#solrid").val();
+            if (solrId != null) {
+                initPage(solrId);
+            }
+            // Select and scroll the anchor doc into view so its neighbours show.
+            if (caseViewAnchorId) {
+                selectDocument(caseViewAnchorId);
+                var row = document.getElementById('row-' + caseViewAnchorId);
+                if (row && row.scrollIntoView) {
+                    row.scrollIntoView({block: 'center'});
+                }
+            }
+            if (typeof highlightSearchResults === 'function') highlightSearchResults();
+        },
+        error: function () {
+            alert("Technical error, try that again in a few moments!");
+        }
+    });
+}
+
+// Leave Case View, back to the filtered search results (issue #76).
+function exitCaseView() {
+    $.ajax({
+        type: 'POST',
+        url: 'dosearch.html',
+        data: {action: 'searchview'},
+        success: function (data) {
+            lastDocId = null;
+            $("#result-ajax").html(data);
+            var solrId = $("#solrid").val();
+            if (solrId != null) {
+                initPage(solrId);
+            }
+            if (typeof highlightSearchResults === 'function') highlightSearchResults();
+        },
+        error: function () {
+            alert("Technical error, try that again in a few moments!");
+        }
+    });
+}
+
 function removeSearch(id) {
     $.ajax({
         type: 'POST',

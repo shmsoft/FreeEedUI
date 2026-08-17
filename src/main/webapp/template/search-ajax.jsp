@@ -9,6 +9,8 @@
     var currentSortField = '${sortField}';
     var currentSortDir = '${sortDir}';
     var pageSize = ${pageSize};
+    var caseView = ${caseView == true};
+    var caseViewAnchorId = "${caseViewAnchorId}";
     var documents = [];
     <c:forEach var="doc" items="${result.documents}">
     documents.push({
@@ -46,7 +48,25 @@
 
     <!-- Results Header -->
     <div class="results-header">
-        <span class="results-count">Results: <strong>${result.totalSize} documents</strong></span>
+        <!-- Search Results / Case View toggle (issue #76) -->
+        <div class="view-tabs">
+            <button type="button" class="view-tab ${caseView ? '' : 'view-tab-active'}"
+                    onclick="exitCaseView()" title="Show the documents matching your search">
+                <i class="bi-search"></i> Search Results
+            </button>
+            <button type="button" class="view-tab ${caseView ? 'view-tab-active' : ''}"
+                    onclick="enterCaseView()" title="Browse the whole case in order, around the selected document">
+                <i class="bi-collection"></i> Case View
+            </button>
+        </div>
+        <c:choose>
+            <c:when test="${caseView}">
+                <span class="results-count"><i class="bi-collection"></i> Case View — all <strong>${result.totalSize}</strong> documents in natural order</span>
+            </c:when>
+            <c:otherwise>
+                <span class="results-count">Results: <strong>${result.totalSize} documents</strong></span>
+            </c:otherwise>
+        </c:choose>
     </div>
 
     <!-- Results Toolbar -->
@@ -142,7 +162,7 @@
             </thead>
             <tbody>
                 <c:forEach var="doc" items="${result.documents}" varStatus="status">
-                <tr id="row-${doc.documentId}" class="results-row" onclick="selectDocument('${doc.documentId}');showPreviewPanel('${doc.documentId}', '${doc.documentName}', ${status.index + 1}, ${result.totalSize})">
+                <tr id="row-${doc.documentId}" class="results-row ${caseView && doc.documentId == caseViewAnchorId ? 'case-anchor-row' : ''}" onclick="selectDocument('${doc.documentId}');showPreviewPanel('${doc.documentId}', '${doc.documentName}', ${status.index + 1}, ${result.totalSize})">
                     <td class="results-td-check"><input type="checkbox" class="result-check" onclick="event.stopPropagation()" /></td>
                     <td><div class="results-cell-id">${doc.documentId}</div></td>
                     <td><div class="results-cell-name">${doc.subject}</div></td>
