@@ -331,29 +331,11 @@ function showPreviewPanel(docId, docName, idx, total) {
     }, 100);
 }
 
-// Apply a quick tag to the currently selected document
-function applyQuickTag(tagName) {
-    if (!tagName || tagName.trim().length === 0) return;
-    tagName = tagName.trim();
-    if (!lastDocId) {
-        alert('Please select a document first');
-        return;
-    }
-    $.ajax({
-        type: 'POST',
-        url: 'tag.html',
-        data: {action: 'newtag', docid: lastDocId, tag: tagName},
-        success: function(data) {
-            if (data != 'SUCCESS') return;
-            displayTag(lastDocId, tagName);
-            // Update the tag badges in the results table row
-            updateRowTagBadges(lastDocId, tagName);
-        },
-        error: function() {
-            alert('Error applying tag. Please try again.');
-        }
-    });
-}
+// NOTE: applyQuickTag() lives in search.js (multi-doc: tags every checked row,
+// falling back to the selected row). An older single-doc copy used to live here
+// and, because this fragment loads via AJAX after search.js, it silently
+// redefined and clobbered the good one -- so "Tag Selected" only ever tagged one
+// document (issue #78 regression). Removed; do not re-add a definition here.
 
 // Update tag badges in the results table row
 function updateRowTagBadges(docId, tagName) {
