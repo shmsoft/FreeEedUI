@@ -168,47 +168,55 @@ function applyQuickTag(tag) {
         allTags[tag] = 1;
     }
 
-    var pending = docIds.length;
-    for (var i = 0; i < docIds.length; i++) {
-        (function(docId) {
-            $.ajax({
-                type: 'POST',
-                url: 'tag.html',
-                data: {action: 'newtag', docid: docId, tag: tag},
-                success: function (data) {
-                    if (data === 'SUCCESS') {
-                        // Add badge to grid
-                        var tagsCell = document.getElementById('tags-cell-' + docId);
-                        if (tagsCell) {
-                            var exists = false;
-                            var badges = tagsCell.querySelectorAll('.tag-badge');
-                            for (var b = 0; b < badges.length; b++) {
-                                if ((badges[b].getAttribute('title') || '').replace('Filter by ', '').trim() === tag) {
-                                    exists = true; break;
-                                }
-                            }
-                            if (!exists) {
-                                var badgeClass = 'tag-badge-' + tag.toLowerCase().replace(/\s+/g,'-');
-                                var safeTag = tag.replace(/'/g, "\\'");
-                                var span = document.createElement('span');
-                                span.className = 'tag-badge ' + badgeClass + ' tag-clickable';
-                                span.setAttribute('onclick', "event.stopPropagation();addTagToSearch('" + safeTag + "')");
-                                span.setAttribute('title', "Filter by " + tag);
-                                span.innerHTML = _escapeHtmlJs(tag) + ' <i class="bi-x tag-remove-icon" onclick="event.stopPropagation();removeDocTagAjax(\'' + docId + '\', \'' + safeTag + '\', this)" title="Remove tag"></i>';
-                                tagsCell.appendChild(span);
+    // Tag the documents ONE AT A TIME, not in parallel. The tag endpoint is not
+    // safe under concurrent writes to the same case: firing the newtag POSTs
+    // simultaneously loses all but one of them (only the last-committed doc keeps
+    // its tag), even though the backend guards tagging with a lock. Chaining the
+    // requests -- each starting only after the previous finished -- makes every
+    // selected document actually persist its tag (issue #78).
+    var idx = 0;
+    function _tagNextDoc() {
+        if (idx >= docIds.length) {
+            _finishApplyingTags();
+            return;
+        }
+        var docId = docIds[idx++];
+        $.ajax({
+            type: 'POST',
+            url: 'tag.html',
+            data: {action: 'newtag', docid: docId, tag: tag},
+            success: function (data) {
+                if (data === 'SUCCESS') {
+                    // Add badge to grid
+                    var tagsCell = document.getElementById('tags-cell-' + docId);
+                    if (tagsCell) {
+                        var exists = false;
+                        var badges = tagsCell.querySelectorAll('.tag-badge');
+                        for (var b = 0; b < badges.length; b++) {
+                            if ((badges[b].getAttribute('title') || '').replace('Filter by ', '').trim() === tag) {
+                                exists = true; break;
                             }
                         }
+                        if (!exists) {
+                            var badgeClass = 'tag-badge-' + tag.toLowerCase().replace(/\s+/g,'-');
+                            var safeTag = tag.replace(/'/g, "\\'");
+                            var span = document.createElement('span');
+                            span.className = 'tag-badge ' + badgeClass + ' tag-clickable';
+                            span.setAttribute('onclick', "event.stopPropagation();addTagToSearch('" + safeTag + "')");
+                            span.setAttribute('title', "Filter by " + tag);
+                            span.innerHTML = _escapeHtmlJs(tag) + ' <i class="bi-x tag-remove-icon" onclick="event.stopPropagation();removeDocTagAjax(\'' + docId + '\', \'' + safeTag + '\', this)" title="Remove tag"></i>';
+                            tagsCell.appendChild(span);
+                        }
                     }
-                    pending--;
-                    if (pending === 0) _finishApplyingTags();
-                },
-                error: function () {
-                    pending--;
-                    if (pending === 0) _finishApplyingTags();
                 }
-            });
-        })(docIds[i]);
+                _tagNextDoc();
+            },
+            error: function () {
+                _tagNextDoc();
+            }
+        });
     }
+    _tagNextDoc();
 }
 
 function _finishApplyingTags() {
