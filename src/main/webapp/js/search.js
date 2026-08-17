@@ -509,6 +509,29 @@ function initTags() {
     $("#tag-page-text").autocomplete({source: "tagauto.html"});
 }
 
+// Header "Select all" checkbox: check/uncheck every row checkbox on the page.
+// The header box previously had no handler at all, so clicking it did nothing.
+function toggleSelectAll(headerCb) {
+    var boxes = document.querySelectorAll('.results-row input.result-check');
+    for (var i = 0; i < boxes.length; i++) {
+        boxes[i].checked = headerCb.checked;
+    }
+}
+
+// Keep the header checkbox in sync when individual rows are toggled (checked
+// when all rows are checked, indeterminate when only some are). Delegated on
+// document so it survives the AJAX re-render of the results table.
+document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (!t || !t.classList || !t.classList.contains('result-check')) return;
+    var header = document.querySelector('.results-check-all');
+    if (!header) return;
+    var boxes = document.querySelectorAll('.results-row input.result-check');
+    var checked = document.querySelectorAll('.results-row input.result-check:checked');
+    header.checked = boxes.length > 0 && checked.length === boxes.length;
+    header.indeterminate = checked.length > 0 && checked.length < boxes.length;
+});
+
 function tagSelectedBox() {
     $("#tag-selected").slideToggle(200);
     $("#tag-all").hide();

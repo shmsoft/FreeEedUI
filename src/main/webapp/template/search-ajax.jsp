@@ -145,7 +145,7 @@
         <table class="results-table" border="0" cellpadding="0" cellspacing="0">
             <thead>
                 <tr>
-                    <th class="results-th-check"><input type="checkbox" class="results-check-all" title="Select all" /></th>
+                    <th class="results-th-check"><input type="checkbox" class="results-check-all" title="Select all on this page" onclick="toggleSelectAll(this)" /></th>
                     <th class="results-th-sort" onclick="sortBy('id')" title="Sort by ID">ID <c:if test="${sortField eq 'id'}"><i class="bi-caret-${sortDir eq 'asc' ? 'up' : 'down'}-fill"></i></c:if></th>
                     <%-- Only 'id' (string, single-valued) is sortable in the current Solr
                          schema. File Name (subject), Custodian, Date are multiValued/text
