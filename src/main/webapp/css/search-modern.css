@@ -96,8 +96,9 @@ body:has(.search-layout) .content {
 .view-tab{height:28px;padding:0 12px;border:none;background:transparent;color:#64748b;font-size:12px;font-weight:500;cursor:pointer;border-radius:6px;font-family:var(--font);display:inline-flex;align-items:center;gap:5px;transition:all .15s}
 .view-tab:hover{color:#1e293b}
 .view-tab-active{background:#fff;color:#2563eb;box-shadow:0 1px 2px rgba(0,0,0,.08)}
-.case-anchor-row{background:#fef9c3!important;box-shadow:inset 3px 0 0 #f59e0b}
-.case-anchor-row:hover{background:#fef08a!important}
+/* Higher specificity so the amber anchor beats .results-row.result-list-row-selected */
+.results-table .results-row.case-anchor-row{background:#fef9c3!important;box-shadow:inset 4px 0 0 #f59e0b}
+.results-table .results-row.case-anchor-row:hover{background:#fef08a!important}
 .results-toolbar{display:flex;align-items:center;justify-content:space-between;padding:6px 16px;border-bottom:1px solid #e5e7eb;flex-shrink:0;gap:8px}
 .results-toolbar-left{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 .results-toolbar-right{display:flex;align-items:center;gap:2px}

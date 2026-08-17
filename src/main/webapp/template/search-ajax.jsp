@@ -61,7 +61,7 @@
         </div>
         <c:choose>
             <c:when test="${caseView}">
-                <span class="results-count"><i class="bi-collection"></i> Case View — all <strong>${result.totalSize}</strong> documents in natural order</span>
+                <span class="results-count"><i class="bi-collection"></i> Case View &mdash; all <strong>${result.totalSize}</strong> documents in natural order</span>
             </c:when>
             <c:otherwise>
                 <span class="results-count">Results: <strong>${result.totalSize} documents</strong></span>
