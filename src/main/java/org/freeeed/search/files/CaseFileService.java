@@ -394,7 +394,10 @@ public class CaseFileService {
         }
 
         try {
-            merger.mergeDocuments(org.apache.pdfbox.io.MemoryUsageSetting.setupTempFileOnly());
+            // Merge in main memory (no scratch temp file). setupTempFileOnly()
+            // writes a scratch file to the JVM temp dir, which isn't reliably
+            // available under Tomcat and failed with "No such file or directory".
+            merger.mergeDocuments(org.apache.pdfbox.io.MemoryUsageSetting.setupMainMemoryOnly());
         } catch (IOException e) {
             log.error("Problem merging PDFs", e);
             return null;
