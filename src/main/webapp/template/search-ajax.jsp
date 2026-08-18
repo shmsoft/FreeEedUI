@@ -80,9 +80,11 @@
             </div>
             <div class="toolbar-group">
                 <span class="toolbar-group-label"><i class="bi-download"></i> Export</span>
-                <button type="button" class="toolbar-btn" onclick="exportSelected()" title="Export the checked documents as native files">Selected</button>
-                <a class="toolbar-btn" href="filedownload.html?action=exportNativeAll" title="Export all results as native files">All (natives)</a>
-                <a class="toolbar-btn" id="export-link" target="_blank" href="filedownload.html?action=exportReport" title="Export an HTML report">Report</a>
+                <button type="button" class="toolbar-btn" onclick="exportSelected()" title="Export the checked documents as native files">Selected natives</button>
+                <a class="toolbar-btn" href="filedownload.html?action=exportNativeAll" title="Export all results as native files">All natives</a>
+                <button type="button" class="toolbar-btn" onclick="exportPdfSelected()" title="Combine the checked documents into one PDF">Selected PDF</button>
+                <a class="toolbar-btn" href="filedownload.html?action=exportPdfAll" title="Combine all results into one PDF">All PDF</a>
+                <a class="toolbar-btn" id="export-link" target="_blank" href="filedownload.html?action=exportReport" title="Export an HTML report of all results">Report (all)</a>
             </div>
         </div>
         <div class="results-toolbar-right">

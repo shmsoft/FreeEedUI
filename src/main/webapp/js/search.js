@@ -587,7 +587,10 @@ function tagSelected() {
 // Export only the checked documents as native files (issue #79 / #78 companion).
 // Backend action exportNativeSelected already exists; collect the checked rows'
 // paths + uniqueIds from the page's `documents` array and POST them.
-function exportSelected() {
+// Export the checked documents. `action` picks the format:
+//   exportNativeSelected -> native files (zip)
+//   exportPdfSelected    -> one combined PDF
+function _exportSelectedAs(action) {
     var checked = document.querySelectorAll('.results-row input.result-check:checked');
     if (checked.length === 0) {
         alert('Please check one or more documents to export.');
@@ -622,12 +625,21 @@ function exportSelected() {
         input.value = value;
         form.appendChild(input);
     }
-    addField('action', 'exportNativeSelected');
+    addField('action', action);
     addField('docPaths', paths.join('|||'));
     addField('uniqueIds', uids.join('|||'));
     document.body.appendChild(form);
     form.submit();
     document.body.removeChild(form);
+}
+
+function exportSelected() {
+    _exportSelectedAs('exportNativeSelected');
+}
+
+// Combine the checked documents' PDF renditions into one PDF (issue #75).
+function exportPdfSelected() {
+    _exportSelectedAs('exportPdfSelected');
 }
 
 function tagAll() {

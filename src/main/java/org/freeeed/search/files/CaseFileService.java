@@ -357,6 +357,53 @@ public class CaseFileService {
         return res;
     }
     
+    /**
+     * Merge the per-document PDF renditions of the given documents into a single
+     * PDF, in the order provided. Reuses the PDFs already produced during imaging
+     * (found via {@link #getImageFile}) rather than re-rendering -- fast, and the
+     * output is exactly what was reviewed. Documents that have no PDF rendition
+     * are skipped (logged); returns null if none of them do.
+     */
+    public File mergePdfs(String projectOutputPath, List<SolrDocument> docs) {
+        File tmpDir = new File(FILES_TMP_DIR);
+        tmpDir.mkdirs();
+        String outName = FILES_TMP_DIR + File.separator + "pdftmp" + System.currentTimeMillis() + ".pdf";
+
+        org.apache.pdfbox.multipdf.PDFMergerUtility merger = new org.apache.pdfbox.multipdf.PDFMergerUtility();
+        merger.setDestinationFileName(outName);
+
+        int added = 0, missing = 0;
+        for (SolrDocument doc : docs) {
+            File pdf = getImageFile(projectOutputPath, doc.getDocumentPath(), doc.getUniqueId());
+            if (pdf != null && pdf.exists() && pdf.getName().toLowerCase().endsWith(".pdf")) {
+                try {
+                    merger.addSource(pdf);
+                    added++;
+                } catch (Exception e) {
+                    log.error("Problem adding PDF rendition for uniqueId=" + doc.getUniqueId(), e);
+                    missing++;
+                }
+            } else {
+                missing++;
+            }
+        }
+
+        if (added == 0) {
+            log.warn("mergePdfs: no PDF renditions found for the " + docs.size() + " requested document(s)");
+            return null;
+        }
+
+        try {
+            merger.mergeDocuments(org.apache.pdfbox.io.MemoryUsageSetting.setupTempFileOnly());
+        } catch (IOException e) {
+            log.error("Problem merging PDFs", e);
+            return null;
+        }
+
+        log.info("mergePdfs: merged " + added + " PDF(s), " + missing + " without a rendition");
+        return new File(outName);
+    }
+
     public File getNativeFiles(String projectOutputPath, String sourceDataLocation, List<SolrDocument> docs) {
         List<File> imageFiles = new ArrayList<>();
         for (SolrDocument doc : docs) {

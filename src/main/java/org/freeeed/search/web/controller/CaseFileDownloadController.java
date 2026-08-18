@@ -67,6 +67,7 @@ public class CaseFileDownloadController extends SecureController {
         
         File toDownload = null;
         boolean htmlMode = false;
+        boolean pdfMode = false;
         
         String docPath = (String) valueStack.get("docPath");
         String docName = (String) valueStack.get("docName");
@@ -135,9 +136,34 @@ public class CaseFileDownloadController extends SecureController {
             } else if ("exportImageAll".equals(action)) {
                 String query = solrSession.buildSearchQuery();
                 int rows = solrSession.getTotalDocuments();
-                
+
                 List<SolrDocument> docs = getDocumentPaths(query, 0, rows);
                 toDownload = caseFileService.getImageFiles(selectedCase.getFilesLocation(), docs);
+            } else if ("exportPdfAll".equals(action)) {
+                // Combine every result's PDF rendition into one PDF, in result order.
+                String query = solrSession.buildSearchQuery();
+                int rows = solrSession.getTotalDocuments();
+
+                List<SolrDocument> docs = getDocumentPaths(query, 0, rows);
+                toDownload = caseFileService.mergePdfs(selectedCase.getFilesLocation(), docs);
+                pdfMode = true;
+            } else if ("exportPdfSelected".equals(action)) {
+                // Combine the checked documents' PDF renditions into one PDF.
+                String docPathsStr = (String) valueStack.get("docPaths");
+                String uidsStr = (String) valueStack.get("uniqueIds");
+                if (docPathsStr != null && uidsStr != null && !docPathsStr.trim().isEmpty() && !uidsStr.trim().isEmpty()) {
+                    String[] paths = docPathsStr.split("\\|\\|\\|");
+                    String[] uids = uidsStr.split("\\|\\|\\|");
+                    List<SolrDocument> docs = new ArrayList<SolrDocument>();
+                    for (int i = 0; i < Math.min(paths.length, uids.length); i++) {
+                        SolrDocument doc = new SolrDocument();
+                        doc.setDocumentPath(paths[i]);
+                        doc.setUniqueId(uids[i]);
+                        docs.add(doc);
+                    }
+                    toDownload = caseFileService.mergePdfs(selectedCase.getFilesLocation(), docs);
+                    pdfMode = true;
+                }
             }
         } catch (Exception e) {
             log.error("Problem sending cotent", e);
@@ -158,7 +184,10 @@ public class CaseFileDownloadController extends SecureController {
                 if (htmlMode) {
                     mimetype = "text/html";
                 }
-    
+                if (pdfMode) {
+                    mimetype = "application/pdf";
+                }
+
                 response.setContentType(mimetype);
                 response.setContentLength((int) toDownload.length());
                 String fileName = toDownload.getName();
@@ -166,6 +195,10 @@ public class CaseFileDownloadController extends SecureController {
                 {
                     String extension = fileName.lastIndexOf('.') != -1 ? fileName.substring(fileName.lastIndexOf('.')) : "";
                     fileName = uniqueId + extension;
+                }
+                if (pdfMode) {
+                    // A friendly name for the combined PDF, not the tmp file name.
+                    fileName = selectedCase.getName() + ".pdf";
                 }
 
                 if (!htmlMode && !isPreviewPDF) {
