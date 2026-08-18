@@ -284,22 +284,31 @@ public class CaseFileService {
     
     public File getImageFile(String projectOutputPath, String documentOriginalPath, String uniqueId) {
         if (uniqueId == null || uniqueId.isEmpty()) return null;
-        File dir = new File(projectOutputPath + File.separator + "pdf");
         String prefix = uniqueId + "_";
-        if (dir.exists()) {
-            File[] files = dir.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.getName().startsWith(prefix) && file.getName().endsWith(".pdf")) {
-                        return file;
+        // Generated PDF renditions from imaging ("Create PDF") land in the
+        // "images" folder (older layouts used "pdf"). Check exploded dirs first,
+        // then native1.zip. NOTE: they are NOT in "native/" -- that holds the
+        // originals; only a doc whose native was already a PDF appears there.
+        for (String sub : new String[] {"images", "pdf"}) {
+            File dir = new File(projectOutputPath + File.separator + sub);
+            if (dir.exists()) {
+                File[] files = dir.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (file.getName().startsWith(prefix) && file.getName().endsWith(".pdf")) {
+                            return file;
+                        }
                     }
                 }
             }
-        } else {
-             // PDFs are usually in native1.zip inside native/ folder, ending with .pdf
-             return extractFromZip(projectOutputPath + File.separator + "native1.zip", "native/" + prefix, ".pdf");
         }
-        return null;
+        // Fallback: pull the rendition out of native1.zip (under images/).
+        File fromZip = extractFromZip(projectOutputPath + File.separator + "native1.zip", "images/" + prefix, ".pdf");
+        if (fromZip != null) {
+            return fromZip;
+        }
+        // Legacy: a doc whose native was already a PDF may only exist under native/.
+        return extractFromZip(projectOutputPath + File.separator + "native1.zip", "native/" + prefix, ".pdf");
     }
 
     private File extractFromZip(String zipFilePath, String prefix, String suffix) {
