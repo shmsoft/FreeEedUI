@@ -88,7 +88,12 @@ public abstract class BaseController implements Controller, SiteVisitorAware, Lo
 		valueStack.put("visitor", siteVisitor);
 		valueStack.put("loggedVisitor", loggedSiteVisitor);
 		
-		if (addValueStackToModel()) {
+		// A handler may write its own response and return null (e.g. the remote
+		// case-creation POST in CaseController sets 200 and returns null). Guard
+		// against NPE here -- without the null check that success path throws and
+		// the 200 is overridden with a 500, so the caller sees failure and retries,
+		// creating duplicate cases.
+		if (modelAndView != null && addValueStackToModel()) {
 			modelAndView.addAllObjects(valueStack);
 		}
 		return modelAndView;
