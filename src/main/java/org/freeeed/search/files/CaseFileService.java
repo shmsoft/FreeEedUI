@@ -370,10 +370,16 @@ public class CaseFileService {
      * Merge the per-document PDF renditions of the given documents into a single
      * PDF, in the order provided. Reuses the PDFs already produced during imaging
      * (found via {@link #getImageFile}) rather than re-rendering -- fast, and the
-     * output is exactly what was reviewed. Documents that have no PDF rendition
-     * are skipped (logged); returns null if none of them do.
+     * output is exactly what was reviewed.
+     *
+     * Documents with no PDF rendition are SKIPPED. That is easy to hit without
+     * realising it: with "Create PDF images" off nothing is rendered, yet
+     * getImageFile still falls back to natives that were already PDFs, so an
+     * "export all" can succeed while containing only a fraction of the results.
+     * The counts are therefore returned to the caller, which must tell the user --
+     * a partial export that looks complete is dangerous in review.
      */
-    public File mergePdfs(String projectOutputPath, List<SolrDocument> docs) {
+    public MergeResult mergePdfs(String projectOutputPath, List<SolrDocument> docs) {
         File tmpDir = new File(FILES_TMP_DIR);
         tmpDir.mkdirs();
         String outName = FILES_TMP_DIR + File.separator + "pdftmp" + System.currentTimeMillis() + ".pdf";
@@ -399,7 +405,7 @@ public class CaseFileService {
 
         if (added == 0) {
             log.warn("mergePdfs: no PDF renditions found for the " + docs.size() + " requested document(s)");
-            return null;
+            return new MergeResult(null, 0, missing, docs.size());
         }
 
         try {
@@ -409,11 +415,37 @@ public class CaseFileService {
             merger.mergeDocuments(org.apache.pdfbox.io.MemoryUsageSetting.setupMainMemoryOnly());
         } catch (IOException e) {
             log.error("Problem merging PDFs", e);
-            return null;
+            return new MergeResult(null, 0, docs.size(), docs.size());
         }
 
         log.info("mergePdfs: merged " + added + " PDF(s), " + missing + " without a rendition");
-        return new File(outName);
+        return new MergeResult(new File(outName), added, missing, docs.size());
+    }
+
+    /**
+     * Outcome of {@link #mergePdfs}: the merged file (null if nothing could be
+     * merged) plus how many documents made it in and how many were skipped, so
+     * the caller can warn instead of silently handing over a partial export.
+     */
+    public static class MergeResult {
+        private final File file;
+        private final int added;
+        private final int missing;
+        private final int requested;
+
+        public MergeResult(File file, int added, int missing, int requested) {
+            this.file = file;
+            this.added = added;
+            this.missing = missing;
+            this.requested = requested;
+        }
+
+        public File getFile() { return file; }
+        public int getAdded() { return added; }
+        public int getMissing() { return missing; }
+        public int getRequested() { return requested; }
+        public boolean isPartial() { return missing > 0 && added > 0; }
+        public boolean isEmpty() { return file == null || added == 0; }
     }
 
     public File getNativeFiles(String projectOutputPath, String sourceDataLocation, List<SolrDocument> docs) {

@@ -68,6 +68,7 @@ public class CaseFileDownloadController extends SecureController {
         File toDownload = null;
         boolean htmlMode = false;
         boolean pdfMode = false;
+        org.freeeed.search.files.CaseFileService.MergeResult mergeResult = null;
         
         String docPath = (String) valueStack.get("docPath");
         String docName = (String) valueStack.get("docName");
@@ -145,7 +146,8 @@ public class CaseFileDownloadController extends SecureController {
                 int rows = solrSession.getTotalDocuments();
 
                 List<SolrDocument> docs = getDocumentPaths(query, 0, rows);
-                toDownload = caseFileService.mergePdfs(selectedCase.getFilesLocation(), docs);
+                mergeResult = caseFileService.mergePdfs(selectedCase.getFilesLocation(), docs);
+                toDownload = mergeResult.getFile();
                 pdfMode = true;
             } else if ("exportPdfSelected".equals(action)) {
                 // Combine the checked documents' PDF renditions into one PDF.
@@ -161,7 +163,8 @@ public class CaseFileDownloadController extends SecureController {
                         doc.setUniqueId(uids[i]);
                         docs.add(doc);
                     }
-                    toDownload = caseFileService.mergePdfs(selectedCase.getFilesLocation(), docs);
+                    mergeResult = caseFileService.mergePdfs(selectedCase.getFilesLocation(), docs);
+                    toDownload = mergeResult.getFile();
                     pdfMode = true;
                 }
             }
@@ -198,7 +201,22 @@ public class CaseFileDownloadController extends SecureController {
                 }
                 if (pdfMode) {
                     // A friendly name for the combined PDF, not the tmp file name.
-                    fileName = selectedCase.getName() + ".pdf";
+                    // If documents were skipped for want of a rendition, say so IN THE
+                    // FILENAME -- this is a file download, so there is no page left to
+                    // put a banner on, and a partial export that looks complete is the
+                    // dangerous case. Also emit the counts as a header for scripting.
+                    if (mergeResult != null && mergeResult.isPartial()) {
+                        fileName = selectedCase.getName() + "-PARTIAL-"
+                                + mergeResult.getAdded() + "of" + mergeResult.getRequested() + ".pdf";
+                        response.setHeader("X-FreeEed-Pdf-Merged", mergeResult.getAdded()
+                                + " of " + mergeResult.getRequested()
+                                + "; " + mergeResult.getMissing() + " had no PDF rendition");
+                        log.warn("exportPdf: PARTIAL export -- " + mergeResult.getAdded() + " of "
+                                + mergeResult.getRequested() + " documents had a PDF rendition. "
+                                + "Enable 'Create PDF images' and reprocess for a complete export.");
+                    } else {
+                        fileName = selectedCase.getName() + ".pdf";
+                    }
                 }
 
                 if (!htmlMode && !isPreviewPDF) {
@@ -232,6 +250,17 @@ public class CaseFileDownloadController extends SecureController {
                 valueStack.put("error", true);
             }
         } else {
+            if (pdfMode && mergeResult != null && mergeResult.isEmpty()) {
+                // Distinguish "no renditions exist" from a generic failure: with
+                // "Create PDF images" off nothing is rendered, so a PDF export can
+                // never be complete and usually cannot be produced at all.
+                log.warn("exportPdf: nothing to merge -- none of " + mergeResult.getRequested()
+                        + " document(s) has a PDF rendition. 'Create PDF images' was probably off"
+                        + " when this case was processed.");
+                valueStack.put("errorMessage", "No PDF renditions exist for these documents, so a PDF"
+                        + " export cannot be produced. Enable \"Create PDF images\" and reprocess"
+                        + " the case, then try again.");
+            }
             if (htmlMode || isPreviewPDF || isPreviewImage) {
                 try {
                     response.setContentType("text/html");
