@@ -26,6 +26,7 @@ function selectDocument(docId) {
 function initPage(docId) {
     selectDocument(docId);
     initTags();
+    if (typeof restoreSelectionState === 'function') restoreSelectionState();
 }
 
 function newTagEnter(docId, e) {
@@ -143,24 +144,29 @@ function removeDocTagAjax(docId, tag, element) {
     });
 }
 
-function applyQuickTag(tag) {
+function applyQuickTag(tag, explicitDocIds) {
     if (!tag || tag.trim() === '') return;
     tag = tag.trim();
 
-    // Determine target documents: checked rows, or the currently selected row (lastDocId)
+    // Target documents: an explicit id list (e.g. the cross-page selection from
+    // tagSelected), else the checked rows on this page, else the current row.
     var docIds = [];
-    var checkedRows = document.querySelectorAll('.results-row input.result-check:checked');
-    if (checkedRows.length > 0) {
-        for (var i = 0; i < checkedRows.length; i++) {
-            var row = checkedRows[i].closest('.results-row');
-            var idCell = row.querySelector('.results-cell-id');
-            if (idCell) docIds.push(idCell.textContent.trim());
-        }
-    } else if (lastDocId) {
-        docIds.push(lastDocId);
+    if (explicitDocIds && explicitDocIds.length > 0) {
+        docIds = explicitDocIds.slice();
     } else {
-        alert('Please select a document to tag.');
-        return;
+        var checkedRows = document.querySelectorAll('.results-row input.result-check:checked');
+        if (checkedRows.length > 0) {
+            for (var i = 0; i < checkedRows.length; i++) {
+                var row = checkedRows[i].closest('.results-row');
+                var idCell = row.querySelector('.results-cell-id');
+                if (idCell) docIds.push(idCell.textContent.trim());
+            }
+        } else if (lastDocId) {
+            docIds.push(lastDocId);
+        } else {
+            alert('Please select a document to tag.');
+            return;
+        }
     }
 
     // Add to allTags so it persists in the filter list if it's a new tag
@@ -247,6 +253,9 @@ function search() {
         data: {action: 'search', query: queryStr},
         success: function (data) {
             lastDocId = null;
+            // A new query is a new result set -- previous cross-page selections no
+            // longer apply, so reset them.
+            selectedDocs = {};
 
             $("#result-ajax").html(data);
 
@@ -509,27 +518,101 @@ function initTags() {
     $("#tag-page-text").autocomplete({source: "tagauto.html"});
 }
 
-// Header "Select all" checkbox: check/uncheck every row checkbox on the page.
-// The header box previously had no handler at all, so clicking it did nothing.
-function toggleSelectAll(headerCb) {
-    var boxes = document.querySelectorAll('.results-row input.result-check');
-    for (var i = 0; i < boxes.length; i++) {
-        boxes[i].checked = headerCb.checked;
+// ---- Persistent selection across pages -------------------------------------
+// Selection must survive pagination/sort so a reviewer can build a set spanning
+// pages, then Tag/Export it. The DOM only holds the current page, so the real
+// selection lives here, keyed by document id; the value carries the path +
+// uniqueId needed for export, resolved from the page's `documents` array when the
+// row is checked. A new search() clears it; changePage/sort/changePageSize
+// preserve it (same result set, different view).
+var selectedDocs = (typeof selectedDocs !== 'undefined' && selectedDocs) ? selectedDocs : {};
+
+function _rowDocId(row) {
+    var c = row && row.querySelector('.results-cell-id');
+    return c ? c.textContent.trim() : null;
+}
+
+function _docById(docId) {
+    if (typeof documents === 'undefined' || !docId) return null;
+    for (var i = 0; i < documents.length; i++) {
+        if (documents[i].documentId === docId) return documents[i];
+    }
+    return null;
+}
+
+function _setSelected(docId, on) {
+    if (!docId) return;
+    if (on) {
+        var d = _docById(docId);
+        selectedDocs[docId] = d
+            ? {documentId: docId, documentPath: d.documentPath, uniqueId: d.uniqueId}
+            : (selectedDocs[docId] || {documentId: docId});
+    } else {
+        delete selectedDocs[docId];
     }
 }
 
-// Keep the header checkbox in sync when individual rows are toggled (checked
-// when all rows are checked, indeterminate when only some are). Delegated on
+function selectedCount() {
+    return Object.keys(selectedDocs).length;
+}
+
+// Clear the whole cross-page selection (Clear button).
+function clearSelection() {
+    selectedDocs = {};
+    var boxes = document.querySelectorAll('.results-row input.result-check');
+    for (var i = 0; i < boxes.length; i++) boxes[i].checked = false;
+    updateSelectionUI();
+}
+
+// Header "Select all" checkbox: select/deselect every row on the CURRENT page,
+// updating the persistent store so the choice carries across pages.
+function toggleSelectAll(headerCb) {
+    var rows = document.querySelectorAll('.results-row');
+    for (var i = 0; i < rows.length; i++) {
+        var box = rows[i].querySelector('input.result-check');
+        if (!box) continue;
+        box.checked = headerCb.checked;
+        _setSelected(_rowDocId(rows[i]), headerCb.checked);
+    }
+    updateSelectionUI();
+}
+
+// Reflect selection state: header checked/indeterminate for THIS page, and a
+// running "(N selected)" count across all pages.
+function updateSelectionUI() {
+    var header = document.querySelector('.results-check-all');
+    if (header) {
+        var boxes = document.querySelectorAll('.results-row input.result-check');
+        var checked = document.querySelectorAll('.results-row input.result-check:checked');
+        header.checked = boxes.length > 0 && checked.length === boxes.length;
+        header.indeterminate = checked.length > 0 && checked.length < boxes.length;
+    }
+    var counter = document.getElementById('selected-count');
+    if (counter) {
+        var n = selectedCount();
+        counter.textContent = n > 0 ? '(' + n + ' selected)' : '';
+    }
+}
+
+// After each AJAX re-render (page change / sort / page-size), restore the
+// checkboxes on the newly-shown page from the persistent store. Called by initPage().
+function restoreSelectionState() {
+    var rows = document.querySelectorAll('.results-row');
+    for (var i = 0; i < rows.length; i++) {
+        var box = rows[i].querySelector('input.result-check');
+        if (!box) continue;
+        box.checked = !!selectedDocs[_rowDocId(rows[i])];
+    }
+    updateSelectionUI();
+}
+
+// Keep the store + header in sync when an individual row is toggled. Delegated on
 // document so it survives the AJAX re-render of the results table.
 document.addEventListener('change', function (e) {
     var t = e.target;
     if (!t || !t.classList || !t.classList.contains('result-check')) return;
-    var header = document.querySelector('.results-check-all');
-    if (!header) return;
-    var boxes = document.querySelectorAll('.results-row input.result-check');
-    var checked = document.querySelectorAll('.results-row input.result-check:checked');
-    header.checked = boxes.length > 0 && checked.length === boxes.length;
-    header.indeterminate = checked.length > 0 && checked.length < boxes.length;
+    _setSelected(_rowDocId(t.closest('.results-row')), t.checked);
+    updateSelectionUI();
 });
 
 function tagSelectedBox() {
@@ -574,12 +657,13 @@ function tagSelected() {
     if (tag == null || tag.trim().length == 0) {
         return;
     }
-    var checked = document.querySelectorAll('.results-row input.result-check:checked');
-    if (checked.length === 0) {
+    var ids = Object.keys(selectedDocs);
+    if (ids.length === 0) {
         alert('Please check one or more documents first, then click Apply.');
         return;
     }
-    applyQuickTag(tag.trim());
+    // Tag the whole cross-page selection, not just the rows visible now.
+    applyQuickTag(tag.trim(), ids);
     $("#tag-selected").hide();
     $("#tag-selected-text").val('');
 }
@@ -591,23 +675,19 @@ function tagSelected() {
 //   exportNativeSelected -> native files (zip)
 //   exportPdfSelected    -> one combined PDF
 function _exportSelectedAs(action) {
-    var checked = document.querySelectorAll('.results-row input.result-check:checked');
-    if (checked.length === 0) {
+    // Drive from the cross-page selection store (path + uniqueId were captured
+    // when each row was checked), so export covers docs selected on other pages.
+    var ids = Object.keys(selectedDocs);
+    if (ids.length === 0) {
         alert('Please check one or more documents to export.');
         return;
     }
     var paths = [], uids = [];
-    for (var i = 0; i < checked.length; i++) {
-        var row = checked[i].closest('.results-row');
-        var idCell = row ? row.querySelector('.results-cell-id') : null;
-        var docId = idCell ? idCell.textContent.trim() : null;
-        if (!docId || typeof documents === 'undefined') continue;
-        for (var j = 0; j < documents.length; j++) {
-            if (documents[j].documentId === docId) {
-                paths.push(documents[j].documentPath);
-                uids.push(documents[j].uniqueId);
-                break;
-            }
+    for (var i = 0; i < ids.length; i++) {
+        var d = selectedDocs[ids[i]];
+        if (d && d.documentPath && d.uniqueId) {
+            paths.push(d.documentPath);
+            uids.push(d.uniqueId);
         }
     }
     if (paths.length === 0) {

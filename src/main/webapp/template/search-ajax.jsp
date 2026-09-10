@@ -86,6 +86,10 @@
                 <a class="toolbar-btn" href="filedownload.html?action=exportPdfAll" title="Combine all results into one PDF">All PDF</a>
                 <a class="toolbar-btn" id="export-link" target="_blank" href="filedownload.html?action=exportReport" title="Export an HTML report of all results">Report (all)</a>
             </div>
+            <div class="toolbar-group">
+                <span id="selected-count" class="selected-count" style="font-weight:600;color:#0366d6;"></span>
+                <button type="button" class="toolbar-btn" onclick="clearSelection()" title="Clear the selection across all pages">Clear</button>
+            </div>
         </div>
         <div class="results-toolbar-right">
             <button type="button" class="results-view-btn results-view-active" title="List view"><i class="bi-list-ul"></i></button>
