@@ -178,8 +178,13 @@ public class FSUserDao implements UserDao {
             if (data != null) {
                 userCache = data;
             }
+        } catch (java.io.FileNotFoundException e) {
+            // First run: no users have been saved yet. Not an error -- the cache
+            // starts empty and the file is created on the first save. (Logged loudly
+            // as ERROR before, which made a normal fresh install look broken.)
+            log.info("No stored users yet (" + USERS_FILE + "); starting with an empty user cache.");
         } catch (Exception e) {
-            log.error("Problem loading users from file system!");
+            log.error("Problem loading users from file system!", e);
         } finally {
             if (fis != null) {
                 try {

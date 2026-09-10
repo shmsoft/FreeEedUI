@@ -123,8 +123,13 @@ public class FSAppSettingsDao implements AppSettingsDao {
             
             AppSettings data = (AppSettings) ois.readObject();
             return data;
+        } catch (java.io.FileNotFoundException e) {
+            // First run: no settings have been saved yet. Not an error -- defaults
+            // are used and the file is created on the first save. (Logged loudly as
+            // ERROR before, which made a normal fresh install look broken.)
+            log.info("No stored app settings yet (" + SETTINGS_FILE + "); using defaults.");
         } catch (Exception e) {
-            log.error("Problem loading app settings from file system!");
+            log.error("Problem loading app settings from file system!", e);
         } finally {
             if (fis != null) {
                 try {
