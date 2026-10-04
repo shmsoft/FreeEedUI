@@ -30,7 +30,7 @@ import java.util.Properties;
  */
 public class Version {
 
-    private static final String V = "10.8.7-PREVIEW";
+    private static final String V = "10.8.7";
 
     // Written into WEB-INF/classes/git.properties by the build.
     private static final Properties BUILD = loadBuildProperties();
