@@ -1,7 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <script src="js/tiff.min.js"></script>
-<script src="js/search.js?v=3"></script>
+<script src="js/search.js?v=4"></script>
 
 <script>
 <c:forEach var="t" items="${tags}">
@@ -84,6 +84,7 @@
             <button class="preview-tab" onclick="switchPreviewTab(this,'meta')">Metadata</button>
             <button class="preview-tab" id="preview-tags-tab" onclick="switchPreviewTab(this,'tags')">Tags (<span id="preview-tags-count">0</span>)</button>
             <button class="preview-tab" id="preview-notes-tab" onclick="switchPreviewTab(this,'notes')">Notes (<span id="preview-notes-count">0</span>)</button>
+            <button class="preview-tab" id="preview-redact-tab" onclick="switchPreviewTab(this,'redact')" title="FOIA / public-records redaction">Redact</button>
         </div>
         <!-- Document preview body -->
         <div class="preview-panel-body" id="preview-panel-body">
@@ -308,6 +309,15 @@ function switchPreviewTab(el, tabId) {
         html += '<div class="ptc-add-note"><textarea class="ptc-note-textarea" id="ptc-note-textarea" placeholder="Write a note..." rows="3"></textarea>' +
             '<button class="tag-action-btn" onclick="addNoteFromPreview()">Save Note</button></div></div>';
         docArea.innerHTML = html;
+    }
+    else if (tabId === 'redact') {
+        // FOIA manual redaction: draw labeled exemption boxes on the page image.
+        _saveDocContent(docArea);
+        if (typeof enterRedactionMode === 'function') {
+            enterRedactionMode(docArea);
+        } else {
+            docArea.innerHTML = '<div class="preview-tab-content"><p class="ptc-empty">Redaction module not loaded.</p></div>';
+        }
     }
 }
 

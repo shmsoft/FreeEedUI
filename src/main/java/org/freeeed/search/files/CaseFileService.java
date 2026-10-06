@@ -422,6 +422,279 @@ public class CaseFileService {
         return new MergeResult(new File(outName), added, missing, docs.size());
     }
 
+    // ------------------------------------------------------------------
+    // Redaction rendering (FOIA manual redaction -- docs/decisions/redaction.md)
+    // ------------------------------------------------------------------
+
+    /** Number of pages in a document's PDF rendition, or 0 if none / unreadable. */
+    public int pdfPageCount(String projectOutputPath, String documentOriginalPath, String uniqueId) {
+        File pdf = getImageFile(projectOutputPath, documentOriginalPath, uniqueId);
+        if (pdf == null || !pdf.exists()) {
+            return 0;
+        }
+        try (org.apache.pdfbox.pdmodel.PDDocument doc = org.apache.pdfbox.pdmodel.PDDocument.load(pdf)) {
+            return doc.getNumberOfPages();
+        } catch (Exception e) {
+            log.error("Could not read page count for uniqueId=" + uniqueId, e);
+            return 0;
+        }
+    }
+
+    /**
+     * Rasterize one page of a document's PDF rendition to a PNG, for the review
+     * viewer to draw redaction boxes over. This is a throw-away preview image --
+     * the rendition and native are never modified. Returns null if there is no
+     * rendition or the page is out of range.
+     */
+    public File renderRenditionPagePng(String projectOutputPath, String documentOriginalPath,
+                                       String uniqueId, int page1Based, int dpi) {
+        File pdf = getImageFile(projectOutputPath, documentOriginalPath, uniqueId);
+        if (pdf == null || !pdf.exists()) {
+            return null;
+        }
+        new File(FILES_TMP_DIR).mkdirs();
+        try (org.apache.pdfbox.pdmodel.PDDocument doc = org.apache.pdfbox.pdmodel.PDDocument.load(pdf)) {
+            int idx = page1Based - 1;
+            if (idx < 0 || idx >= doc.getNumberOfPages()) {
+                return null;
+            }
+            org.apache.pdfbox.rendering.PDFRenderer renderer = new org.apache.pdfbox.rendering.PDFRenderer(doc);
+            java.awt.image.BufferedImage image =
+                    renderer.renderImageWithDPI(idx, dpi, org.apache.pdfbox.rendering.ImageType.RGB);
+            File out = new File(FILES_TMP_DIR, "redpage_" + safe(uniqueId) + "_" + page1Based + "_" + dpi + ".png");
+            javax.imageio.ImageIO.write(image, "png", out);
+            return out;
+        } catch (Exception e) {
+            log.error("Could not render rendition page for uniqueId=" + uniqueId + " page=" + page1Based, e);
+            return null;
+        }
+    }
+
+    private String safe(String s) {
+        return s == null ? "x" : s.replaceAll("[^A-Za-z0-9_.-]", "_");
+    }
+
+    /**
+     * Produce the redacted <b>release set</b>: for every requested document, each
+     * page of its PDF rendition is rasterized, the accepted redaction boxes are
+     * <b>burned in</b> (filled, with the exemption code printed on the box), and
+     * the page is rebuilt as an image -- so the released PDF has <b>no recoverable
+     * text layer</b> under a redaction (true removal, not an overlay). A redaction
+     * log is prepended as a cover page. Originals/renditions are untouched.
+     *
+     * Documents without a PDF rendition are skipped and counted, exactly like
+     * {@link #mergePdfs}, so the caller can flag a partial release.
+     */
+    public MergeResult mergeRedactedPdfs(String projectOutputPath, String caseName,
+                                         List<SolrDocument> docs,
+                                         java.util.Map<String, java.util.List<org.freeeed.search.web.model.redaction.Redaction>> byDoc,
+                                         int dpi) {
+        new File(FILES_TMP_DIR).mkdirs();
+        String outName = FILES_TMP_DIR + File.separator + "redtmp" + System.currentTimeMillis() + ".pdf";
+
+        int added = 0, missing = 0, totalBoxes = 0;
+        java.util.List<String> logLines = new ArrayList<String>();
+
+        try (org.apache.pdfbox.pdmodel.PDDocument out = new org.apache.pdfbox.pdmodel.PDDocument()) {
+            for (SolrDocument doc : docs) {
+                File pdf = getImageFile(projectOutputPath, doc.getDocumentPath(), doc.getUniqueId());
+                if (pdf == null || !pdf.exists() || !pdf.getName().toLowerCase().endsWith(".pdf")) {
+                    missing++;
+                    continue;
+                }
+                // Redactions are keyed by uniqueId -- the stable per-document key the
+                // viewer, the rendition lookup (getImageFile) and selected-export all share.
+                java.util.List<org.freeeed.search.web.model.redaction.Redaction> boxes = byDoc.get(doc.getUniqueId());
+                try (org.apache.pdfbox.pdmodel.PDDocument src = org.apache.pdfbox.pdmodel.PDDocument.load(pdf)) {
+                    org.apache.pdfbox.rendering.PDFRenderer renderer = new org.apache.pdfbox.rendering.PDFRenderer(src);
+                    int pages = src.getNumberOfPages();
+                    int docBoxes = 0;
+                    java.util.Set<String> docCodes = new java.util.LinkedHashSet<String>();
+                    for (int p = 0; p < pages; p++) {
+                        java.awt.image.BufferedImage image =
+                                renderer.renderImageWithDPI(p, dpi, org.apache.pdfbox.rendering.ImageType.RGB);
+                        int applied = burnBoxes(image, boxes, p + 1, docCodes);
+                        docBoxes += applied;
+                        addImagePage(out, image, dpi);
+                    }
+                    added++;
+                    totalBoxes += docBoxes;
+                    String label = doc.getDocumentPath() != null && !doc.getDocumentPath().isEmpty()
+                            ? new File(doc.getDocumentPath()).getName() : doc.getDocumentId();
+                    logLines.add(label + " -- " + docBoxes + " redaction(s)"
+                            + (docCodes.isEmpty() ? "" : "; codes: " + String.join(", ", docCodes)));
+                } catch (Exception e) {
+                    log.error("Problem redacting rendition for uniqueId=" + doc.getUniqueId(), e);
+                    missing++;
+                }
+            }
+
+            if (added == 0) {
+                return new MergeResult(null, 0, missing, docs.size());
+            }
+
+            // Prepend the redaction-log cover page (first page of the release).
+            prependLogPage(out, caseName, added, totalBoxes, logLines);
+
+            out.save(outName);
+        } catch (Exception e) {
+            log.error("Problem building redacted PDF", e);
+            return new MergeResult(null, 0, docs.size(), docs.size());
+        }
+
+        log.info("mergeRedactedPdfs: " + added + " doc(s), " + totalBoxes + " redaction(s), "
+                + missing + " without a rendition");
+        return new MergeResult(new File(outName), added, missing, docs.size());
+    }
+
+    /** Burn the boxes for one page into the raster. Returns how many were applied. */
+    private int burnBoxes(java.awt.image.BufferedImage image,
+                          java.util.List<org.freeeed.search.web.model.redaction.Redaction> boxes,
+                          int page1Based, java.util.Set<String> codesSeen) {
+        if (boxes == null || boxes.isEmpty()) {
+            return 0;
+        }
+        int w = image.getWidth();
+        int h = image.getHeight();
+        java.awt.Graphics2D g = image.createGraphics();
+        g.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING,
+                java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        int applied = 0;
+        try {
+            for (org.freeeed.search.web.model.redaction.Redaction r : boxes) {
+                if (r.getPage() != page1Based) {
+                    continue;
+                }
+                int rx = (int) Math.round(r.getX() * w);
+                int ry = (int) Math.round(r.getY() * h);
+                int rw = (int) Math.round(r.getW() * w);
+                int rh = (int) Math.round(r.getH() * h);
+                if (rw <= 0 || rh <= 0) {
+                    continue;
+                }
+                g.setColor(java.awt.Color.BLACK);
+                g.fillRect(rx, ry, rw, rh);
+                // Label the box with the exemption basis (never a plain black box).
+                String code = r.getExemptionCode();
+                if (code != null && !code.trim().isEmpty()) {
+                    codesSeen.add(code.trim());
+                    int fontSize = Math.max(8, Math.min(rh - 4, Math.round(h * 0.014f)));
+                    g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, fontSize));
+                    g.setColor(java.awt.Color.WHITE);
+                    java.awt.FontMetrics fm = g.getFontMetrics();
+                    String text = code.trim();
+                    if (fm.stringWidth(text) <= rw - 4 && fm.getHeight() <= rh) {
+                        int tx = rx + 3;
+                        int ty = ry + fm.getAscent() + Math.max(1, (rh - fm.getHeight()) / 2);
+                        g.drawString(text, tx, ty);
+                    }
+                }
+                applied++;
+            }
+        } finally {
+            g.dispose();
+        }
+        return applied;
+    }
+
+    /** Append an image as a full page (image-only -> no recoverable text). */
+    private void addImagePage(org.apache.pdfbox.pdmodel.PDDocument out,
+                              java.awt.image.BufferedImage image, int dpi) throws IOException {
+        float wPt = image.getWidth() * 72f / dpi;
+        float hPt = image.getHeight() * 72f / dpi;
+        org.apache.pdfbox.pdmodel.PDPage page =
+                new org.apache.pdfbox.pdmodel.PDPage(new org.apache.pdfbox.pdmodel.common.PDRectangle(wPt, hPt));
+        out.addPage(page);
+        org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject img =
+                org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory.createFromImage(out, image, 0.8f);
+        try (org.apache.pdfbox.pdmodel.PDPageContentStream cs =
+                     new org.apache.pdfbox.pdmodel.PDPageContentStream(out, page)) {
+            cs.drawImage(img, 0, 0, wPt, hPt);
+        }
+    }
+
+    /** Build the redaction-log cover page and move it to the front of the release. */
+    private void prependLogPage(org.apache.pdfbox.pdmodel.PDDocument out, String caseName,
+                                int docCount, int totalBoxes, java.util.List<String> logLines) throws IOException {
+        org.apache.pdfbox.pdmodel.PDPage page =
+                new org.apache.pdfbox.pdmodel.PDPage(org.apache.pdfbox.pdmodel.common.PDRectangle.LETTER);
+        float margin = 54f;
+        float y = org.apache.pdfbox.pdmodel.common.PDRectangle.LETTER.getHeight() - margin;
+        float width = org.apache.pdfbox.pdmodel.common.PDRectangle.LETTER.getWidth() - 2 * margin;
+        try (org.apache.pdfbox.pdmodel.PDPageContentStream cs =
+                     new org.apache.pdfbox.pdmodel.PDPageContentStream(out, page)) {
+            y = writeLine(cs, org.apache.pdfbox.pdmodel.font.PDType1Font.HELVETICA_BOLD, 16, margin, y, "FreeEed -- Redaction Log");
+            y -= 6;
+            y = writeLine(cs, org.apache.pdfbox.pdmodel.font.PDType1Font.HELVETICA, 10, margin, y,
+                    "Case: " + (caseName == null ? "" : caseName));
+            y = writeLine(cs, org.apache.pdfbox.pdmodel.font.PDType1Font.HELVETICA, 10, margin, y,
+                    "Generated: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(new Date()));
+            y = writeLine(cs, org.apache.pdfbox.pdmodel.font.PDType1Font.HELVETICA, 10, margin, y,
+                    "Release: " + docCount + " document(s), " + totalBoxes + " redaction(s) applied.");
+            y -= 6;
+            y = writeLine(cs, org.apache.pdfbox.pdmodel.font.PDType1Font.HELVETICA_OBLIQUE, 9, margin, y,
+                    "Redacted content is permanently removed from the released pages (rasterized image,");
+            y = writeLine(cs, org.apache.pdfbox.pdmodel.font.PDType1Font.HELVETICA_OBLIQUE, 9, margin, y,
+                    "no recoverable text under a redaction). Each box prints its exemption basis.");
+            y -= 10;
+            int shown = 0;
+            for (String line : logLines) {
+                if (y < margin + 24) {
+                    y = writeLine(cs, org.apache.pdfbox.pdmodel.font.PDType1Font.HELVETICA, 9, margin, y,
+                            "... and " + (logLines.size() - shown) + " more (full list omitted for space).");
+                    break;
+                }
+                for (String wrapped : wrap(line, 95)) {
+                    y = writeLine(cs, org.apache.pdfbox.pdmodel.font.PDType1Font.HELVETICA, 9, margin, y, wrapped);
+                }
+                shown++;
+            }
+        }
+        // Insert the finished log page at the front (content stream is already closed).
+        out.getPages().insertBefore(page, out.getPage(0));
+    }
+
+    private float writeLine(org.apache.pdfbox.pdmodel.PDPageContentStream cs,
+                            org.apache.pdfbox.pdmodel.font.PDType1Font font, int size,
+                            float x, float y, String text) throws IOException {
+        cs.beginText();
+        cs.setFont(font, size);
+        cs.newLineAtOffset(x, y);
+        cs.showText(sanitizeForPdf(text));
+        cs.endText();
+        return y - (size + 3);
+    }
+
+    // WinAnsi (PDType1Font) cannot encode arbitrary characters; keep the log to a safe subset.
+    private String sanitizeForPdf(String s) {
+        if (s == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder(s.length());
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            sb.append(c >= 32 && c < 127 ? c : '?');
+        }
+        return sb.toString();
+    }
+
+    private java.util.List<String> wrap(String s, int max) {
+        java.util.List<String> out = new ArrayList<String>();
+        if (s == null) {
+            return out;
+        }
+        while (s.length() > max) {
+            int cut = s.lastIndexOf(' ', max);
+            if (cut <= 0) {
+                cut = max;
+            }
+            out.add(s.substring(0, cut));
+            s = s.substring(cut).trim();
+        }
+        out.add(s);
+        return out;
+    }
+
     /**
      * Outcome of {@link #mergePdfs}: the merged file (null if nothing could be
      * merged) plus how many documents made it in and how many were skipped, so

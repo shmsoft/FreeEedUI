@@ -26,6 +26,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.freeeed.search.files.CaseFileService;
+import org.freeeed.search.files.RedactionStore;
 import org.freeeed.search.web.WebConstants;
 import org.freeeed.search.web.model.Case;
 import org.freeeed.search.web.model.solr.SolrDocument;
@@ -48,7 +49,11 @@ public class CaseFileDownloadController extends SecureController {
     
     private CaseFileService caseFileService;
     private SolrSearchService searchService;
-    
+    private RedactionStore redactionStore;
+    // DPI for redacted-release rasterization; higher = sharper + bigger files.
+    private static final int REDACTION_EXPORT_DPI = 200;
+    private static final int REDACTION_PREVIEW_DPI = 150;
+
     @Override
     public ModelAndView execute() {
         HttpSession session = this.request.getSession(true);
@@ -64,10 +69,40 @@ public class CaseFileDownloadController extends SecureController {
         String action = (String) valueStack.get("action");
         
         log.debug("Action called: " + action);
-        
+
+        // --- FOIA redaction: page count + per-page preview image for the viewer ---
+        if ("renditionInfo".equals(action)) {
+            int pages = caseFileService.pdfPageCount(selectedCase.getFilesLocation(),
+                    (String) valueStack.get("docName"), (String) valueStack.get("uniqueId"));
+            try {
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"pages\":" + pages + "}");
+                response.getWriter().flush();
+            } catch (Exception e) {
+                log.error("renditionInfo failed", e);
+            }
+            return null;
+        }
+        if ("renditionPage".equals(action)) {
+            int page = parseIntOr(valueStack.get("page"), 1);
+            File png = caseFileService.renderRenditionPagePng(selectedCase.getFilesLocation(),
+                    (String) valueStack.get("docName"), (String) valueStack.get("uniqueId"),
+                    page, REDACTION_PREVIEW_DPI);
+            if (png == null) {
+                try {
+                    response.sendError(javax.servlet.http.HttpServletResponse.SC_NOT_FOUND,
+                            "No PDF rendition for this document/page");
+                } catch (Exception ex) { }
+                return null;
+            }
+            streamFile(png, "image/png", null);
+            return null;
+        }
+
         File toDownload = null;
         boolean htmlMode = false;
         boolean pdfMode = false;
+        boolean redactedMode = false;
         org.freeeed.search.files.CaseFileService.MergeResult mergeResult = null;
         
         String docPath = (String) valueStack.get("docPath");
@@ -167,6 +202,37 @@ public class CaseFileDownloadController extends SecureController {
                     toDownload = mergeResult.getFile();
                     pdfMode = true;
                 }
+            } else if ("exportRedactedAll".equals(action)) {
+                // FOIA release set: burn accepted redactions into every result's pages.
+                String query = solrSession.buildSearchQuery();
+                int rows = solrSession.getTotalDocuments();
+                List<SolrDocument> docs = getDocumentPaths(query, 0, rows);
+                mergeResult = caseFileService.mergeRedactedPdfs(selectedCase.getFilesLocation(),
+                        selectedCase.getName(), docs,
+                        redactionStore.listAll(selectedCase.getFilesLocation()), REDACTION_EXPORT_DPI);
+                toDownload = mergeResult.getFile();
+                pdfMode = true;
+                redactedMode = true;
+            } else if ("exportRedactedSelected".equals(action)) {
+                String docPathsStr = (String) valueStack.get("docPaths");
+                String uidsStr = (String) valueStack.get("uniqueIds");
+                if (docPathsStr != null && uidsStr != null && !docPathsStr.trim().isEmpty() && !uidsStr.trim().isEmpty()) {
+                    String[] paths = docPathsStr.split("\\|\\|\\|");
+                    String[] uids = uidsStr.split("\\|\\|\\|");
+                    List<SolrDocument> docs = new ArrayList<SolrDocument>();
+                    for (int i = 0; i < Math.min(paths.length, uids.length); i++) {
+                        SolrDocument doc = new SolrDocument();
+                        doc.setDocumentPath(paths[i]);
+                        doc.setUniqueId(uids[i]);
+                        docs.add(doc);
+                    }
+                    mergeResult = caseFileService.mergeRedactedPdfs(selectedCase.getFilesLocation(),
+                            selectedCase.getName(), docs,
+                            redactionStore.listAll(selectedCase.getFilesLocation()), REDACTION_EXPORT_DPI);
+                    toDownload = mergeResult.getFile();
+                    pdfMode = true;
+                    redactedMode = true;
+                }
             }
         } catch (Exception e) {
             log.error("Problem sending cotent", e);
@@ -205,8 +271,9 @@ public class CaseFileDownloadController extends SecureController {
                     // FILENAME -- this is a file download, so there is no page left to
                     // put a banner on, and a partial export that looks complete is the
                     // dangerous case. Also emit the counts as a header for scripting.
+                    String base = selectedCase.getName() + (redactedMode ? "-redacted" : "");
                     if (mergeResult != null && mergeResult.isPartial()) {
-                        fileName = selectedCase.getName() + "-PARTIAL-"
+                        fileName = base + "-PARTIAL-"
                                 + mergeResult.getAdded() + "of" + mergeResult.getRequested() + ".pdf";
                         response.setHeader("X-FreeEed-Pdf-Merged", mergeResult.getAdded()
                                 + " of " + mergeResult.getRequested()
@@ -215,7 +282,7 @@ public class CaseFileDownloadController extends SecureController {
                                 + mergeResult.getRequested() + " documents had a PDF rendition. "
                                 + "Enable 'Create PDF images' and reprocess for a complete export.");
                     } else {
-                        fileName = selectedCase.getName() + ".pdf";
+                        fileName = base + ".pdf";
                     }
                 }
 
@@ -294,8 +361,42 @@ public class CaseFileDownloadController extends SecureController {
     public void setCaseFileService(CaseFileService caseFileService) {
         this.caseFileService = caseFileService;
     }
-    
+
     public void setSearchService(SolrSearchService searchService) {
         this.searchService = searchService;
+    }
+
+    public void setRedactionStore(RedactionStore redactionStore) {
+        this.redactionStore = redactionStore;
+    }
+
+    private int parseIntOr(Object value, int fallback) {
+        try {
+            return value == null ? fallback : Integer.parseInt(value.toString().trim());
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
+    }
+
+    /** Stream a file to the response with the given content type (inline). */
+    private void streamFile(File file, String contentType, String downloadName) {
+        try {
+            response.setContentType(contentType);
+            response.setContentLength((int) file.length());
+            if (downloadName != null) {
+                response.setHeader("Content-Disposition", "attachment; filename=\"" + downloadName + "\"");
+            }
+            ServletOutputStream outStream = response.getOutputStream();
+            DataInputStream in = new DataInputStream(new FileInputStream(file));
+            byte[] buf = new byte[4096];
+            int n;
+            while ((n = in.read(buf)) != -1) {
+                outStream.write(buf, 0, n);
+            }
+            in.close();
+            outStream.close();
+        } catch (Exception e) {
+            log.error("Problem streaming file " + file, e);
+        }
     }
 }
