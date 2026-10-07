@@ -978,6 +978,8 @@ $(document).ready(function () {
         var uId = $(this).attr("uid");
         var docName = $(this).attr("fileName");
         currentIndex = getIndexById(uId);
+        // Remember the open document so the Redact (FOIA) tab can act on it.
+        window._previewDoc = {docPath: docId, uniqueId: uId, docName: docName};
 
         // Reset zoom/rotation and switch to Document tab
         if (typeof resetPreviewTransform === 'function') resetPreviewTransform();
@@ -1096,3 +1098,270 @@ $(document).ready(function () {
 
 
 });
+
+/* =====================================================================
+ * FOIA manual redaction (docs/decisions/redaction.md)
+ * The "Redact" preview tab lets a reviewer draw labeled exemption boxes on
+ * the document's rasterized PDF rendition. Boxes are a separate annotation
+ * layer (stored server-side, keyed by uniqueId); they are only burned into a
+ * copy when a redacted release set is exported. Nothing here modifies the
+ * original or the rendition.
+ * ===================================================================== */
+var _red = {
+    uniqueId: null, docPath: null, docName: null,
+    page: 1, pages: 0,
+    boxes: [],            // {page,x,y,w,h,code} in normalized (0..1) coords
+    exemptions: null,     // [{name, codes:[{code,label}]}]
+    currentCode: '',
+    dirty: false
+};
+
+function _redLoadExemptions(cb) {
+    if (_red.exemptions) { cb(); return; }
+    $.ajax({
+        type: 'GET', url: 'redaction.html', data: {action: 'exemptions'}, dataType: 'json',
+        success: function (data) { _red.exemptions = (data && data.profiles) ? data.profiles : []; cb(); },
+        error: function () { _red.exemptions = []; cb(); }
+    });
+}
+
+// Entry point, called from switchPreviewTab(this,'redact').
+function enterRedactionMode(docArea) {
+    var d = window._previewDoc;
+    if (!d || !d.uniqueId) {
+        docArea.innerHTML = '<div style="padding:32px;text-align:center;color:#94a3b8;font-size:13px;">'
+            + 'Open a document first, then switch to Redact.</div>';
+        return;
+    }
+    _red.uniqueId = d.uniqueId; _red.docPath = d.docPath; _red.docName = d.docName;
+    _red.page = 1; _red.pages = 0; _red.boxes = []; _red.dirty = false;
+
+    docArea.innerHTML =
+        '<div class="redaction-workspace">'
+        + '  <div class="redaction-toolbar">'
+        + '    <label class="red-lbl">Exemption</label>'
+        + '    <select id="red-code" class="red-select"></select>'
+        + '    <span class="red-sep"></span>'
+        + '    <button class="red-btn" onclick="redPrevPage()">&#8249; Prev</button>'
+        + '    <span id="red-page-info" class="red-page-info">Page 1</span>'
+        + '    <button class="red-btn" onclick="redNextPage()">Next &#8250;</button>'
+        + '    <span class="red-sep"></span>'
+        + '    <button class="red-btn red-btn-primary" onclick="redSave()">Save redactions</button>'
+        + '    <span class="red-sep"></span>'
+        + '    <button class="red-btn" onclick="exportRedactedSelected()" title="Burn redactions into the checked documents">Export redacted (selected)</button>'
+        + '    <button class="red-btn" onclick="exportRedactedAll()" title="Burn redactions into all results">Export redacted (all)</button>'
+        + '    <span id="red-status" class="red-status"></span>'
+        + '  </div>'
+        + '  <div class="redaction-hint">Drag on the page to draw a redaction. Each box prints its exemption code and is permanently burned in on export (no recoverable text underneath).</div>'
+        + '  <div class="redaction-scroll"><div id="red-wrap" class="redaction-wrap">'
+        + '    <img id="red-img" class="redaction-img" alt="page" />'
+        + '    <div id="red-overlay" class="redaction-overlay"></div>'
+        + '  </div></div>'
+        + '</div>';
+
+    _redLoadExemptions(function () {
+        var sel = document.getElementById('red-code');
+        if (sel) {
+            sel.innerHTML = '';
+            if (!_red.exemptions || _red.exemptions.length === 0) {
+                var o = document.createElement('option'); o.value = ''; o.textContent = '(no codes configured)';
+                sel.appendChild(o);
+            }
+            for (var p = 0; p < _red.exemptions.length; p++) {
+                var prof = _red.exemptions[p];
+                var og = document.createElement('optgroup'); og.label = prof.name;
+                for (var c = 0; c < prof.codes.length; c++) {
+                    var opt = document.createElement('option');
+                    opt.value = prof.codes[c].code;
+                    opt.textContent = prof.codes[c].code + ' — ' + prof.codes[c].label;
+                    og.appendChild(opt);
+                }
+                sel.appendChild(og);
+            }
+            _red.currentCode = sel.value;
+            sel.onchange = function () { _red.currentCode = this.value; };
+        }
+        // Discover page count, load existing boxes, render page 1.
+        $.ajax({
+            type: 'GET', url: 'filedownload.html',
+            data: {action: 'renditionInfo', uniqueId: _red.uniqueId, docName: _red.docPath},
+            dataType: 'json',
+            success: function (info) {
+                _red.pages = (info && info.pages) ? info.pages : 0;
+                _redLoadBoxes(function () { redRenderPage(1); });
+            },
+            error: function () { _red.pages = 0; redRenderPage(1); }
+        });
+    });
+}
+
+function _redLoadBoxes(cb) {
+    $.ajax({
+        type: 'GET', url: 'redaction.html', data: {action: 'list', uniqueId: _red.uniqueId}, dataType: 'json',
+        success: function (data) {
+            _red.boxes = (data && data.redactions) ? data.redactions : [];
+            cb();
+        },
+        error: function () { _red.boxes = []; cb(); }
+    });
+}
+
+function redRenderPage(n) {
+    if (_red.pages > 0) {
+        if (n < 1) n = 1;
+        if (n > _red.pages) n = _red.pages;
+    }
+    _red.page = n;
+    var img = document.getElementById('red-img');
+    var info = document.getElementById('red-page-info');
+    if (info) info.textContent = 'Page ' + n + (_red.pages ? ' of ' + _red.pages : '');
+    if (!img) return;
+    if (_red.pages === 0) {
+        var ov = document.getElementById('red-overlay');
+        if (ov) ov.innerHTML = '';
+        img.removeAttribute('src');
+        img.alt = 'No PDF rendition for this document. Enable "Create PDF Images" and reprocess the case.';
+        _redStatus('No PDF rendition — enable "Create PDF Images" and reprocess.', true);
+        return;
+    }
+    img.onload = function () {
+        var overlay = document.getElementById('red-overlay');
+        if (overlay) { overlay.style.width = img.clientWidth + 'px'; overlay.style.height = img.clientHeight + 'px'; }
+        redDrawBoxes();
+        _redBindDrawing();
+    };
+    img.src = 'filedownload.html?action=renditionPage&uniqueId=' + encodeURIComponent(_red.uniqueId)
+        + '&docName=' + encodeURIComponent(_red.docPath || '') + '&page=' + n + '&_=' + Date.now();
+}
+
+function redPrevPage() { if (_red.page > 1) redRenderPage(_red.page - 1); }
+function redNextPage() { if (!_red.pages || _red.page < _red.pages) redRenderPage(_red.page + 1); }
+
+function redDrawBoxes() {
+    var overlay = document.getElementById('red-overlay');
+    if (!overlay) return;
+    overlay.innerHTML = '';
+    for (var i = 0; i < _red.boxes.length; i++) {
+        var b = _red.boxes[i];
+        if (b.page !== _red.page) continue;
+        var div = document.createElement('div');
+        div.className = 'redaction-box';
+        div.style.left = (b.x * 100) + '%';
+        div.style.top = (b.y * 100) + '%';
+        div.style.width = (b.w * 100) + '%';
+        div.style.height = (b.h * 100) + '%';
+        var lbl = document.createElement('span');
+        lbl.className = 'redaction-box-label';
+        lbl.textContent = b.code || '';
+        div.appendChild(lbl);
+        var del = document.createElement('span');
+        del.className = 'redaction-box-del';
+        del.textContent = '×';
+        del.title = 'Remove this redaction';
+        (function (idx) {
+            del.onmousedown = function (ev) { ev.stopPropagation(); };
+            del.onclick = function (ev) { ev.stopPropagation(); redDeleteBox(idx); };
+        })(i);
+        div.appendChild(del);
+        overlay.appendChild(div);
+    }
+}
+
+function redDeleteBox(idx) {
+    _red.boxes.splice(idx, 1);
+    _red.dirty = true;
+    redDrawBoxes();
+    _redStatus('Unsaved changes', false);
+}
+
+function _redBindDrawing() {
+    var overlay = document.getElementById('red-overlay');
+    if (!overlay || overlay._redBound) return;
+    overlay._redBound = true;
+    var temp = null, startX = 0, startY = 0;
+    overlay.addEventListener('mousedown', function (e) {
+        if (e.button !== 0) return;
+        var rect = overlay.getBoundingClientRect();
+        startX = e.clientX - rect.left; startY = e.clientY - rect.top;
+        temp = document.createElement('div');
+        temp.className = 'redaction-box redaction-box-temp';
+        temp.style.left = startX + 'px'; temp.style.top = startY + 'px';
+        temp.style.width = '0px'; temp.style.height = '0px';
+        overlay.appendChild(temp);
+        e.preventDefault();
+    });
+    overlay.addEventListener('mousemove', function (e) {
+        if (!temp) return;
+        var rect = overlay.getBoundingClientRect();
+        var cx = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+        var cy = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
+        temp.style.left = Math.min(startX, cx) + 'px';
+        temp.style.top = Math.min(startY, cy) + 'px';
+        temp.style.width = Math.abs(cx - startX) + 'px';
+        temp.style.height = Math.abs(cy - startY) + 'px';
+    });
+    function finish(e) {
+        if (!temp) return;
+        var rect = overlay.getBoundingClientRect();
+        var left = parseFloat(temp.style.left), top = parseFloat(temp.style.top);
+        var w = parseFloat(temp.style.width), h = parseFloat(temp.style.height);
+        overlay.removeChild(temp); temp = null;
+        if (w < 6 || h < 6 || rect.width === 0 || rect.height === 0) { return; }
+        if (!_red.currentCode) { _redStatus('Pick an exemption code first.', true); return; }
+        _red.boxes.push({
+            page: _red.page,
+            x: left / rect.width, y: top / rect.height,
+            w: w / rect.width, h: h / rect.height,
+            code: _red.currentCode
+        });
+        _red.dirty = true;
+        redDrawBoxes();
+        _redStatus('Unsaved changes', false);
+    }
+    overlay.addEventListener('mouseup', finish);
+    overlay.addEventListener('mouseleave', finish);
+}
+
+function redSave() {
+    if (!_red.uniqueId) return;
+    var parts = [];
+    for (var i = 0; i < _red.boxes.length; i++) {
+        var b = _red.boxes[i];
+        parts.push(b.page + ',' + b.x + ',' + b.y + ',' + b.w + ',' + b.h + ',' + (b.code || ''));
+    }
+    $.ajax({
+        type: 'POST', url: 'redaction.html',
+        data: {action: 'save', uniqueId: _red.uniqueId, boxes: parts.join('|||')},
+        dataType: 'json',
+        success: function (data) {
+            _red.dirty = false;
+            _redStatus('Saved ' + ((data && typeof data.count === 'number') ? data.count : _red.boxes.length) + ' redaction(s).', false);
+        },
+        error: function () { _redStatus('Save failed — try again.', true); }
+    });
+}
+
+function _redStatus(msg, isError) {
+    var el = document.getElementById('red-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.color = isError ? '#b91c1c' : '#047857';
+}
+
+// Burn redactions into a release set. Reuses the selection store for "selected".
+function exportRedactedSelected() {
+    if (_red.dirty) { if (!confirm('You have unsaved redactions. Export without saving them?')) return; }
+    _exportSelectedAs('exportRedactedSelected');
+}
+function exportRedactedAll() {
+    if (_red.dirty) { if (!confirm('You have unsaved redactions. Export without saving them?')) return; }
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'filedownload.html';
+    var input = document.createElement('input');
+    input.type = 'hidden'; input.name = 'action'; input.value = 'exportRedactedAll';
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}

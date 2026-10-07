@@ -1,0 +1,31 @@
+# FreeEed redaction exemption codes -- DATA, not code (see docs/decisions/redaction.md).
+# Records officers / counsel edit this file to match their jurisdiction; it is read
+# at runtime. Format (tab-separated):   profile <TAB> code <TAB> label
+# Lines starting with # and blank lines are ignored. The code is printed on the
+# redaction box and recorded in the release log; keep it short.
+#
+# --- Federal FOIA, 5 U.S.C. 552(b) ---
+Federal FOIA	(b)(1)	National defense / foreign policy
+Federal FOIA	(b)(2)	Internal personnel rules and practices
+Federal FOIA	(b)(3)	Exempted by other statute
+Federal FOIA	(b)(4)	Trade secrets / confidential commercial
+Federal FOIA	(b)(5)	Privileged inter/intra-agency (deliberative)
+Federal FOIA	(b)(6)	Personal privacy
+Federal FOIA	(b)(7)(C)	Law-enforcement personal privacy
+Federal FOIA	(b)(7)(D)	Confidential source
+Federal FOIA	(b)(7)(E)	Law-enforcement techniques
+Federal FOIA	(b)(7)(F)	Physical safety
+Federal FOIA	(b)(8)	Financial institutions
+Federal FOIA	(b)(9)	Geological / well data
+#
+# --- FERPA, 20 U.S.C. 1232g (education records) ---
+FERPA	FERPA	Education record / student PII
+FERPA	Directory	Opt-out directory information
+FERPA	Minor	Minor's identifying information
+#
+# --- State (example: Ohio Public Records Act, ORC 149.43) -- EDIT for your state ---
+State (Ohio ORC 149.43)	149.43(A)(1)(h)	Trial preparation record
+State (Ohio ORC 149.43)	149.43(A)(1)(v)	Record prohibited by state/federal law
+State (Ohio ORC 149.43)	SSN	Social Security number
+State (Ohio ORC 149.43)	DOB	Date of birth
+State (Ohio ORC 149.43)	Other	Other (see log note)

@@ -127,8 +127,15 @@
     <bean id="caseFilesDownload" class="org.freeeed.search.web.controller.CaseFileDownloadController">
         <property name="searchService" ref="solrSearchService" />
         <property name="caseFileService" ref="caseFileService" />
+        <property name="redactionStore" ref="redactionStore" />
     </bean>
-    
+
+    <bean id="redactionStore" class="org.freeeed.search.files.RedactionStore" />
+
+    <bean id="redactionPage" class="org.freeeed.search.web.controller.RedactionController">
+        <property name="redactionStore" ref="redactionStore" />
+    </bean>
+
     <bean id="fileuploadPage" class="org.freeeed.search.web.controller.FileUploadController">
         <property name="caseFileService" ref="caseFileService" />
     </bean>
@@ -158,6 +165,7 @@
 
                 <prop key="/tagauto.html">tagAutoPage</prop>
                 <prop key="/filedownload.html">caseFilesDownload</prop>
+                <prop key="/redaction.html">redactionPage</prop>
                 <prop key="/fileupload.html">fileuploadPage</prop>
 			</props>
 		</property>
