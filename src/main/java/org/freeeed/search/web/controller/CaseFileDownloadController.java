@@ -96,6 +96,9 @@ public class CaseFileDownloadController extends SecureController {
                 return null;
             }
             streamFile(png, "image/png", null);
+            // This is an UNREDACTED page image (exempt content). Don't leave copies
+            // on disk -- delete it right after it's been sent to the viewer.
+            try { png.delete(); } catch (Exception ignore) { }
             return null;
         }
 
