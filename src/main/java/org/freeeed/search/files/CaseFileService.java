@@ -462,6 +462,10 @@ public class CaseFileService {
             java.awt.image.BufferedImage image =
                     renderer.renderImageWithDPI(idx, dpi, org.apache.pdfbox.rendering.ImageType.RGB);
             File out = new File(FILES_TMP_DIR, "redpage_" + safe(uniqueId) + "_" + page1Based + "_" + dpi + ".png");
+            // Backstop: this is an unredacted page image (exempt content). The caller
+            // deletes it after serving; deleteOnExit ensures it never outlives the JVM
+            // even if that send fails.
+            out.deleteOnExit();
             javax.imageio.ImageIO.write(image, "png", out);
             return out;
         } catch (Exception e) {
@@ -544,7 +548,9 @@ public class CaseFileService {
 
         log.info("mergeRedactedPdfs: " + added + " doc(s), " + totalBoxes + " redaction(s), "
                 + missing + " without a rendition");
-        return new MergeResult(new File(outName), added, missing, docs.size());
+        File result = new File(outName);
+        result.deleteOnExit(); // don't let the generated release PDF linger past JVM exit
+        return new MergeResult(result, added, missing, docs.size());
     }
 
     /** Burn the boxes for one page into the raster. Returns how many were applied. */
