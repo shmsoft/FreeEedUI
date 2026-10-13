@@ -441,41 +441,35 @@ public class CaseFileService {
     }
 
     /**
-     * Rasterize one page of a document's PDF rendition to a PNG, for the review
-     * viewer to draw redaction boxes over. This is a throw-away preview image --
-     * the rendition and native are never modified. Returns null if there is no
-     * rendition or the page is out of range.
+     * Rasterize one page of a document's PDF rendition as a PNG and write it
+     * STRAIGHT to the given stream (the review viewer draws redaction boxes over
+     * it). The unredacted page image never touches disk -- so there is no
+     * exempt-content temp file to leak or clean up. The rendition and native are
+     * never modified. Returns false (having written nothing) if there is no
+     * rendition or the page is out of range, so the caller can send a clean error.
      */
-    public File renderRenditionPagePng(String projectOutputPath, String documentOriginalPath,
-                                       String uniqueId, int page1Based, int dpi) {
+    public boolean writeRenditionPagePng(String projectOutputPath, String documentOriginalPath,
+                                         String uniqueId, int page1Based, int dpi,
+                                         java.io.OutputStream out) {
         File pdf = getImageFile(projectOutputPath, documentOriginalPath, uniqueId);
         if (pdf == null || !pdf.exists()) {
-            return null;
+            return false;
         }
-        new File(FILES_TMP_DIR).mkdirs();
         try (org.apache.pdfbox.pdmodel.PDDocument doc = org.apache.pdfbox.pdmodel.PDDocument.load(pdf)) {
             int idx = page1Based - 1;
             if (idx < 0 || idx >= doc.getNumberOfPages()) {
-                return null;
+                return false;
             }
             org.apache.pdfbox.rendering.PDFRenderer renderer = new org.apache.pdfbox.rendering.PDFRenderer(doc);
             java.awt.image.BufferedImage image =
                     renderer.renderImageWithDPI(idx, dpi, org.apache.pdfbox.rendering.ImageType.RGB);
-            File out = new File(FILES_TMP_DIR, "redpage_" + safe(uniqueId) + "_" + page1Based + "_" + dpi + ".png");
-            // Backstop: this is an unredacted page image (exempt content). The caller
-            // deletes it after serving; deleteOnExit ensures it never outlives the JVM
-            // even if that send fails.
-            out.deleteOnExit();
             javax.imageio.ImageIO.write(image, "png", out);
-            return out;
+            out.flush();
+            return true;
         } catch (Exception e) {
             log.error("Could not render rendition page for uniqueId=" + uniqueId + " page=" + page1Based, e);
-            return null;
+            return false;
         }
-    }
-
-    private String safe(String s) {
-        return s == null ? "x" : s.replaceAll("[^A-Za-z0-9_.-]", "_");
     }
 
     /**

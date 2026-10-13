@@ -67,6 +67,17 @@ public class Version {
         return sb.toString();
     }
 
+    /**
+     * Short, build-unique token for cache-busting static assets ({@code ?v=...}).
+     * It is the git commit SHA, so it changes every build -- a browser never serves
+     * a stale CSS/JS after an upgrade (which is what hid the redaction styles after a
+     * 10.8.7 -> 10.8.8 upgrade). Falls back to the version when the SHA isn't stamped.
+     */
+    public static String getAssetVersion() {
+        String sha = BUILD.getProperty("git.commit.id.abbrev", "");
+        return sha.isEmpty() ? V : sha;
+    }
+
     private static Properties loadBuildProperties() {
         Properties props = new Properties();
         try (InputStream in = Version.class.getResourceAsStream("/git.properties")) {
