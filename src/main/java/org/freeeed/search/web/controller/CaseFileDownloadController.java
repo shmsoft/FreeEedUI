@@ -85,20 +85,25 @@ public class CaseFileDownloadController extends SecureController {
         }
         if ("renditionPage".equals(action)) {
             int page = parseIntOr(valueStack.get("page"), 1);
-            File png = caseFileService.renderRenditionPagePng(selectedCase.getFilesLocation(),
-                    (String) valueStack.get("docName"), (String) valueStack.get("uniqueId"),
-                    page, REDACTION_PREVIEW_DPI);
-            if (png == null) {
+            // Render the (UNREDACTED) page straight to the response -- it never touches
+            // disk, so there is no exempt-content temp file to leak or clean up. Failure
+            // returns false before anything is written, so the error response is clean.
+            response.setContentType("image/png");
+            boolean ok = false;
+            try {
+                ok = caseFileService.writeRenditionPagePng(selectedCase.getFilesLocation(),
+                        (String) valueStack.get("docName"), (String) valueStack.get("uniqueId"),
+                        page, REDACTION_PREVIEW_DPI, response.getOutputStream());
+            } catch (Exception e) {
+                log.error("renditionPage render failed", e);
+            }
+            if (!ok) {
                 try {
+                    response.reset();
                     response.sendError(javax.servlet.http.HttpServletResponse.SC_NOT_FOUND,
                             "No PDF rendition for this document/page");
                 } catch (Exception ex) { }
-                return null;
             }
-            streamFile(png, "image/png", null);
-            // This is an UNREDACTED page image (exempt content). Don't leave copies
-            // on disk -- delete it right after it's been sent to the viewer.
-            try { png.delete(); } catch (Exception ignore) { }
             return null;
         }
 
@@ -295,17 +300,22 @@ public class CaseFileDownloadController extends SecureController {
                            + fileName + "\"");
                 }
     
-                byte[] byteBuffer = new byte[1024];
-                DataInputStream in = new DataInputStream(new FileInputStream(
-                        toDownload));
-    
-                // reads the file's bytes and writes them to the response stream
-                while ((in != null) && ((length = in.read(byteBuffer)) != -1)) {
-                    outStream.write(byteBuffer, 0, length);
+                byte[] byteBuffer = new byte[8192];
+                // try-with-resources: the input is closed even if streaming fails partway,
+                // so a later delete() can't be blocked by a still-open handle (Windows).
+                try (DataInputStream in = new DataInputStream(new FileInputStream(toDownload))) {
+                    while ((length = in.read(byteBuffer)) != -1) {
+                        outStream.write(byteBuffer, 0, length);
+                    }
                 }
-    
-                in.close();
                 outStream.close();
+                // Generated PDF exports (merged / redacted release) are throw-away temp
+                // files -- delete after streaming so they don't accumulate (a redacted
+                // release especially shouldn't linger). Native/image sources are never in
+                // pdfMode, so this only touches the generated tmp.
+                if (pdfMode) {
+                    try { toDownload.delete(); } catch (Exception ignore) { }
+                }
                 return null;
             } catch (Exception e) {
                 log.error("Problem sending cotent", e);
@@ -378,28 +388,6 @@ public class CaseFileDownloadController extends SecureController {
             return value == null ? fallback : Integer.parseInt(value.toString().trim());
         } catch (NumberFormatException e) {
             return fallback;
-        }
-    }
-
-    /** Stream a file to the response with the given content type (inline). */
-    private void streamFile(File file, String contentType, String downloadName) {
-        try {
-            response.setContentType(contentType);
-            response.setContentLength((int) file.length());
-            if (downloadName != null) {
-                response.setHeader("Content-Disposition", "attachment; filename=\"" + downloadName + "\"");
-            }
-            ServletOutputStream outStream = response.getOutputStream();
-            DataInputStream in = new DataInputStream(new FileInputStream(file));
-            byte[] buf = new byte[4096];
-            int n;
-            while ((n = in.read(buf)) != -1) {
-                outStream.write(buf, 0, n);
-            }
-            in.close();
-            outStream.close();
-        } catch (Exception e) {
-            log.error("Problem streaming file " + file, e);
         }
     }
 }

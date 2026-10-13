@@ -1,0 +1,10 @@
+/* Inter, vendored locally (variable font). No external/network font load -- the review
+   app must work offline / air-gapped ("nothing leaves the machine"). Source: the OFL
+   Inter variable woff2 (fontsource), stored at ../fonts/inter-variable.woff2. */
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 100 900;      /* variable: covers the 300-700 the UI uses */
+    font-display: swap;
+    src: url('../fonts/inter-variable.woff2') format('woff2');
+}

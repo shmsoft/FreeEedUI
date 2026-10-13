@@ -1,7 +1,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<% String assetV = org.freeeed.search.web.Version.getAssetVersion(); %>
 <script src="js/tiff.min.js"></script>
-<script src="js/search.js?v=4"></script>
+<script src="js/search.js?v=<%=assetV%>"></script>
 
 <script>
 <c:forEach var="t" items="${tags}">
