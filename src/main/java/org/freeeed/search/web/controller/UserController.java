@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.freeeed.search.web.WebConstants;
+import org.freeeed.search.web.dao.user.PasswordHash;
 import org.freeeed.search.web.dao.user.UserDao;
 import org.freeeed.search.web.model.User;
 import org.springframework.web.servlet.ModelAndView;
@@ -127,7 +128,10 @@ public class UserController extends SecureController {
             }
             
             if (isValidField(password1)) {
-                user.setPassword(password1);
+                // Store a hash, never the plaintext the reviewer typed (#68).
+                // When no new password is entered, the value carried over from
+                // testUser above is already hashed.
+                user.setPassword(PasswordHash.hash(password1));
             }
             
             user.clearRights();
