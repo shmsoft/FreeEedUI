@@ -19,12 +19,12 @@
                                 </c:if>
                                 <form action="login.html" method="post">
                                     <div class="login-field">
-                                        <input type="text" class="login-input" value="admin" placeholder="Username"
-                                            name="username" />
+                                        <input type="text" class="login-input" placeholder="Username"
+                                            name="username" autocomplete="username" />
                                     </div>
                                     <div class="login-field">
-                                        <input type="password" class="login-input" value="admin" placeholder="Password"
-                                            name="password" />
+                                        <input type="password" class="login-input" placeholder="Password"
+                                            name="password" autocomplete="current-password" />
                                     </div>
                                     <input type="submit" class="login_btn" value="Sign In" />
                                 </form>
