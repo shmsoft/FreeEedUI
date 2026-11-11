@@ -328,7 +328,13 @@ body:has(.search-layout) .content {
 .redaction-scroll { flex: 1; overflow: auto; background: #475569; text-align: center; padding: 16px; }
 .redaction-wrap { position: relative; display: inline-block; margin: 0 auto; line-height: 0; }
 .redaction-img { display: block; max-width: 100%; box-shadow: 0 2px 10px rgba(0,0,0,0.35); background: #fff; }
-.redaction-overlay { position: absolute; top: 0; left: 0; cursor: crosshair; }
+/* Stretched to all four edges of .redaction-wrap, which shrink-wraps the page
+   image. The drawing code normalizes box coordinates against this element's
+   rect, so it MUST coincide with the rendered image at all times -- including
+   after a window resize or a browser zoom, which re-flow the max-width:100%
+   image. Sizing it in pixels instead would freeze it at load size and silently
+   mis-place every box drawn afterwards. Do not set width/height here or in JS. */
+.redaction-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; cursor: crosshair; }
 .redaction-box {
     position: absolute; background: rgba(0,0,0,0.82); border: 1px solid #000; box-sizing: border-box;
 }

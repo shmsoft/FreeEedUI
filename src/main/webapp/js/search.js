@@ -1225,8 +1225,14 @@ function redRenderPage(n) {
         return;
     }
     img.onload = function () {
-        var overlay = document.getElementById('red-overlay');
-        if (overlay) { overlay.style.width = img.clientWidth + 'px'; overlay.style.height = img.clientHeight + 'px'; }
+        // The overlay is stretched to the wrapper's four edges in CSS, so it
+        // tracks the image through a window resize or a browser zoom. It used
+        // to be sized here in pixels from img.clientWidth/clientHeight, which
+        // froze it at load size: after a resize the overlay no longer matched
+        // the image, and because box coordinates are normalized against the
+        // overlay's rect, every box drawn afterwards was stored against the
+        // stale size and burned into the release in the wrong place -- with no
+        // visible symptom. Leave the sizing to CSS.
         redDrawBoxes();
         _redBindDrawing();
     };
