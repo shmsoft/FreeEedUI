@@ -27,10 +27,18 @@ import java.util.Properties;
  * Bump {@link #V} MANUALLY at milestones (PATCH/MINOR/MAJOR); daily builds keep
  * the same number. The git commit SHA and build time below are stamped in
  * automatically by git-commit-id-maven-plugin so every build is traceable.
+ *
+ * KEEP THIS IN STEP with FreeEed's org.freeeed.main.Version -- they are separate
+ * constants in separate repos and nothing reconciles them at build time. They
+ * drifted once already: 10.8.8 shipped from the engine as a clean semver (which
+ * arms the stable download channel) while this file still said 10.8.8-PREVIEW,
+ * so every screen of the GA review app badged itself a preview build. See
+ * FreeEedUI #92. release_freeeed_complete.sh now reads both files and refuses to
+ * build when they disagree, so a repeat fails loudly instead of shipping.
  */
 public class Version {
 
-    private static final String V = "10.8.8-PREVIEW";
+    private static final String V = "10.8.8";
 
     // Written into WEB-INF/classes/git.properties by the build.
     private static final Properties BUILD = loadBuildProperties();
