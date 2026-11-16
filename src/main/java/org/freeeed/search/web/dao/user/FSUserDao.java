@@ -181,11 +181,21 @@ public class FSUserDao implements UserDao {
             
             fos = new FileOutputStream(dir);
             oos = new ObjectOutputStream(fos);
-            
+
             oos.writeObject(userCache);
-            
+
             oos.close();
             fos.close();
+
+            // u.dat holds the PBKDF2 hash of every account, so it is owner-only
+            // for the same reason the initial-password file is. It was not:
+            // publishInitialPassword restricted its file and this one was left
+            // on the bare umask, which produced a group-readable 640 hash store
+            // on a stock install. start_all.sh's repair pass cannot cover it --
+            // that runs at startup and Tomcat writes this file later, so the
+            // file has to be born correct. Re-applied on every write because a
+            // password change rewrites it.
+            restrictToOwner(dir);
         } catch (Exception e) {
             log.error("Problem storing users from file system!", e);
         } finally {
