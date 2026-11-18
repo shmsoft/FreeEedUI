@@ -88,6 +88,10 @@ public class FSUserDao implements UserDao {
         try {
             userCache.remove(username);
             storeUsers();
+
+            if (ADMIN_USERNAME.equals(username)) {
+                discardInitialPassword("the admin account was deleted");
+            }
         } finally {
             lock.writeLock().unlock();
         }
@@ -98,10 +102,60 @@ public class FSUserDao implements UserDao {
         lock.writeLock().lock();
         
         try {
-            userCache.put(user.getUsername(), user);
+            User previous = userCache.put(user.getUsername(), user);
             storeUsers();
+
+            // The published first-run password is only true while the admin
+            // still has the password we generated. Once it changes, that file
+            // is a lie -- and the desktop reads it and shows it to the user as
+            // this installation's credential, so a stale file is not a quiet
+            // leftover but wrong instructions (#95).
+            if (ADMIN_USERNAME.equals(user.getUsername())
+                    && passwordChanged(previous, user)) {
+                discardInitialPassword("the admin password was changed");
+            }
         } finally {
             lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * True when saving this user changes the stored password value. A brand new
+     * record counts as a change; an unrelated edit (name, email, rights) does
+     * not, so the file survives until the password itself moves.
+     */
+    private boolean passwordChanged(User previous, User saved) {
+        String before = (previous != null) ? previous.getPassword() : null;
+        String after = (saved != null) ? saved.getPassword() : null;
+
+        if (after == null) {
+            return false;
+        }
+        return !after.equals(before);
+    }
+
+    /**
+     * Remove work/initial-admin-password.txt once its contents can no longer be
+     * the admin's password.
+     *
+     * Deliberately silent about the file's contents, and best-effort: failing to
+     * delete it must never break a password change. Note that
+     * {@link #upgradeStoredPassword} does NOT come through here -- hashing a
+     * legacy plaintext record changes the stored value without changing the
+     * password, so the published file is still correct.
+     */
+    private void discardInitialPassword(String reason) {
+        File file = new File(INITIAL_PASSWORD_FILE);
+
+        if (!file.exists()) {
+            return;
+        }
+
+        if (file.delete()) {
+            log.info("Removed " + INITIAL_PASSWORD_FILE + ": " + reason + ".");
+        } else {
+            log.warn("Could not remove " + INITIAL_PASSWORD_FILE + " after " + reason
+                    + "; it now holds a password that no longer works.");
         }
     }
 
